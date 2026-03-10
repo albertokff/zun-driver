@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img src="./src/assets/logo/zun-logo-z2.png" />
+    <img src="./src/assets/logo/zun-logo-z2.png" style="width: 30%;" />
 </h1>
 
 # App Zun Driver
