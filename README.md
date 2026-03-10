@@ -76,6 +76,18 @@ zun-driver
 │    │   ├── images
 │    │   └── logo
 │    │
+│    ├── components/
+│    │   ├── AppBackdrop.tsx
+│    │   ├── BackButton.tsx
+│    │   ├── ButtonPrimary.tsx
+│    │   └── ButtonSecondary.tsx
+│    │
+│    ├── constants/
+│    │   └── permissions.ts
+│    │
+│    ├── context/
+│    │   └── ThemeContext.tsx
+│    │
 │    ├── hooks/
 │    │   ├── useAuth.ts
 │    │   ├── useCardForm.ts
@@ -96,11 +108,14 @@ zun-driver
 │    │   └── RootNavigator.tsx
 │    │
 │    ├── screens/
-│    │   ├── Auth/
+│    │   └── Auth/
 │    │       ├── Register/
 │    │       │   ├── OtpScreen.tsx
 │    │       │   └── PhoneScreen.tsx
 │    │       │
+│    │       ├── PermissionBackdropScreen.tsx
+│    │       ├── PermissionsScreen.tsx
+│    │       ├── PrivacyPolicyScreen.tsx
 │    │       ├── SplashScreen.tsx
 │    │       ├── StartScreen.tsx
 │    │       └── VerifyCodeScreen.tsx
@@ -124,6 +139,7 @@ zun-driver
 ├── README.md
 ├── tsconfig.json
 ```
+Light / Dark
 
 ## COMANDOS GitHub
 main    -   Branch principal, código em produção
