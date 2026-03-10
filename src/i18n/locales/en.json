@@ -1,0 +1,86 @@
+{
+    "common": {
+        "back": "Back",
+        "save": "Save",
+        "loading": "Loading"
+    },
+    "drawer": {
+        "home": "Home",
+        "activity": "Activity",
+        "zunPay": "ZunPay",
+        "help": "Help",
+        "messages": "Messages",
+        "security": "Security",
+        "paymentMethods": "Payment Methods",
+        "settings": "Settings",
+        "inviteFriends": "Invite Friends",
+        "inviteDrivers": "Invite Drivers",
+        "beDriver": "Be a Driver",
+        "discounts": "Discounts",
+        "editProfile": "Edit my information",
+        "logout": "Logout"
+    },
+    "settings": {
+        "language": "Language",
+        "selectLanguage": "Select Language",
+        "portuguese": "Portuguese",
+        "english": "English"
+    },
+    "noauth": {
+        "btnstart": "Start",
+        "welcome": "Welcome to Zun",
+        "phonetocontinue": "Enter your phone number to continue",
+        "readandacceptterms": "I have read and accept the terms of use and privacy policy.",
+        "btncontinue": "Continue",
+        "logingoogle": "Or enter with",
+        "phonescreen": {
+            "method": "Method to receive the code of verify",
+            "sms": "by SMS",
+            "whatsapp": "by Whatsapp"
+        },
+        "otpscreen": {
+            "entercode": "Enter the code",
+            "sended": "We sent a code to the number",
+            "codelength": "-digit code to the number",
+            "resend": "Resend code",
+            "btnverify": "Verify",
+            "successverify": "Success!",
+            "numberverified": "Your number was verified.",
+            "errorverify": "Error",
+            "codeinvalid": "Code invalid. Try again.",
+            "coderesended": "Code resended",
+            "newcode": "A new code was resended to"
+        },
+        "namescreen": {
+            "whatsyourname": "What's your name?",
+            "useyourname": "User your real name to make it easier to recognize you.",
+            "name": "Name",
+            "last": "Last Name",
+            "btncontinue": "Continue"
+        },
+        "emailscreen": {
+            "whatsyouremail": "What's your email?",
+            "placeholder": "youremail@example.com",
+            "btnnext": "Next",
+            "btnskip": "Skip"
+        },
+        "completescreen": {
+            "enter": "Enter the code",
+            "sended": "Code of verify sended to e-mail",
+            "btnresend": "Resend",
+            "btnresendin": "Resend in",
+            "success": "Success!",
+            "verified": "E-mail verified",
+            "welcome": "Welcome",
+            "registration": "Registration complete!",
+            "start": "Start using"
+        }
+    },
+    "auth": {
+        "homescreen": {
+            "hi": "Hi",
+            "where": "Where are we going?",
+            "mapsdark": "Map in dark mode"
+        }
+    }
+}

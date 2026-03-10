@@ -1,0 +1,93 @@
+{
+    "common": {
+        "back": "Voltar",
+        "save": "Salvar",
+        "loading": "Carregando"
+    },
+    "drawer": {
+        "home": "Início",
+        "activity": "Atividade",
+        "zunPay": "ZunPay",
+        "help": "Ajuda",
+        "messages": "Mensagens",
+        "security": "Segurança",
+        "paymentMethods": "Métodos de Pagamento",
+        "settings": "Configurações",
+        "inviteFriends": "Convide Amigos",
+        "inviteDrivers": "Convide Motoristas",
+        "beDriver": "Seja Motorista",
+        "discounts": "Descontos",
+        "editProfile": "Editar minhas informações",
+        "logout": "Sair"
+    },
+    "settings": {
+        "language": "Idioma",
+        "selectLanguage": "Selecione o idioma",
+        "portuguese": "Português",
+        "english": "Inglês"
+    },
+    "noauth": {
+        "btnstart": "Começar",
+        "welcome": "Bem-vindo ao Zun",
+        "phonetocontinue": "Insira seu número de telefone para continuar",
+        "readandacceptterms": "Eu li e aceito os termos de uso e a política de privacidade.",
+        "btncontinue": "Continuar",
+        "logingoogle": "Ou entre com",
+        "phonescreen": {
+            "method": "Método para receber o código de verificação",
+            "sms": "por SMS",
+            "whatsapp": "pelo Whatsapp"
+        },
+        "otpscreen": {
+            "entercode": "Insira o código",
+            "sended": "Nós enviamos um código para o número",
+            "codelength": "to the number",
+            "resend": "Reenviar código",
+            "btnverify": "Verificar",
+            "successverify": "Sucesso!",
+            "numberverified": "Seu número foi verificado.",
+            "errorverify": "Erro",
+            "codeinvalid": "Código inválido. Tente novamente.",
+            "coderesended": "Código reenviado",
+            "newcode": "Um novo código foi reenviado para"
+        },
+        "namescreen": {
+            "whatsyourname": "Qual é seu nome?",
+            "useyourname": "Use seu nome real para facilitar a identificação.",
+            "name": "Nome",
+            "last": "Sobrenome",
+            "btncontinue": "Continuar"
+        },
+        "emailscreen": {
+            "whatsyouremail": "Qual é seu e-mail?",
+            "placeholder": "seuemail@exemplo.com",
+            "btnnext": "Próximo",
+            "btnskip": "Pular"
+        },
+        "completescreen": {
+            "enter": "Insira o código",
+            "sended": "Código de verificação enviado para o e-mail",
+            "btnresend": "Reenviar",
+            "btnresendin": "Reenviando em",
+            "success": "Sucesso!",
+            "verified": "E-mail verificado",
+            "welcome": "Bem-vindo (a)",
+            "registration": "Cadastro concluído!",
+            "start": "Começar a usar"
+        }
+    },
+    "auth": {
+        "homescreen": {
+            "hi": "Olá",
+            "where": "Para onde vamos?",
+            "mapsdark": "Mapa em modo escuro"
+        },
+        "paycontent": {
+            "balance": "Saldo em conta",
+            "add_money": "Adicionar",
+            "transfer": "Transferir",
+            "pay_bill": "Pagar conta",
+            "recharge": "Recarga"
+        }
+    }
+}
