@@ -113,6 +113,7 @@ zun-driver
 │    │   └── Auth/
 │    │       ├── Register/
 │    │       │   ├── OtpScreen.tsx
+│    │       │   ├── PasswordScreen.tsx
 │    │       │   └── PhoneScreen.tsx
 │    │       │
 │    │       ├── PermissionBackdropScreen.tsx
