@@ -82,7 +82,8 @@ zun-driver
 │    │   ├── AppBackdrop.tsx
 │    │   ├── BackButton.tsx
 │    │   ├── ButtonPrimary.tsx
-│    │   └── ButtonSecondary.tsx
+│    │   ├── ButtonSecondary.tsx
+│    │   └── ModalBackdrop.tsx
 │    │
 │    ├── constants/
 │    │   └── permissions.ts
@@ -92,6 +93,7 @@ zun-driver
 │    │
 │    ├── hooks/
 │    │   ├── useAuth.ts
+│    │   ├── useBatteryOptimization.ts
 │    │   ├── useCardForm.ts
 │    │   ├── usePhoneMask.ts
 │    │   └── useTrip.ts
@@ -116,23 +118,27 @@ zun-driver
 │    │       │   ├── PasswordScreen.tsx
 │    │       │   └── PhoneScreen.tsx
 │    │       │
+│    │       ├── BatteryPermissionScreen.tsx
 │    │       ├── PermissionBackdropScreen.tsx
 │    │       ├── PermissionsScreen.tsx
 │    │       ├── PrivacyPolicyScreen.tsx
 │    │       ├── SplashScreen.tsx
 │    │       ├── StartScreen.tsx
 │    │       └── VerifyCodeScreen.tsx
-│    │   
-│    │   
+│    │
+│    │
 │    ├── theme/
 │    │   ├── colors.ts
 │    │   ├── index.ts 
 │    │   ├── spacing.ts
 │    │   └── typography.ts
 │    │
+│    ├── type/
+│    │   └── react-native-battery-optimization-check.d.ts
+│    │
 │    ├── App.tsx
 │    └── index.ts
-│    
+│
 ├── .editorconfig
 ├── .gitignore
 ├── app.json
@@ -143,6 +149,7 @@ zun-driver
 ├── tsconfig.json
 ```
 Light / Dark
+
 
 ## COMANDOS GitHub
 main    -   Branch principal, código em produção
@@ -161,7 +168,7 @@ npm install
 ### Subir Projeto:
 git add .
 
-git commit -m 'DESCRIÇÃO' :construction: 
+git commit -m "DESCRIÇÃO :construction:" 
 
 git push origin develop
 
