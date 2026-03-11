@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -6,11 +6,13 @@ import {
     TextInput,
     TouchableOpacity,
 } from "react-native";
+
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
+import BackButton from "../../../components/BackButton";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Otp">;
 
@@ -19,16 +21,36 @@ export default function OtpScreen() {
     const { theme } = useTheme();
 
     const [code, setCode] = useState("");
+    const [timer, setTimer] = useState(60);
 
     const isDark = theme === "dark";
+
+    useEffect(() => {
+        if (timer === 0) return;
+
+        const interval = setInterval(() => {
+            setTimer((prev) => prev - 1);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [timer]);
 
     const handleConfirm = () => {
         // Aqui futuramente validará com backend
         navigation.navigate("Password");
     };
 
+    const handleResend = () => {
+        if (timer > 0) return;
+
+        // futuramente chamará API de envio SMS
+        setTimer(60);
+    };
+
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
+            <BackButton />
+
             <Text style={[styles.title, isDark && styles.titleDark]}>
                 Digite o código
             </Text>
@@ -58,11 +80,17 @@ export default function OtpScreen() {
                 <Text style={styles.buttonText}>Confirmar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity>
-                <Text style={[styles.resend, isDark && styles.resendDark]}>
-                    Reenviar código
+            {timer > 0 ? (
+                <Text style={[styles.timer, isDark && styles.timerDark]}>
+                    Reenviar código em {timer}s
                 </Text>
-            </TouchableOpacity>
+            ) : (
+                <TouchableOpacity onPress={handleResend}>
+                    <Text style={[styles.resend, isDark && styles.resendDark]}>
+                        Reenviar código
+                    </Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 }
@@ -130,6 +158,16 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         fontWeight: "600",
+    },
+
+    timer: {
+        marginTop: 20,
+        textAlign: "center",
+        color: "#666",
+    },
+
+    timerDark: {
+        color: "#aaa",
     },
 
     resend: {

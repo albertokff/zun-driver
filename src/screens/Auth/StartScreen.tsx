@@ -22,6 +22,8 @@ export default function StartScreen() {
         >
             <Image source={logo} style={styles.logo} resizeMode="contain" />
 
+            <Text style={styles.primaryTextOpac}>Z Motorista</Text>
+
             <View style={styles.buttonsContainer}>
                 <TouchableOpacity
                     style={styles.primaryButton}
@@ -32,7 +34,7 @@ export default function StartScreen() {
 
                 <TouchableOpacity
                     style={styles.secondaryButton}
-                    onPress={() => navigation.navigate("Phone")}
+                    onPress={() => navigation.navigate("PrivacyPolicy")}
                 >
                     <Text style={styles.secondaryText}>Criar minha conta</Text>
                 </TouchableOpacity>
@@ -75,6 +77,12 @@ const styles = StyleSheet.create({
 
     primaryText: {
         color: "#fff",
+        fontSize: 18,
+        fontWeight: "600",
+    },
+
+    primaryTextOpac: {
+        color: "#687076",
         fontSize: 18,
         fontWeight: "600",
     },
