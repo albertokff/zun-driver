@@ -11,41 +11,55 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
+import { Ionicons } from '@expo/vector-icons';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Otp">;
 
-export default function OtpScreen() {
+export default function PasswordScreen() {
     const navigation = useNavigation<NavigationProp>();
     const { theme } = useTheme();
 
     const [code, setCode] = useState("");
+    const [eyePassword, setEyePassword] = useState(false);
 
     const isDark = theme === "dark";
 
     const handleConfirm = () => {
         // Aqui futuramente validará com backend
-        navigation.navigate("Password");
+        navigation.navigate("Start");
     };
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
             <Text style={[styles.title, isDark && styles.titleDark]}>
-                Digite o código
+                Criar senha
             </Text>
 
             <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
-                Enviamos um código por SMS para confirmar seu telefone
+                Deve conter pelo menos dois dos seguintes itens: números, letras ou símbolos.
             </Text>
 
-            <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
-                keyboardType="number-pad"
-                maxLength={6}
-                placeholder="000000"
-                placeholderTextColor={isDark ? "#777" : "#999"}
-                value={code}
-                onChangeText={setCode}
-            />
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TextInput
+                    style={[styles.input, isDark && styles.inputDark]}
+                    secureTextEntry={!eyePassword}
+                    placeholder="************************"
+                    placeholderTextColor={isDark ? "#777" : "#999"}
+                    value={code}
+                    onChangeText={setCode}
+                />
+                <TouchableOpacity 
+                    style={{ marginLeft: 10 }}
+                    onPress={() => setEyePassword(!eyePassword)}
+                >
+                    <Ionicons 
+                    name={eyePassword ? "eye-off-outline" : "eye-outline"} 
+                    size={24} 
+                    color={isDark ? "#BBB" : "#666"} 
+                    />
+                </TouchableOpacity>
+
+            </View>
 
             <TouchableOpacity
                 style={[
@@ -56,12 +70,6 @@ export default function OtpScreen() {
                 onPress={handleConfirm}
             >
                 <Text style={styles.buttonText}>Confirmar</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity>
-                <Text style={[styles.resend, isDark && styles.resendDark]}>
-                    Reenviar código
-                </Text>
             </TouchableOpacity>
         </View>
     );
@@ -100,24 +108,6 @@ const styles = StyleSheet.create({
         color: "#aaa",
     },
 
-    input: {
-        borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 10,
-        padding: 15,
-        fontSize: 22,
-        textAlign: "center",
-        letterSpacing: 10,
-        color: "#000",
-        backgroundColor: "#fff",
-    },
-
-    inputDark: {
-        borderColor: "#333",
-        color: "#fff",
-        backgroundColor: "#1E1E1E",
-    },
-
     button: {
         marginTop: 30,
         backgroundColor: "#1E6BE3",
@@ -142,4 +132,34 @@ const styles = StyleSheet.create({
     resendDark: {
         color: "#4C8DFF",
     },
+
+    containerInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    position: 'relative', // Necessário para o ícone flutuar
+  },
+  input: {
+    flex: 1,
+    height: 55,
+    backgroundColor: '#F3F3F3',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingRight: 50, // Espaço extra na direita para o ícone
+    fontSize: 18,
+    color: '#000',
+  },
+  inputDark: {
+    backgroundColor: '#222',
+    color: '#FFF',
+    borderColor: '#444',
+    borderWidth: 1,
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 15, // Distância da borda direita
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
