@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
@@ -6,68 +6,60 @@ import {
     TextInput,
     TouchableOpacity,
 } from "react-native";
-
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
-import BackButton from "../../../components/BackButton";
+import { Ionicons } from '@expo/vector-icons';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Otp">;
 
-export default function OtpScreen() {
+export default function PasswordScreen() {
     const navigation = useNavigation<NavigationProp>();
     const { theme } = useTheme();
 
     const [code, setCode] = useState("");
-    const [timer, setTimer] = useState(60);
+    const [eyePassword, setEyePassword] = useState(false);
 
     const isDark = theme === "dark";
 
-    useEffect(() => {
-        if (timer === 0) return;
-
-        const interval = setInterval(() => {
-            setTimer((prev) => prev - 1);
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [timer]);
-
     const handleConfirm = () => {
         // Aqui futuramente validará com backend
-        navigation.navigate("Password");
-    };
-
-    const handleResend = () => {
-        if (timer > 0) return;
-
-        // futuramente chamará API de envio SMS
-        setTimer(60);
+        navigation.navigate("Start");
     };
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
-            <BackButton />
-
             <Text style={[styles.title, isDark && styles.titleDark]}>
-                Digite o código
+                Criar senha
             </Text>
 
             <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
-                Enviamos um código por SMS para confirmar seu telefone
+                Deve conter pelo menos dois dos seguintes itens: números, letras ou símbolos.
             </Text>
 
-            <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
-                keyboardType="number-pad"
-                maxLength={6}
-                placeholder="000000"
-                placeholderTextColor={isDark ? "#777" : "#999"}
-                value={code}
-                onChangeText={setCode}
-            />
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <TextInput
+                    style={[styles.input, isDark && styles.inputDark]}
+                    secureTextEntry={!eyePassword}
+                    placeholder="************************"
+                    placeholderTextColor={isDark ? "#777" : "#999"}
+                    value={code}
+                    onChangeText={setCode}
+                />
+                <TouchableOpacity 
+                    style={{ marginLeft: 10 }}
+                    onPress={() => setEyePassword(!eyePassword)}
+                >
+                    <Ionicons 
+                    name={eyePassword ? "eye-off-outline" : "eye-outline"} 
+                    size={24} 
+                    color={isDark ? "#BBB" : "#666"} 
+                    />
+                </TouchableOpacity>
+
+            </View>
 
             <TouchableOpacity
                 style={[
@@ -79,18 +71,6 @@ export default function OtpScreen() {
             >
                 <Text style={styles.buttonText}>Confirmar</Text>
             </TouchableOpacity>
-
-            {timer > 0 ? (
-                <Text style={[styles.timer, isDark && styles.timerDark]}>
-                    Reenviar código em {timer}s
-                </Text>
-            ) : (
-                <TouchableOpacity onPress={handleResend}>
-                    <Text style={[styles.resend, isDark && styles.resendDark]}>
-                        Reenviar código
-                    </Text>
-                </TouchableOpacity>
-            )}
         </View>
     );
 }
@@ -128,24 +108,6 @@ const styles = StyleSheet.create({
         color: "#aaa",
     },
 
-    input: {
-        borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 10,
-        padding: 15,
-        fontSize: 22,
-        textAlign: "center",
-        letterSpacing: 10,
-        color: "#000",
-        backgroundColor: "#fff",
-    },
-
-    inputDark: {
-        borderColor: "#333",
-        color: "#fff",
-        backgroundColor: "#1E1E1E",
-    },
-
     button: {
         marginTop: 30,
         backgroundColor: "#1E6BE3",
@@ -160,16 +122,6 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
 
-    timer: {
-        marginTop: 20,
-        textAlign: "center",
-        color: "#666",
-    },
-
-    timerDark: {
-        color: "#aaa",
-    },
-
     resend: {
         marginTop: 20,
         textAlign: "center",
@@ -180,4 +132,34 @@ const styles = StyleSheet.create({
     resendDark: {
         color: "#4C8DFF",
     },
+
+    containerInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    position: 'relative', // Necessário para o ícone flutuar
+  },
+  input: {
+    flex: 1,
+    height: 55,
+    backgroundColor: '#F3F3F3',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingRight: 50, // Espaço extra na direita para o ícone
+    fontSize: 18,
+    color: '#000',
+  },
+  inputDark: {
+    backgroundColor: '#222',
+    color: '#FFF',
+    borderColor: '#444',
+    borderWidth: 1,
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 15, // Distância da borda direita
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

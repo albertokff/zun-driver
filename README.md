@@ -28,9 +28,11 @@ Node 20 = ainda gera edge cases
 
 2. Start the app
 
-   ```bash
-   npx expo start
-   ```
+   `npx expo start`
+
+   `npx expo start -c`
+
+   `npx expo start --clear`
 
 In the output, you'll find options to open the app in a
 
@@ -76,6 +78,18 @@ zun-driver
 │    │   ├── images
 │    │   └── logo
 │    │
+│    ├── components/
+│    │   ├── AppBackdrop.tsx
+│    │   ├── BackButton.tsx
+│    │   ├── ButtonPrimary.tsx
+│    │   └── ButtonSecondary.tsx
+│    │
+│    ├── constants/
+│    │   └── permissions.ts
+│    │
+│    ├── context/
+│    │   └── ThemeContext.tsx
+│    │
 │    ├── hooks/
 │    │   ├── useAuth.ts
 │    │   ├── useCardForm.ts
@@ -96,11 +110,15 @@ zun-driver
 │    │   └── RootNavigator.tsx
 │    │
 │    ├── screens/
-│    │   ├── Auth/
+│    │   └── Auth/
 │    │       ├── Register/
 │    │       │   ├── OtpScreen.tsx
+│    │       │   ├── PasswordScreen.tsx
 │    │       │   └── PhoneScreen.tsx
 │    │       │
+│    │       ├── PermissionBackdropScreen.tsx
+│    │       ├── PermissionsScreen.tsx
+│    │       ├── PrivacyPolicyScreen.tsx
 │    │       ├── SplashScreen.tsx
 │    │       ├── StartScreen.tsx
 │    │       └── VerifyCodeScreen.tsx
@@ -124,6 +142,7 @@ zun-driver
 ├── README.md
 ├── tsconfig.json
 ```
+Light / Dark
 
 ## COMANDOS GitHub
 main    -   Branch principal, código em produção
@@ -135,7 +154,7 @@ git pull origin develop
 
 git checkout develop   --> Troca de branch
 
-git merge develop
+git merge origin/develop
 
 npm install
 
@@ -145,3 +164,27 @@ git add .
 git commit -m 'DESCRIÇÃO' :construction: 
 
 git push origin develop
+
+## Conflitos no Pull
+`Accept Current Change` (Aceitar Mudança Atual):
+
+O que faz: Mantém o seu código e descarta a mudança que veio do pull.
+Resultado: Seu código final será navigation.navigate("Start");.
+
+`Accept Incoming` (Aceitar Mudança Recebida):
+
+O que faz: Descarta a sua mudança e aplica a que veio do pull.
+Resultado: Seu código final será navigation.navigate("Password");.
+
+`Accept Both Changes` (Aceitar Ambas as Mudanças):
+
+O que faz: Coloca um código depois do outro.
+Resultado: Seu código ficaria com as duas linhas, algo como:
+navigation.navigate("Start");
+navigation.navigate("Password");
+
+Cuidado: Para este seu caso, esta opção provavelmente está errada, pois o aplicativo tentaria navegar para duas telas ao mesmo tempo, o que causaria um comportamento inesperado ou um bug.
+
+`Compare Changes` (Comparar Mudanças):
+
+O que faz: Abre uma tela de comparação lado a lado para você analisar as diferenças com mais detalhes. É útil para entender o conflito, mas não o resolve.

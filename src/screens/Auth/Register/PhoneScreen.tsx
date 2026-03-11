@@ -13,6 +13,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { usePhoneMask } from "../../../hooks/usePhoneMask";
 import { useTheme } from "../../../context/ThemeContext";
+import BackButton from "../../../components/BackButton";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Phone">;
 
@@ -34,6 +35,9 @@ export default function PhoneScreen() {
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
+            {/* BOTÃO VOLTAR */}
+            <BackButton />
+
             <Text style={[styles.title, isDark && styles.titleDark]}>
                 Digite seu telefone
             </Text>
@@ -69,6 +73,21 @@ const styles = StyleSheet.create({
 
     containerDark: {
         backgroundColor: "#0B0B0B",
+    },
+
+    backButton: {
+        position: "absolute",
+        top: 60,
+        left: 25,
+    },
+
+    backText: {
+        fontSize: 28,
+        color: "#000",
+    },
+
+    backTextDark: {
+        color: "#fff",
     },
 
     title: {
