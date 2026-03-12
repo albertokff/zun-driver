@@ -96,6 +96,7 @@ zun-driver
 │    │   ├── useBatteryOptimization.ts
 │    │   ├── useCardForm.ts
 │    │   ├── usePhoneMask.ts
+│    │   ├── useSystemPermissions.ts
 │    │   └── useTrip.ts
 │    │
 │    ├── i18n/
@@ -114,6 +115,10 @@ zun-driver
 │    ├── screens/
 │    │   └── Auth/
 │    │       ├── Register/
+│    │       │   ├── ConfirmInfoScreen.tsx
+│    │       │   ├── DocumentationScreen.tsx
+│    │       │   ├── DriverCategoryScreen.tsx
+│    │       │   ├── DriverInfoScreen.tsx
 │    │       │   ├── OtpScreen.tsx
 │    │       │   ├── PasswordScreen.tsx
 │    │       │   └── PhoneScreen.tsx
