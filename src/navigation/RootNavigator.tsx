@@ -8,15 +8,17 @@ import PhoneScreen from "../screens/Auth/Register/PhoneScreen";
 import OtpScreen from "../screens/Auth/Register/OtpScreen";
 import PrivacyPolicyScreen from "../screens/Auth/PrivacyPolicyScreen";
 import PermissionsScreen from "../screens/Auth/PermissionsScreen";
-import PasswordScreen from "@/screens/Auth/Register/PasswordScreen";
-import { BatteryPermissionScreen } from "@/screens/Auth/BatteryPermissionScreen";
-import PermissionBackdropScreen from "@/screens/Auth/PermissionBackdropScreen";
+import PasswordScreen from "../screens/Auth/Register/PasswordScreen";
+// ✅ Correção: named import para BatteryPermissionScreen
+import { BatteryPermissionScreen } from "../screens/Auth/BatteryPermissionScreen";
+import PermissionBackdropScreen from "../screens/Auth/PermissionBackdropScreen";
 
-// Telas novas que criamos
-import DriverCategoryScreen from "@/screens/Auth/Register/DriverCategoryScreen";
-import DriverInfoScreen from "@/screens/Auth/Register/DriverInfoScreen";
-import ConfirmInfoScreen from "@/screens/Auth/Register/ConfirmInfoScreen";
-import DocumentationScreen from "@/screens/Auth/Register/DocumentationScreen";
+// Telas novas do fluxo de cadastro
+import DriverCategoryScreen from "../screens/Auth/Register/DriverCategoryScreen";
+import DriverInfoScreen from "../screens/Auth/Register/DriverInfoScreen";
+import ConfirmInfoScreen from "../screens/Auth/Register/ConfirmInfoScreen";
+import DocumentationScreen from "../screens/Auth/Register/DocumentationScreen";
+import UploadDocumentScreen from "../screens/Auth/Register/UploadDocumentScreen";
 
 // Tipagem correta e completa do Stack Navigator
 export type RootStackParamList = {
@@ -29,7 +31,7 @@ export type RootStackParamList = {
     PrivacyPolicy: undefined;
     Permissions: undefined;
 
-    // Novas telas do fluxo de cadastro
+    // Novas telas do fluxo de cadastro do motorista
     DriverCategory: undefined;
     DriverInfo: undefined;
     ConfirmInfo: {
@@ -40,6 +42,10 @@ export type RootStackParamList = {
         city: string;
     };
     Documentation: undefined;
+    UploadDocument: {
+        documentId: string;
+        documentTitle: string;
+    };
 
     // Telas Modais
     BatteryPermission: { nextScreen: keyof RootStackParamList };
@@ -82,6 +88,10 @@ export default function RootNavigator() {
                 <Stack.Screen
                     name="Documentation"
                     component={DocumentationScreen}
+                />
+                <Stack.Screen
+                    name="UploadDocument"
+                    component={UploadDocumentScreen}
                 />
             </Stack.Group>
 

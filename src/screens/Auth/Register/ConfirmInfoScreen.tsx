@@ -4,20 +4,20 @@ TELA DE CONFIRMAÇÃO DE INFORMAÇÕES
 Mostra os dados preenchidos e um modal para confirmar ou corrigir.
 ========================================================
 */
-import React from "react";
+import React, { useState } from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Modal,
     ScrollView,
+    Platform,
+    Modal,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
-import BackButton from "../../../components/BackButton";
 
 // Tipagem
 type NavigationProp = NativeStackNavigationProp<
@@ -35,12 +35,21 @@ export default function ConfirmInfoScreen() {
     // Recebe os dados da tela anterior
     const { firstName, cpf, gender, state, city } = route.params;
 
+    // ✅ Estado para controlar o modal
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
     const handleCorrect = () => {
+        setIsModalVisible(false); // Fecha o modal
         navigation.goBack(); // Volta para a tela de edição
     };
 
     const handleAdvance = () => {
+        setIsModalVisible(false); // Fecha o modal
         navigation.navigate("Documentation"); // Avança para a tela de documentos
+    };
+
+    const showConfirmationModal = () => {
+        setIsModalVisible(true); // Mostra o modal
     };
 
     // Componente para exibir cada item de informação
@@ -57,17 +66,24 @@ export default function ConfirmInfoScreen() {
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
-            <BackButton />
             <ScrollView>
                 {/* BANNER */}
                 <View style={styles.banner}>
+                    {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={styles.backButtonText}>‹</Text>
+                    </TouchableOpacity>
+
                     <Text style={styles.bannerTitle}>
                         Vem pra Zun e aproveite várias formas de ganhar
                         dinheiro!
                     </Text>
                 </View>
 
-                {/* DADOS PREENCHIDOS (FUNDO) */}
+                {/* DADOS PREENCHIDOS */}
                 <View style={styles.infoContainer}>
                     <InfoItem label="Primeiro nome" value={firstName} />
                     <InfoItem label="CPF" value={cpf} />
@@ -77,11 +93,21 @@ export default function ConfirmInfoScreen() {
                 </View>
             </ScrollView>
 
-            {/* MODAL DE CONFIRMAÇÃO */}
+            {/* BOTÃO INFERIOR - Ao clicar, mostra o modal de confirmação */}
+            <View style={[styles.footer, isDark && styles.footerDark]}>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={showConfirmationModal} // ✅ Mostra o modal ao clicar
+                >
+                    <Text style={styles.buttonText}>Avançar</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* MODAL DE CONFIRMAÇÃO - Só aparece quando isModalVisible = true */}
             <Modal
                 transparent={true}
                 animationType="fade"
-                visible={true} // Sempre visível nesta tela
+                visible={isModalVisible} // ✅ Controlado pelo estado
             >
                 <View style={styles.modalOverlay}>
                     <View
@@ -144,9 +170,40 @@ export default function ConfirmInfoScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#FFF" },
     containerDark: { backgroundColor: "#0B0B0B" },
-    banner: { backgroundColor: "#1E6BE3", padding: 20, marginBottom: 20 },
-    bannerTitle: { fontSize: 18, fontWeight: "bold", color: "#FFF" },
-    infoContainer: { paddingHorizontal: 20, opacity: 0.3 }, // Opacidade para simular fundo
+
+    // Banner com posição relativa para conter o botão absoluto
+    banner: {
+        backgroundColor: "#1E6BE3",
+        padding: 20,
+        marginBottom: 20,
+        position: "relative", // Necessário para posicionar o botão absolutamente
+        paddingTop: Platform.OS === "ios" ? 65 : 45, // Espaço para status bar
+    },
+    // Botão de voltar posicionado no canto superior esquerdo do banner
+    backButton: {
+        position: "absolute",
+        top: Platform.OS === "ios" ? 15 : 10, // Ajuste fino para ficar acima do texto
+        left: 10,
+        width: 40,
+        height: 40,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 10,
+    },
+    backButtonText: {
+        fontSize: 36,
+        color: "#FFF",
+        fontWeight: "300",
+        marginTop: -5, // Ajuste fino para centralizar verticalmente
+    },
+    bannerTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#FFF",
+        marginTop: Platform.OS === "ios" ? 35 : 30, // Espaço para não ficar embaixo do botão
+    },
+
+    infoContainer: { paddingHorizontal: 20 },
     infoItem: {
         paddingVertical: 20,
         borderBottomWidth: 1,
@@ -156,6 +213,31 @@ const styles = StyleSheet.create({
     infoLabelDark: { color: "#777" },
     infoValue: { color: "#222", fontSize: 16, marginTop: 4 },
     infoValueDark: { color: "#FFF" },
+
+    // Rodapé com botão
+    footer: {
+        padding: 20,
+        paddingBottom: 30,
+        backgroundColor: "#FFF",
+        borderTopWidth: 1,
+        borderTopColor: "#EEE",
+    },
+    footerDark: {
+        backgroundColor: "#1C1C1E",
+        borderTopColor: "#2C2C2E",
+    },
+    button: {
+        backgroundColor: "#1E6BE3",
+        padding: 18,
+        borderRadius: 40,
+        alignItems: "center",
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "600",
+    },
+
     // Estilos do Modal
     modalOverlay: {
         flex: 1,
@@ -199,5 +281,5 @@ const styles = StyleSheet.create({
     modalButtonText: { fontSize: 16, fontWeight: "bold" },
     correctButtonText: { color: "#333" },
     correctButtonTextDark: { color: "#FFF" },
-    advanceButtonText: { color: "#333" },
+    advanceButtonText: { color: "#FFF" },
 });

@@ -11,13 +11,13 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
+    Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import BackButton from "../../../components/BackButton";
 
 // Tipagem
 type NavigationProp = NativeStackNavigationProp<
@@ -112,10 +112,17 @@ export default function DriverCategoryScreen() {
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
-            <BackButton />
             <ScrollView>
                 {/* BANNER SUPERIOR */}
                 <View style={styles.banner}>
+                    {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={styles.backButtonText}>‹</Text>
+                    </TouchableOpacity>
+
                     <View style={styles.bannerTextContainer}>
                         <Text style={styles.bannerTitle}>
                             Zun é segurança em todas as categorias
@@ -200,18 +207,43 @@ export default function DriverCategoryScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#F8F9FA" },
     containerDark: { backgroundColor: "#000" },
+
+    // Banner com posição relativa para conter o botão absoluto
     banner: {
         backgroundColor: "#1E6BE3",
         padding: 20,
-        paddingTop: 30,
+        paddingTop: Platform.OS === "ios" ? 65 : 45, // Espaço para status bar + botão
         paddingBottom: 30,
         flexDirection: "row",
         alignItems: "center",
+        position: "relative", // Necessário para posicionar o botão absolutamente
     },
-    bannerTextContainer: { flex: 1, marginRight: 10 },
+    // Botão de voltar posicionado no canto superior esquerdo do banner
+    backButton: {
+        position: "absolute",
+        top: Platform.OS === "ios" ? 15 : 10, // Ajuste fino para ficar acima do texto
+        left: 10,
+        width: 40,
+        height: 40,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 10,
+    },
+    backButtonText: {
+        fontSize: 36,
+        color: "#FFF",
+        fontWeight: "300",
+        marginTop: -5, // Ajuste fino para centralizar verticalmente
+    },
+    bannerTextContainer: {
+        flex: 1,
+        marginRight: 10,
+        marginTop: Platform.OS === "ios" ? 35 : 30, // Espaço para não ficar embaixo do botão
+    },
     bannerTitle: { fontSize: 18, fontWeight: "bold", color: "#FFF" },
     bannerSubtitle: { fontSize: 13, color: "#555", marginTop: 5 },
     bannerIcon: { opacity: 0.8 },
+
     listContainer: { padding: 20 },
     categoryItem: {
         backgroundColor: "#FFF",

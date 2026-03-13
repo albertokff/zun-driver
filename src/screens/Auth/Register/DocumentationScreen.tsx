@@ -12,10 +12,19 @@ import {
     TouchableOpacity,
     ScrollView,
     Alert,
+    Platform,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
-import BackButton from "../../../components/BackButton";
 import { Ionicons } from "@expo/vector-icons";
+
+// Tipagem para a navegação
+type NavigationProp = NativeStackNavigationProp<
+    RootStackParamList,
+    "Documentation"
+>;
 
 // Itens de documentação
 const DOCUMENTS = [
@@ -25,18 +34,24 @@ const DOCUMENTS = [
 ];
 
 export default function DocumentationScreen() {
+    // Hook de navegação com tipagem
+    const navigation = useNavigation<NavigationProp>();
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    const handleUpload = (docTitle: string) => {
-        Alert.alert("Upload", `Iniciar fluxo de upload para: ${docTitle}`);
+    const handleUpload = (docTitle: string, docId: string) => {
+        // Navega para a tela de upload do documento específico
+        navigation.navigate("UploadDocument", {
+            documentId: docId,
+            documentTitle: docTitle,
+        });
     };
 
     // Componente para cada item da lista de documentos
     const DocumentItem = ({ item }: { item: (typeof DOCUMENTS)[0] }) => (
         <TouchableOpacity
             style={[styles.docItem, isDark && styles.docItemDark]}
-            onPress={() => handleUpload(item.title)}
+            onPress={() => handleUpload(item.title, item.id)}
         >
             <Ionicons
                 name="document-text-outline"
@@ -62,10 +77,17 @@ export default function DocumentationScreen() {
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
-            <BackButton />
             <ScrollView>
                 {/* BANNER SUPERIOR */}
                 <View style={styles.banner}>
+                    {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={styles.backButtonText}>‹</Text>
+                    </TouchableOpacity>
+
                     <Text style={styles.bannerTitle}>
                         Vem pra Zun e aproveite várias formas de ganhar
                         dinheiro!
@@ -142,8 +164,38 @@ export default function DocumentationScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#F8F9FA" },
     containerDark: { backgroundColor: "#000" },
-    banner: { backgroundColor: "#1E6BE3", padding: 20 },
-    bannerTitle: { fontSize: 18, fontWeight: "bold", color: "#FFF" },
+
+    // Banner com posição relativa para conter o botão absoluto
+    banner: {
+        backgroundColor: "#1E6BE3",
+        padding: 20,
+        position: "relative", // Necessário para posicionar o botão absolutamente
+        paddingTop: Platform.OS === "ios" ? 65 : 45, // Espaço para status bar + botão
+    },
+    // Botão de voltar posicionado no canto superior esquerdo do banner
+    backButton: {
+        position: "absolute",
+        top: Platform.OS === "ios" ? 15 : 10, // Ajuste fino para ficar acima do texto
+        left: 10,
+        width: 40,
+        height: 40,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 10,
+    },
+    backButtonText: {
+        fontSize: 36,
+        color: "#FFF",
+        fontWeight: "300",
+        marginTop: -5, // Ajuste fino para centralizar verticalmente
+    },
+    bannerTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#FFF",
+        marginTop: Platform.OS === "ios" ? 35 : 30, // Espaço para não ficar embaixo do botão
+    },
+
     header: {
         flexDirection: "row",
         justifyContent: "space-between",

@@ -121,7 +121,8 @@ zun-driver
 │    │       │   ├── DriverInfoScreen.tsx
 │    │       │   ├── OtpScreen.tsx
 │    │       │   ├── PasswordScreen.tsx
-│    │       │   └── PhoneScreen.tsx
+│    │       │   ├── PhoneScreen.tsx
+│    │       │   └── UploadDocumentScreen.tsx
 │    │       │
 │    │       ├── BatteryPermissionScreen.tsx
 │    │       ├── PermissionBackdropScreen.tsx
