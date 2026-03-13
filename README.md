@@ -68,7 +68,7 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
 
-Estrutura de Pasta (Profissional e Escalável) 
+Estrutura de Pasta e Arquivos (Profissional e Escalável) 
 ```bash
 zun-driver
 ├── .vscode
@@ -83,6 +83,10 @@ zun-driver
 │    │   ├── BackButton.tsx
 │    │   ├── ButtonPrimary.tsx
 │    │   ├── ButtonSecondary.tsx
+│    │   ├── CityPicker.tsx
+│    │   ├── CollapsiblePicker.tsx
+│    │   ├── FormTextInput.tsx
+│    │   ├── ImagePickerModal.tsx
 │    │   └── ModalBackdrop.tsx
 │    │
 │    ├── constants/
@@ -94,6 +98,7 @@ zun-driver
 │    ├── hooks/
 │    │   ├── useAuth.ts
 │    │   ├── useBatteryOptimization.ts
+│    │   ├── useBrazilianCities.ts
 │    │   ├── useCardForm.ts
 │    │   ├── usePhoneMask.ts
 │    │   ├── useSystemPermissions.ts
@@ -117,12 +122,15 @@ zun-driver
 │    │       ├── Register/
 │    │       │   ├── ConfirmInfoScreen.tsx
 │    │       │   ├── DocumentationScreen.tsx
+│    │       │   ├── DocumentGuidelinesScreen.tsx
+│    │       │   ├── DocumentRequirementsScreen.tsx
 │    │       │   ├── DriverCategoryScreen.tsx
 │    │       │   ├── DriverInfoScreen.tsx
 │    │       │   ├── OtpScreen.tsx
 │    │       │   ├── PasswordScreen.tsx
 │    │       │   ├── PhoneScreen.tsx
-│    │       │   └── UploadDocumentScreen.tsx
+│    │       │   ├── UploadDocumentScreen.tsx
+│    │       │   └── VehicleDocumentInfoScreen.tsx
 │    │       │
 │    │       ├── BatteryPermissionScreen.tsx
 │    │       ├── PermissionBackdropScreen.tsx

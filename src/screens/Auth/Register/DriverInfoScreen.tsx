@@ -10,24 +10,19 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    TextInput,
     Alert,
-    LayoutAnimation,
     Platform,
-    UIManager,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 
-// Habilita a animação de layout no Android para o efeito "acordeão"
-if (
-    Platform.OS === "android" &&
-    UIManager.setLayoutAnimationEnabledExperimental
-) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+// Hooks e componentes personalizados
+import { useBrazilianCities } from "../../../hooks/useBrazilianCities";
+import FormTextInput from "../../../components/FormTextInput"; // ← Crie este componente simples
+import CollapsiblePicker from "../../../components/CollapsiblePicker"; // ← Crie este componente
+import CityPicker from "../../../components/CityPicker";
 
 // Tipagem para a navegação
 type NavigationProp = NativeStackNavigationProp<
@@ -35,179 +30,35 @@ type NavigationProp = NativeStackNavigationProp<
     "DriverInfo"
 >;
 
-// Componente para campos de texto padrão (Nome, CPF, Cidade)
-const FormTextInput = ({
-    label,
-    value,
-    onChangeText,
-    isDark,
-    ...props
-}: any) => (
-    <View style={styles.inputContainer}>
-        {value ? (
-            <Text style={[styles.label, isDark && styles.labelDark]}>
-                {label}
-            </Text>
-        ) : null}
-        <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            value={value}
-            onChangeText={onChangeText}
-            placeholder={label}
-            placeholderTextColor={isDark ? "#555" : "#AAA"}
-            {...props}
-        />
-    </View>
-);
-
-// Componente de seleção no estilo Acordeão/Collapsible (para Gênero e Estado)
-const CollapsiblePicker = ({
-    label,
-    options,
-    selectedValue,
-    onSelect,
-    isDark,
-}: {
-    label: string;
-    options: string[];
-    selectedValue: string;
-    onSelect: (value: string) => void;
-    isDark: boolean;
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    const toggleOpen = () => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setIsOpen(!isOpen);
-    };
-
-    const handleSelect = (option: string) => {
-        onSelect(option);
-        toggleOpen();
-    };
-
-    return (
-        <View style={styles.inputContainer}>
-            <TouchableOpacity
-                onPress={toggleOpen}
-                style={[
-                    styles.input,
-                    isDark && styles.inputDark,
-                    styles.touchableInput,
-                ]}
-            >
-                {selectedValue ? (
-                    <Text style={[styles.label, isDark && styles.labelDark]}>
-                        {label}
-                    </Text>
-                ) : null}
-                <Text
-                    style={[
-                        styles.touchableInputText,
-                        isDark && styles.touchableInputTextDark,
-                        !selectedValue && styles.placeholderText,
-                        !selectedValue && isDark && styles.placeholderTextDark,
-                    ]}
-                >
-                    {selectedValue || label}
-                </Text>
-                <View
-                    style={{
-                        transform: [{ rotate: isOpen ? "90deg" : "0deg" }],
-                    }}
-                >
-                    <Text style={[styles.arrow, isDark && styles.arrowDark]}>
-                        ›
-                    </Text>
-                </View>
-            </TouchableOpacity>
-
-            {isOpen && (
-                <View
-                    style={[
-                        styles.optionsContainer,
-                        isDark && styles.optionsContainerDark,
-                    ]}
-                >
-                    <ScrollView
-                        nestedScrollEnabled={true}
-                        style={{ maxHeight: 200 }}
-                    >
-                        {options.map((option) => (
-                            <TouchableOpacity
-                                key={option}
-                                onPress={() => handleSelect(option)}
-                                style={styles.optionItem}
-                            >
-                                <Text
-                                    style={[
-                                        styles.optionText,
-                                        isDark && styles.optionTextDark,
-                                    ]}
-                                >
-                                    {option}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
-            )}
-        </View>
-    );
-};
-
-// Dados para os seletores
-const genderOptions = ["Masculino", "Feminino", "Outro"];
-const brazilianStates = [
-    "Acre",
-    "Alagoas",
-    "Amapá",
-    "Amazonas",
-    "Bahia",
-    "Ceará",
-    "Distrito Federal",
-    "Espírito Santo",
-    "Goiás",
-    "Maranhão",
-    "Mato Grosso",
-    "Mato Grosso do Sul",
-    "Minas Gerais",
-    "Pará",
-    "Paraíba",
-    "Paraná",
-    "Pernambuco",
-    "Piauí",
-    "Rio de Janeiro",
-    "Rio Grande do Norte",
-    "Rio Grande do Sul",
-    "Rondônia",
-    "Roraima",
-    "Santa Catarina",
-    "São Paulo",
-    "Sergipe",
-    "Tocantins",
-];
-
 export default function DriverInfoScreen() {
     const navigation = useNavigation<NavigationProp>();
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
+    // Hook para gerenciar estados e cidades
+    const {
+        states,
+        cities,
+        selectedState,
+        selectedCity,
+        setSelectedState,
+        setSelectedCity,
+    } = useBrazilianCities();
+
     const [firstName, setFirstName] = useState("");
     const [cpf, setCpf] = useState("");
     const [gender, setGender] = useState("");
-    const [state, setState] = useState("");
-    const [city, setCity] = useState("");
 
+    // Validação do formulário
     const isFormValid = useMemo(() => {
         return (
             firstName.length > 2 &&
             cpf.length === 14 &&
             gender &&
-            state &&
-            city.length > 1
+            selectedState &&
+            selectedCity
         );
-    }, [firstName, cpf, gender, state, city]);
+    }, [firstName, cpf, gender, selectedState, selectedCity]);
 
     const formatCpf = (value: string) => {
         return value
@@ -229,8 +80,8 @@ export default function DriverInfoScreen() {
             firstName,
             cpf,
             gender,
-            state,
-            city,
+            state: selectedState!,
+            city: selectedCity!,
         });
     };
 
@@ -278,7 +129,7 @@ export default function DriverInfoScreen() {
                     />
                     <CollapsiblePicker
                         label="Gênero"
-                        options={genderOptions}
+                        options={["Masculino", "Feminino", "Outro"]}
                         selectedValue={gender}
                         onSelect={setGender}
                         isDark={isDark}
@@ -290,16 +141,22 @@ export default function DriverInfoScreen() {
                     </Text>
                     <CollapsiblePicker
                         label="Estado"
-                        options={brazilianStates}
-                        selectedValue={state}
-                        onSelect={setState}
+                        options={states}
+                        selectedValue={selectedState}
+                        onSelect={setSelectedState}
                         isDark={isDark}
                     />
-                    <FormTextInput
+                    <CityPicker
                         label="Cidade"
-                        value={city}
-                        onChangeText={setCity}
+                        cities={cities}
+                        selectedCity={selectedCity}
+                        onSelect={setSelectedCity}
                         isDark={isDark}
+                        placeholder={
+                            selectedState
+                                ? "Selecione uma cidade"
+                                : "Selecione um estado primeiro"
+                        }
                     />
                 </View>
             </ScrollView>
@@ -324,29 +181,27 @@ export default function DriverInfoScreen() {
 const styles = StyleSheet.create({
     // --- Estilos Gerais da Tela ---
     container: {
-        flex: 1, // Ocupa toda a tela
-        backgroundColor: "#F4F4F4", // Cor de fundo padrão (claro)
+        flex: 1,
+        backgroundColor: "#F4F4F4",
     },
     containerDark: {
-        backgroundColor: "#0B0B0B", // Cor de fundo para o tema escuro
+        backgroundColor: "#0B0B0B",
     },
     scrollContainer: {
-        paddingBottom: 120, // Espaço no final da rolagem para não cobrir o último campo com o botão
+        paddingBottom: 120,
     },
 
     // --- Estilos do Banner Superior ---
     banner: {
-        backgroundColor: "#1E6BE3", // Cor de fundo azul do banner
-        paddingHorizontal: 20, // Espaçamento nas laterais
+        backgroundColor: "#1E6BE3",
+        paddingHorizontal: 20,
         paddingBottom: 20,
-        // Ajuste o padding top para dar espaço para o botão de voltar
         paddingTop: Platform.OS === "ios" ? 65 : 45,
-        position: "relative", // Necessário para posicionar o botão absolutamente dentro dele
+        position: "relative",
     },
-    // Botão de voltar posicionado no canto superior esquerdo do banner
     backButton: {
         position: "absolute",
-        top: Platform.OS === "ios" ? 15 : 10, // Ajuste fino para ficar acima do texto
+        top: Platform.OS === "ios" ? 15 : 10,
         left: 10,
         width: 40,
         height: 40,
@@ -358,13 +213,12 @@ const styles = StyleSheet.create({
         fontSize: 36,
         color: "#FFF",
         fontWeight: "300",
-        marginTop: -5, // Ajuste fino para centralizar verticalmente
+        marginTop: -5,
     },
     bannerTitle: {
         fontSize: 18,
         fontWeight: "bold",
         color: "#FFF",
-        // Adiciona margem superior para o texto não ficar embaixo do botão
         marginTop: Platform.OS === "ios" ? 35 : 30,
     },
     bannerSubtitle: {
@@ -381,102 +235,6 @@ const styles = StyleSheet.create({
     formAreaDark: {
         backgroundColor: "#0B0B0B",
     },
-    inputContainer: {
-        marginBottom: 15,
-        paddingHorizontal: 20,
-        position: "relative",
-    },
-    label: {
-        color: "#888",
-        fontSize: 12,
-        position: "absolute",
-        top: -8,
-        left: 30,
-        zIndex: 1,
-        backgroundColor: "#FFF",
-        paddingHorizontal: 4,
-    },
-    labelDark: {
-        color: "#777",
-        backgroundColor: "#1C1C1E",
-    },
-    input: {
-        backgroundColor: "#FFF",
-        borderWidth: 1,
-        borderColor: "#E0E0E0",
-        borderRadius: 8,
-        height: 58,
-        fontSize: 16,
-        paddingHorizontal: 15,
-        color: "#222",
-        justifyContent: "center",
-    },
-    inputDark: {
-        backgroundColor: "#1C1C1E",
-        borderColor: "#444",
-        color: "#FFF",
-    },
-
-    // --- Estilos dos Seletores (Gênero/Estado) ---
-    touchableInput: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-    },
-    touchableInputText: {
-        fontSize: 16,
-        color: "#222",
-    },
-    touchableInputTextDark: {
-        color: "#FFF",
-    },
-    placeholderText: {
-        color: "#AAA",
-    },
-    placeholderTextDark: {
-        color: "#555",
-    },
-    arrow: {
-        fontSize: 24,
-        color: "#888",
-    },
-    arrowDark: {
-        color: "#777",
-    },
-
-    // --- Estilos da Lista de Opções do Seletor ---
-    optionsContainer: {
-        marginTop: -8,
-        borderWidth: 1,
-        borderColor: "#E0E0E0",
-        borderTopWidth: 0,
-        borderBottomLeftRadius: 8,
-        borderBottomRightRadius: 8,
-        backgroundColor: "#FFF",
-        overflow: "hidden",
-    },
-    optionsContainerDark: {
-        borderColor: "#444",
-        backgroundColor: "#1C1C1E",
-    },
-    optionItem: {
-        paddingVertical: 15,
-        paddingHorizontal: 15,
-        borderTopWidth: 1,
-        borderTopColor: "#F0F0F0",
-    },
-    optionItemDark: {
-        borderTopColor: "#2C2C2E",
-    },
-    optionText: {
-        fontSize: 16,
-        color: "#333",
-    },
-    optionTextDark: {
-        color: "#FFF",
-    },
-
-    // --- Outros Estilos ---
     linkText: {
         color: "#1E6BE3",
         fontWeight: "500",

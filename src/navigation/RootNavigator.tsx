@@ -9,7 +9,7 @@ import OtpScreen from "../screens/Auth/Register/OtpScreen";
 import PrivacyPolicyScreen from "../screens/Auth/PrivacyPolicyScreen";
 import PermissionsScreen from "../screens/Auth/PermissionsScreen";
 import PasswordScreen from "../screens/Auth/Register/PasswordScreen";
-// ✅ Correção: named import para BatteryPermissionScreen
+// ✅ Named import para BatteryPermissionScreen
 import { BatteryPermissionScreen } from "../screens/Auth/BatteryPermissionScreen";
 import PermissionBackdropScreen from "../screens/Auth/PermissionBackdropScreen";
 
@@ -19,6 +19,9 @@ import DriverInfoScreen from "../screens/Auth/Register/DriverInfoScreen";
 import ConfirmInfoScreen from "../screens/Auth/Register/ConfirmInfoScreen";
 import DocumentationScreen from "../screens/Auth/Register/DocumentationScreen";
 import UploadDocumentScreen from "../screens/Auth/Register/UploadDocumentScreen";
+import DocumentRequirementsScreen from "../screens/Auth/Register/DocumentRequirementsScreen";
+import DocumentGuidelinesScreen from "../screens/Auth/Register/DocumentGuidelinesScreen";
+import VehicleDocumentInfoScreen from "../screens/Auth/Register/VehicleDocumentInfoScreen";
 
 // Tipagem correta e completa do Stack Navigator
 export type RootStackParamList = {
@@ -45,6 +48,23 @@ export type RootStackParamList = {
     UploadDocument: {
         documentId: string;
         documentTitle: string;
+    };
+    DocumentRequirements: {
+        documentId: string;
+        documentTitle: string;
+        documentType: "physical" | "digital";
+    };
+    DocumentGuidelines: {
+        documentId: string;
+        documentTitle: string;
+        documentType: "physical" | "digital";
+        imageUri?: string;
+    };
+    VehicleDocumentInfo: {
+        documentId: string;
+        documentTitle: string;
+        documentType: "physical" | "digital";
+        imageUri?: string;
     };
 
     // Telas Modais
@@ -89,9 +109,22 @@ export default function RootNavigator() {
                     name="Documentation"
                     component={DocumentationScreen}
                 />
+                {/* ✅ Correção: UploadDocument aparece apenas UMA vez */}
                 <Stack.Screen
                     name="UploadDocument"
                     component={UploadDocumentScreen}
+                />
+                <Stack.Screen
+                    name="DocumentRequirements"
+                    component={DocumentRequirementsScreen}
+                />
+                <Stack.Screen
+                    name="DocumentGuidelines"
+                    component={DocumentGuidelinesScreen}
+                />
+                <Stack.Screen
+                    name="VehicleDocumentInfo"
+                    component={VehicleDocumentInfoScreen}
                 />
             </Stack.Group>
 
