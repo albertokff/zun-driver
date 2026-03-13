@@ -113,6 +113,9 @@ zun-driver
 │    │   ├── i18next.d.ts
 │    │   └── index.ts
 │    │
+│    ├── main/
+│    │   └── AndroidManifest.xml
+│    │
 │    ├── navigation/
 │    │   ├── AuthNavigator.tsx
 │    │   └── RootNavigator.tsx
