@@ -10,7 +10,6 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Start">;
 export default function StartScreen() {
     const { theme } = useTheme();
     const navigation = useNavigation<NavigationProp>();
-
     const logo =
         theme === "dark"
             ? require("../../assets/logo/zun-logo-dark.png")
@@ -20,9 +19,11 @@ export default function StartScreen() {
         <View
             style={[styles.container, theme === "dark" && styles.containerDark]}
         >
-            <Image source={logo} style={styles.logo} resizeMode="contain" />
-
-            <Text style={styles.primaryTextOpac}>Z Motorista</Text>
+            {/* Nova View para agrupar a logo e o texto */}
+            <View style={styles.logoContainer}>
+                <Image source={logo} style={styles.logo} resizeMode="contain" />
+                <Text style={styles.primaryTextOpac}>Z Motorista</Text>
+            </View>
 
             <View style={styles.buttonsContainer}>
                 <TouchableOpacity
@@ -31,7 +32,6 @@ export default function StartScreen() {
                 >
                     <Text style={styles.primaryText}>Entrar</Text>
                 </TouchableOpacity>
-
                 <TouchableOpacity
                     style={styles.secondaryButton}
                     onPress={() => navigation.navigate("PrivacyPolicy")}
@@ -51,21 +51,21 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         paddingVertical: 120,
     },
-
     containerDark: {
         backgroundColor: "#0B0B0B",
     },
-
+    // Novo estilo para o container da logo
+    logoContainer: {
+        alignItems: "center",
+    },
     logo: {
         width: 200,
         height: 200,
     },
-
     buttonsContainer: {
         width: "100%",
         alignItems: "center",
     },
-
     primaryButton: {
         backgroundColor: "#1E6BE3",
         width: "80%",
@@ -74,19 +74,18 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 14,
     },
-
     primaryText: {
         color: "#fff",
         fontSize: 18,
         fontWeight: "600",
     },
-
     primaryTextOpac: {
         color: "#687076",
         fontSize: 18,
         fontWeight: "600",
+        // Opcional: Adicione uma margem negativa se quiser ainda mais próximo
+        // marginTop: -20,
     },
-
     secondaryButton: {
         borderWidth: 2,
         borderColor: "#1E6BE3",
@@ -95,7 +94,6 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         alignItems: "center",
     },
-
     secondaryText: {
         color: "#1E6BE3",
         fontSize: 18,

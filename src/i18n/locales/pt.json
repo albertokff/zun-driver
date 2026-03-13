@@ -89,5 +89,13 @@
             "pay_bill": "Pagar conta",
             "recharge": "Recarga"
         }
+    },
+    "permissions": {
+        "batteryOptimization": {
+            "title": "Lembrete: solicitações de corridas",
+            "description": "Detectamos que suas configurações atuais de bateria podem impedir você de receber solicitações de corridas. Para que as solicitações de corridas sejam recebidas adequadamente, você deve permitir a execução deste aplicativo em segundo plano.",
+            "allow": "Permitir",
+            "deny": "Não permitir"
+        }
     }
 }
