@@ -1,5 +1,9 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Permission } from "react-native-permissions";
+
+// ✅ Correção: Tipo simples para funcionar em Web e Android
+// Comentado o import do pacote que pode não estar instalado
+// import { Permission } from "react-native-permissions";
+type Permission = string;
 
 // Telas existentes
 import SplashScreen from "../screens/Auth/SplashScreen";
@@ -70,7 +74,7 @@ export type RootStackParamList = {
     // Telas Modais
     BatteryPermission: { nextScreen: keyof RootStackParamList };
     PermissionBackdrop: {
-        permissionToRequest: Permission;
+        permissionToRequest: Permission; // ✅ Agora é string, não do pacote externo
     };
 };
 
@@ -109,7 +113,7 @@ export default function RootNavigator() {
                     name="Documentation"
                     component={DocumentationScreen}
                 />
-                {/* ✅ Correção: UploadDocument aparece apenas UMA vez */}
+                {/* ✅ UploadDocument aparece apenas UMA vez */}
                 <Stack.Screen
                     name="UploadDocument"
                     component={UploadDocumentScreen}
