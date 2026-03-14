@@ -1,11 +1,29 @@
+/*
+========================================================
+ROOT NAVIGATOR - Navegação Principal do App
+Configura todas as rotas do aplicativo Zun Driver.
+Funciona tanto na Web quanto no Android.
+========================================================
+*/
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-// ✅ Correção: Tipo simples para funcionar em Web e Android
-// Comentado o import do pacote que pode não estar instalado
-// import { Permission } from "react-native-permissions";
-type Permission = string;
+/*
+========================================================
+TIPO DE PERMISSÃO
+Usamos um tipo simples (string) para funcionar em ambas plataformas:
+- Web: Permissões são gerenciadas pelo navegador
+- Android: Permissões são gerenciadas pelo expo-permissions
+========================================================
+*/
+// import { Permission } from "react-native-permissions"; // ❌ Removido - causa erro no Android
+type Permission = "camera" | "media-library" | "location" | string; // ✅ Tipo compatível
 
-// Telas existentes
+/*
+========================================================
+IMPORTAÇÃO DAS TELAS EXISTENTES
+Telas do fluxo inicial de autenticação
+========================================================
+*/
 import SplashScreen from "../screens/Auth/SplashScreen";
 import StartScreen from "../screens/Auth/StartScreen";
 import PhoneScreen from "../screens/Auth/Register/PhoneScreen";
@@ -13,11 +31,17 @@ import OtpScreen from "../screens/Auth/Register/OtpScreen";
 import PrivacyPolicyScreen from "../screens/Auth/PrivacyPolicyScreen";
 import PermissionsScreen from "../screens/Auth/PermissionsScreen";
 import PasswordScreen from "../screens/Auth/Register/PasswordScreen";
-// ✅ Named import para BatteryPermissionScreen
+
+// ✅ Named import para BatteryPermissionScreen (export named)
 import { BatteryPermissionScreen } from "../screens/Auth/BatteryPermissionScreen";
 import PermissionBackdropScreen from "../screens/Auth/PermissionBackdropScreen";
 
-// Telas novas do fluxo de cadastro
+/*
+========================================================
+IMPORTAÇÃO DAS TELAS DO FLUXO DE CADASTRO
+Novas telas adicionadas para cadastro de motoristas
+========================================================
+*/
 import DriverCategoryScreen from "../screens/Auth/Register/DriverCategoryScreen";
 import DriverInfoScreen from "../screens/Auth/Register/DriverInfoScreen";
 import ConfirmInfoScreen from "../screens/Auth/Register/ConfirmInfoScreen";
@@ -27,20 +51,34 @@ import DocumentRequirementsScreen from "../screens/Auth/Register/DocumentRequire
 import DocumentGuidelinesScreen from "../screens/Auth/Register/DocumentGuidelinesScreen";
 import VehicleDocumentInfoScreen from "../screens/Auth/Register/VehicleDocumentInfoScreen";
 
-// Tipagem correta e completa do Stack Navigator
+/*
+========================================================
+TIPO DE PARÂMETROS DAS ROTAS (ROOT STACK)
+Define os parâmetros que cada tela pode receber.
+Isso garante type-safety na navegação.
+========================================================
+*/
 export type RootStackParamList = {
-    // Telas normais
+    /*
+    ================================================
+    TELAS NORMAIS (Fluxo Principal)
+    ================================================
+    */
     Splash: undefined;
     Start: undefined;
     Phone: undefined;
     Password: undefined;
-    Otp: { phone: string };
+    Otp: { phone: string }; // Recebe número de telefone
     PrivacyPolicy: undefined;
     Permissions: undefined;
 
-    // Novas telas do fluxo de cadastro do motorista
-    DriverCategory: undefined;
-    DriverInfo: undefined;
+    /*
+    ================================================
+    NOVAS TELAS DO FLUXO DE CADASTRO DO MOTORISTA
+    ================================================
+    */
+    DriverCategory: undefined; // Seleção da categoria (entregador/moto/carro)
+    DriverInfo: undefined; // Informações pessoais do motorista
     ConfirmInfo: {
         firstName: string;
         cpf: string;
@@ -48,7 +86,7 @@ export type RootStackParamList = {
         state: string;
         city: string;
     };
-    Documentation: undefined;
+    Documentation: undefined; // Lista de documentos obrigatórios
     UploadDocument: {
         documentId: string;
         documentTitle: string;
@@ -62,28 +100,46 @@ export type RootStackParamList = {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
-        imageUri?: string;
+        imageUri?: string; // URI da imagem selecionada (opcional)
     };
     VehicleDocumentInfo: {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
-        imageUri?: string;
+        imageUri?: string; // URI da imagem selecionada (opcional)
     };
 
-    // Telas Modais
-    BatteryPermission: { nextScreen: keyof RootStackParamList };
+    /*
+    ================================================
+    TELAS MODAIS (Aparecem por cima das outras)
+    presentation: "transparentModal"
+    ================================================
+    */
+    BatteryPermission: {
+        nextScreen: keyof RootStackParamList; // Próxima tela após permissão
+    };
     PermissionBackdrop: {
-        permissionToRequest: Permission; // ✅ Agora é string, não do pacote externo
+        permissionToRequest: Permission; // Tipo de permissão a solicitar
     };
 };
 
+/*
+========================================================
+CONFIGURAÇÃO DO STACK NAVIGATOR
+Cria o navegador com todas as rotas configuradas
+========================================================
+*/
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {/* Grupo para telas de fluxo principal */}
+            {/* 
+            ================================================
+            GRUPO 1: TELAS DE FLUXO PRINCIPAL
+            Navegação normal (tela cheia)
+            ================================================
+            */}
             <Stack.Group>
                 <Stack.Screen name="Splash" component={SplashScreen} />
                 <Stack.Screen name="Start" component={StartScreen} />
@@ -113,7 +169,6 @@ export default function RootNavigator() {
                     name="Documentation"
                     component={DocumentationScreen}
                 />
-                {/* ✅ UploadDocument aparece apenas UMA vez */}
                 <Stack.Screen
                     name="UploadDocument"
                     component={UploadDocumentScreen}
@@ -132,7 +187,12 @@ export default function RootNavigator() {
                 />
             </Stack.Group>
 
-            {/* Grupo para telas modais que aparecem por cima */}
+            {/* 
+            ================================================
+            GRUPO 2: TELAS MODAIS
+            presentation: "transparentModal" - aparecem transparentes por cima
+            ================================================
+            */}
             <Stack.Group screenOptions={{ presentation: "transparentModal" }}>
                 <Stack.Screen
                     name="BatteryPermission"
