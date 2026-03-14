@@ -34,6 +34,17 @@ Node 20 = ainda gera edge cases
 
    `npx expo start --clear`
 
+## Rodar o App
+Web (Chrome):
+`npx expo start --web`
+
+## Android Studio:
+
+`npx expo start -c`
+
+`npx expo run:android`
+
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)

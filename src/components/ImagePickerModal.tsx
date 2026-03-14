@@ -2,6 +2,12 @@
 ========================================================
 COMPONENTE: ImagePickerModal
 Modal para escolher entre tirar foto ou selecionar do álbum.
+
+FUNCIONAMENTO:
+- Web: Abre seletor de arquivos do navegador
+- Android: Abre câmera ou galeria nativa
+
+Usa expo-image-picker que é compatível com ambas plataformas.
 ========================================================
 */
 import React from "react";
@@ -34,8 +40,17 @@ export default function ImagePickerModal({
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
-    // ✅ Função para solicitar permissão da câmera
+    /*
+    ================================================
+    SOLICITAR PERMISSÃO DA CÂMERA
+    ================================================
+    */
     const requestCameraPermission = async (): Promise<boolean> => {
+        if (Platform.OS === "web") {
+            // Web: Navegador solicita automaticamente
+            return true;
+        }
+
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status !== "granted") {
             Alert.alert(
@@ -47,8 +62,17 @@ export default function ImagePickerModal({
         return true;
     };
 
-    // ✅ Função para solicitar permissão da galeria
+    /*
+    ================================================
+    SOLICITAR PERMISSÃO DA GALERIA
+    ================================================
+    */
     const requestMediaLibraryPermission = async (): Promise<boolean> => {
+        if (Platform.OS === "web") {
+            // Web: Navegador solicita automaticamente
+            return true;
+        }
+
         const { status } =
             await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
@@ -61,7 +85,13 @@ export default function ImagePickerModal({
         return true;
     };
 
-    // ✅ Função para tirar foto
+    /*
+    ================================================
+    TIRAR FOTO COM A CÂMERA
+    Web: Abre seletor de arquivo (input file)
+    Android: Abre câmera nativa
+    ================================================
+    */
     const handleTakePhoto = async () => {
         const hasPermission = await requestCameraPermission();
         if (!hasPermission) {
@@ -70,6 +100,8 @@ export default function ImagePickerModal({
         }
 
         try {
+            console.log("[ImagePicker] Abrindo câmera...");
+
             const result = await ImagePicker.launchCameraAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
@@ -79,17 +111,26 @@ export default function ImagePickerModal({
             });
 
             if (!result.canceled && result.assets[0]) {
+                console.log("[ImagePicker] Foto capturada com sucesso!");
                 onTakePhoto(result.assets[0].uri);
+            } else {
+                console.log("[ImagePicker] Usuário cancelou a foto");
             }
         } catch (error) {
-            console.error("Erro ao tirar foto:", error);
+            console.error("[ImagePicker] Erro ao tirar foto:", error);
             Alert.alert("Erro", "Não foi possível acessar a câmera.");
         } finally {
             onClose();
         }
     };
 
-    // ✅ Função para selecionar do álbum
+    /*
+    ================================================
+    SELECIONAR DA GALERIA/ÁLBUM
+    Web: Abre explorador de arquivos
+    Android: Abre galeria nativa
+    ================================================
+    */
     const handleSelectFromAlbum = async () => {
         const hasPermission = await requestMediaLibraryPermission();
         if (!hasPermission) {
@@ -98,6 +139,8 @@ export default function ImagePickerModal({
         }
 
         try {
+            console.log("[ImagePicker] Abrindo galeria...");
+
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
@@ -106,10 +149,13 @@ export default function ImagePickerModal({
             });
 
             if (!result.canceled && result.assets[0]) {
+                console.log("[ImagePicker] Imagem selecionada com sucesso!");
                 onSelectFromAlbum(result.assets[0].uri);
+            } else {
+                console.log("[ImagePicker] Usuário cancelou a seleção");
             }
         } catch (error) {
-            console.error("Erro ao selecionar imagem:", error);
+            console.error("[ImagePicker] Erro ao selecionar imagem:", error);
             Alert.alert("Erro", "Não foi possível acessar a galeria.");
         } finally {
             onClose();
