@@ -128,8 +128,8 @@ export function useSystemPermissions() {
     */
 
     return {
-        requestLocation,
-        requestPushNotifications,
-        requestBatteryOptimization,
+        // requestLocation,
+        // requestPushNotifications,
+        // requestBatteryOptimization,
     };
 }

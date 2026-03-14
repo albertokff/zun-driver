@@ -13,7 +13,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { permissions } from "../../constants/permissions";
 
-import { PERMISSIONS } from "react-native-permissions";
+// import { PERMISSIONS } from "react-native-permissions";
 import { DEV_SIMULATE_PERMISSION } from "../../constants/permissions";
 
 /*
@@ -59,16 +59,16 @@ export default function PermissionsScreen() {
         =====================================
         */
 
-        const locationPermission = Platform.select({
-            android: PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
-            ios: PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
-        });
+        // const locationPermission = Platform.select({
+        //     android: PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
+        //     ios: PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
+        // });
 
-        if (!locationPermission) return;
+        // if (!locationPermission) return;
 
-        navigation.navigate("PermissionBackdrop", {
-            permissionToRequest: locationPermission,
-        });
+        // navigation.navigate("PermissionBackdrop", {
+        //     permissionToRequest: locationPermission,
+        // });
     }
 
     /*

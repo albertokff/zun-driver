@@ -77,12 +77,12 @@ export default function PermissionBackdropScreen() {
     Permissão recebida da tela anterior
     (Android ou iOS)
     */
-    const { permissionToRequest } = route.params;
+    // const { permissionToRequest } = route.params;
 
     /*
     Hook centralizado de permissões
     */
-    const { requestLocation } = useSystemPermissions();
+    // const { requestLocation } = useSystemPermissions();
 
     /*
     Tema do sistema (claro / escuro)
@@ -131,7 +131,7 @@ export default function PermissionBackdropScreen() {
             PERMISSÃO REAL DO SISTEMA
             ========================================
             */
-            const result = await requestLocation(permissionToRequest);
+            // const result = await requestLocation(permissionToRequest);
 
             /*
             ========================================
@@ -139,41 +139,41 @@ export default function PermissionBackdropScreen() {
             ========================================
             */
 
-            if (result === "granted") {
-                /*
-                Permissão aceita
-                segue fluxo normal
-                */
-                navigation.replace("BatteryPermission", {
-                    nextScreen: "Phone",
-                });
+            // if (result === "granted") {
+            //     /*
+            //     Permissão aceita
+            //     segue fluxo normal
+            //     */
+            //     navigation.replace("BatteryPermission", {
+            //         nextScreen: "Phone",
+            //     });
 
-                return;
-            }
+            //     return;
+            // }
 
-            if (result === "denied") {
-                /*
-                Usuário negou
-                */
-                Alert.alert(
-                    "Permissão necessária",
-                    "Para continuar precisamos da sua localização.",
-                );
+            // if (result === "denied") {
+            //     /*
+            //     Usuário negou
+            //     */
+            //     Alert.alert(
+            //         "Permissão necessária",
+            //         "Para continuar precisamos da sua localização.",
+            //     );
 
-                return;
-            }
+            //     return;
+            // }
 
-            if (result === "blocked") {
-                /*
-                Usuário bloqueou permanentemente
-                */
-                Alert.alert(
-                    "Permissão bloqueada",
-                    "Ative a localização nas configurações do celular.",
-                );
+            // if (result === "blocked") {
+            //     /*
+            //     Usuário bloqueou permanentemente
+            //     */
+            //     Alert.alert(
+            //         "Permissão bloqueada",
+            //         "Ative a localização nas configurações do celular.",
+            //     );
 
-                return;
-            }
+            //     return;
+            // }
 
             /*
             Caso não seja suportado
