@@ -2,6 +2,11 @@
 ========================================================
 TELA DE INFORMAÇÕES DO VEÍCULO
 Formulário para preencher dados do veículo (Placa, RENAVAM, CPF/CNPJ).
+
+FLUXO ATUALIZADO:
+- Após envio bem-sucedido, atualiza status no DocumentContext
+- Navega de volta para DocumentationScreen
+- Mantém loading modal durante "upload"
 ========================================================
 */
 import React, { useState, useMemo } from "react";
@@ -22,6 +27,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+// Import do context para atualizar status
+import { useDocumentContext } from "../../../context/DocumentContext";
 
 // Tipagem
 type NavigationProp = NativeStackNavigationProp<
@@ -39,12 +46,15 @@ export default function VehicleDocumentInfoScreen() {
     const { theme } = useTheme();
     const isDark = theme === "dark";
 
+    // Hook para atualizar status do documento
+    const { updateDocumentStatus } = useDocumentContext();
+
     const { documentId, documentTitle, documentType, imageUri } = route.params;
 
     const [placa, setPlaca] = useState("");
     const [renavam, setRenavam] = useState("");
     const [vehicleType, setVehicleType] = useState<"cpf" | "cnpj">("cpf");
-    const [cpfCnpj, setCpfCnpj] = useState(""); // ✅ Campo para CPF/CNPJ
+    const [cpfCnpj, setCpfCnpj] = useState(""); // Campo para CPF/CNPJ
     const [isLoading, setIsLoading] = useState(false);
 
     const isFormValid = useMemo(() => {
@@ -69,7 +79,7 @@ export default function VehicleDocumentInfoScreen() {
         return value.replace(/\D/g, "").slice(0, 11);
     };
 
-    // ✅ Formatação de CPF/CNPJ
+    // Formatação de CPF/CNPJ
     const formatCpfCnpj = (value: string) => {
         const clean = value.replace(/\D/g, "");
 
@@ -97,6 +107,7 @@ export default function VehicleDocumentInfoScreen() {
         setIsLoading(true);
 
         try {
+            // Simula upload/validação no backend (2 segundos)
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
             console.log("Documento enviado com sucesso!", {
@@ -110,18 +121,11 @@ export default function VehicleDocumentInfoScreen() {
                 cpfCnpj,
             });
 
-            Alert.alert(
-                "Sucesso!",
-                "Documento enviado para análise. Você será notificado quando for aprovado.",
-                [
-                    {
-                        text: "OK",
-                        onPress: () => {
-                            navigation.goBack();
-                        },
-                    },
-                ],
-            );
+            // ATUALIZA STATUS NO CONTEXT
+            updateDocumentStatus(documentId, "analyzing", imageUri);
+
+            // NAVEGA DE VOLTA PARA DOCUMENTATION (sem Alert, direto)
+            navigation.navigate("Documentation");
         } catch (error) {
             console.error("Erro ao enviar documento:", error);
             Alert.alert(
