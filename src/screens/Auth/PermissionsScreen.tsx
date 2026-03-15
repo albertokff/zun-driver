@@ -1,3 +1,16 @@
+/*
+========================================================
+TELA DE PERMISSÕES
+Explica ao usuário quais permissões o app precisa e por quê.
+
+COMPATIBILIDADE:
+- Web: Permissões são gerenciadas pelo navegador
+- Android: Permissões são gerenciadas pelo expo-permissions
+- iOS: Permissões são gerenciadas pelo expo-permissions
+
+NÃO USA react-native-permissions (evita conflitos no Android)
+========================================================
+*/
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
 
@@ -13,8 +26,33 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { permissions } from "../../constants/permissions";
 
-// import { PERMISSIONS } from "react-native-permissions";
-import { DEV_SIMULATE_PERMISSION } from "../../constants/permissions";
+/*
+========================================================
+CONFIGURAÇÃO DE DESENVOLVIMENTO
+Defina como false para testar permissões reais
+========================================================
+*/
+const DEV_SIMULATE_PERMISSION = true;
+
+/*
+========================================================
+TIPOS DE PERMISSÃO (Compatível com Web e Android)
+Usamos strings simples em vez do pacote react-native-permissions
+========================================================
+*/
+type PermissionType = "camera" | "media-library" | "location" | string;
+
+/*
+========================================================
+TIPO DE PERMISSÃO PARA ANDROID
+Mapeia para as permissões nativas do Android
+========================================================
+*/
+const ANDROID_PERMISSIONS = {
+    LOCATION: "location",
+    CAMERA: "camera",
+    MEDIA_LIBRARY: "media-library",
+} as const;
 
 /*
 TIPAGEM DE NAVEGAÇÃO
@@ -46,7 +84,6 @@ export default function PermissionsScreen() {
         MODO DESENVOLVIMENTO
         =====================================
         */
-
         if (DEV_SIMULATE_PERMISSION) {
             console.log("Permissão simulada (DEV)");
             navigation.navigate("Phone");
@@ -57,18 +94,18 @@ export default function PermissionsScreen() {
         =====================================
         MODO PRODUÇÃO
         =====================================
+        Usa permissões compatíveis com Expo (não react-native-permissions)
+        =====================================
         */
 
-        // const locationPermission = Platform.select({
-        //     android: PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
-        //     ios: PERMISSIONS.IOS.LOCATION_WHEN_IN_USE,
-        // });
+        // ✅ Tipo simples (string) em vez de PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+        const locationPermission: PermissionType = ANDROID_PERMISSIONS.LOCATION;
 
-        // if (!locationPermission) return;
+        if (!locationPermission) return;
 
-        // navigation.navigate("PermissionBackdrop", {
-        //     permissionToRequest: locationPermission,
-        // });
+        navigation.navigate("PermissionBackdrop", {
+            permissionToRequest: locationPermission,
+        });
     }
 
     /*
@@ -122,7 +159,10 @@ export default function PermissionsScreen() {
 }
 
 /*
+========================================================
 COMPONENTE ITEM DE PERMISSÃO
+Exibe cada permissão com ícone, título e descrição
+========================================================
 */
 function PermissionItem({ icon, title, description }: PermissionItemProps) {
     return (

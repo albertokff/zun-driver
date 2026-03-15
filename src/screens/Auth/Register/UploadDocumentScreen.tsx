@@ -42,10 +42,14 @@ export default function UploadDocumentScreen() {
         "physical" | "digital" | null
     >(null);
 
+    // ✅ Correção: Navegar para a próxima tela
     const handleNext = () => {
         if (selectedOption) {
-            // Aqui você implementaria o fluxo de upload
-            console.log(`Upload ${selectedOption} para ${documentTitle}`);
+            navigation.navigate("DocumentRequirements", {
+                documentId,
+                documentTitle,
+                documentType: selectedOption,
+            });
         }
     };
 

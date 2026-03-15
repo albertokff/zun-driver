@@ -7,6 +7,10 @@ export const darkColors = {
     gold: '#FFD700',
 
     error: '#FF0000',
+    green: '#2ECC71',
+    greenB: '##a3e635',
+    slateBlue: '##673fd7',
+    cyanB: '#00E0FF',
     subtext: '#FFA500',
     icon: '#687076',
 };
@@ -20,6 +24,10 @@ export const lightColors = {
     gold: '#FFD700',
 
     error: '#FF0000',
+    green: '#2ECC71',
+    greenB: '##a3e635',
+    slateBlue: '##673fd7',
+    cyanB: '#00E0FF',
     subtext: '#555555',
     icon: '#687076',
 };

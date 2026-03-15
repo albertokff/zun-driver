@@ -34,6 +34,17 @@ Node 20 = ainda gera edge cases
 
    `npx expo start --clear`
 
+## Rodar o App
+Web (Chrome):
+`npx expo start --web`
+
+## Android Studio:
+
+`npx expo start -c`
+
+`npx expo run:android`
+
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
@@ -68,7 +79,7 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
 
-Estrutura de Pasta (Profissional e Escalável) 
+Estrutura de Pasta e Arquivos (Profissional e Escalável) 
 ```bash
 zun-driver
 ├── .vscode
@@ -83,6 +94,10 @@ zun-driver
 │    │   ├── BackButton.tsx
 │    │   ├── ButtonPrimary.tsx
 │    │   ├── ButtonSecondary.tsx
+│    │   ├── CityPicker.tsx
+│    │   ├── CollapsiblePicker.tsx
+│    │   ├── FormTextInput.tsx
+│    │   ├── ImagePickerModal.tsx
 │    │   └── ModalBackdrop.tsx
 │    │
 │    ├── constants/
@@ -94,6 +109,7 @@ zun-driver
 │    ├── hooks/
 │    │   ├── useAuth.ts
 │    │   ├── useBatteryOptimization.ts
+│    │   ├── useBrazilianCities.ts
 │    │   ├── useCardForm.ts
 │    │   ├── usePhoneMask.ts
 │    │   ├── useSystemPermissions.ts
@@ -108,6 +124,9 @@ zun-driver
 │    │   ├── i18next.d.ts
 │    │   └── index.ts
 │    │
+│    ├── main/
+│    │   └── AndroidManifest.xml
+│    │
 │    ├── navigation/
 │    │   ├── AuthNavigator.tsx
 │    │   └── RootNavigator.tsx
@@ -117,12 +136,15 @@ zun-driver
 │    │       ├── Register/
 │    │       │   ├── ConfirmInfoScreen.tsx
 │    │       │   ├── DocumentationScreen.tsx
+│    │       │   ├── DocumentGuidelinesScreen.tsx
+│    │       │   ├── DocumentRequirementsScreen.tsx
 │    │       │   ├── DriverCategoryScreen.tsx
 │    │       │   ├── DriverInfoScreen.tsx
 │    │       │   ├── OtpScreen.tsx
 │    │       │   ├── PasswordScreen.tsx
 │    │       │   ├── PhoneScreen.tsx
-│    │       │   └── UploadDocumentScreen.tsx
+│    │       │   ├── UploadDocumentScreen.tsx
+│    │       │   └── VehicleDocumentInfoScreen.tsx
 │    │       │
 │    │       ├── BatteryPermissionScreen.tsx
 │    │       ├── PermissionBackdropScreen.tsx
