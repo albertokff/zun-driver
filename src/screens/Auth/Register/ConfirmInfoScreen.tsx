@@ -35,7 +35,7 @@ export default function ConfirmInfoScreen() {
     // Recebe os dados da tela anterior
     const { firstName, cpf, gender, state, city } = route.params;
 
-    // ✅ Estado para controlar o modal
+    // Estado para controlar o modal
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const handleCorrect = () => {
@@ -97,7 +97,7 @@ export default function ConfirmInfoScreen() {
             <View style={[styles.footer, isDark && styles.footerDark]}>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={showConfirmationModal} // ✅ Mostra o modal ao clicar
+                    onPress={showConfirmationModal} // Mostra o modal ao clicar
                 >
                     <Text style={styles.buttonText}>Avançar</Text>
                 </TouchableOpacity>
@@ -107,7 +107,7 @@ export default function ConfirmInfoScreen() {
             <Modal
                 transparent={true}
                 animationType="fade"
-                visible={isModalVisible} // ✅ Controlado pelo estado
+                visible={isModalVisible} // Controlado pelo estado
             >
                 <View style={styles.modalOverlay}>
                     <View

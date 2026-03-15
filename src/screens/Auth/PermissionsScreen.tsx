@@ -98,7 +98,7 @@ export default function PermissionsScreen() {
         =====================================
         */
 
-        // ✅ Tipo simples (string) em vez de PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
+        // Tipo simples (string) em vez de PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
         const locationPermission: PermissionType = ANDROID_PERMISSIONS.LOCATION;
 
         if (!locationPermission) return;
