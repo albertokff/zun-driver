@@ -123,7 +123,10 @@ export default function DocumentationScreen() {
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
-            <ScrollView>
+            <ScrollView 
+                contentContainerStyle={styles.scrollContainer}
+                stickyHeaderIndices={[0]}
+            >
                 {/* BANNER SUPERIOR */}
                 <View style={styles.banner}>
                     {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
@@ -211,19 +214,23 @@ export default function DocumentationScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#F8F9FA" },
     containerDark: { backgroundColor: "#000" },
+    scrollContainer: {
+        paddingBottom: 120,
+    },
 
     // Banner com posição relativa para conter o botão absoluto
     banner: {
         backgroundColor: "#1E6BE3",
-        padding: 20,
-        position: "relative", // Necessário para posicionar o botão absolutamente
-        paddingTop: Platform.OS === "ios" ? 65 : 45, // Espaço para status bar + botão
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        paddingTop: Platform.OS === "ios" ? 65 : 45,
+        position: "relative",
     },
     // Botão de voltar posicionado no canto superior esquerdo do banner
     backButton: {
         position: "absolute",
-        top: Platform.OS === "ios" ? 15 : 10, // Ajuste fino para ficar acima do texto
-        left: 10,
+        top: Platform.OS === "ios" ? 15 : 10,
+        left: -15,
         width: 40,
         height: 40,
         justifyContent: "center",
@@ -240,7 +247,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         color: "#FFF",
-        marginTop: Platform.OS === "ios" ? 35 : 30, // Espaço para não ficar embaixo do botão
+        marginTop: Platform.OS === "ios" ? 35 : 80, // Espaço para não ficar embaixo do botão
     },
 
     header: {
