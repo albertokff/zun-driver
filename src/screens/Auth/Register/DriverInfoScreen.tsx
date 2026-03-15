@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     backButton: {
         position: "absolute",
         top: Platform.OS === "ios" ? 15 : 10,
-        left: 10,
+        left: -15,
         width: 40,
         height: 40,
         justifyContent: "center",
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         color: "#FFF",
-        marginTop: Platform.OS === "ios" ? 35 : 30,
+        marginTop: Platform.OS === "ios" ? 35 : 80,
     },
     bannerSubtitle: {
         fontSize: 13,
