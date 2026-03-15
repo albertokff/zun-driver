@@ -32,7 +32,7 @@ import PrivacyPolicyScreen from "../screens/Auth/PrivacyPolicyScreen";
 import PermissionsScreen from "../screens/Auth/PermissionsScreen";
 import PasswordScreen from "../screens/Auth/Register/PasswordScreen";
 
-// ✅ Named import para BatteryPermissionScreen (export named)
+// Named import para BatteryPermissionScreen (export named)
 import { BatteryPermissionScreen } from "../screens/Auth/BatteryPermissionScreen";
 import PermissionBackdropScreen from "../screens/Auth/PermissionBackdropScreen";
 

@@ -2,6 +2,12 @@
 ========================================================
 TELA DE DOCUMENTAÇÃO
 O usuário deve enviar os documentos obrigatórios.
+
+FLUXO ATUALIZADO:
+- Mostra contador "X/3 itens" dinâmico
+- Documentos enviados aparecem em azul com check
+- Documentos pendentes aparecem normais
+- Ao clicar em documento pendente, inicia upload
 ========================================================
 */
 import React from "react";
@@ -11,7 +17,6 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    Alert,
     Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -19,6 +24,11 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+// Import do novo context
+import {
+    useDocumentContext,
+    DocumentStatus,
+} from "../../../context/DocumentContext";
 
 // Tipagem para a navegação
 type NavigationProp = NativeStackNavigationProp<
@@ -26,18 +36,15 @@ type NavigationProp = NativeStackNavigationProp<
     "Documentation"
 >;
 
-// Itens de documentação
-const DOCUMENTS = [
-    { id: "crlv", title: "CRLV (documento do veículo)" },
-    { id: "cnh", title: "CNH com EAR" },
-    { id: "photo", title: "Foto" },
-];
-
 export default function DocumentationScreen() {
     // Hook de navegação com tipagem
     const navigation = useNavigation<NavigationProp>();
     const { theme } = useTheme();
     const isDark = theme === "dark";
+
+    // Hook para acessar estado dos documentos
+    const { documents, getSentCount, updateDocumentStatus } =
+        useDocumentContext();
 
     const handleUpload = (docTitle: string, docId: string) => {
         // Navega para a tela de upload do documento específico
@@ -47,33 +54,72 @@ export default function DocumentationScreen() {
         });
     };
 
-    // Componente para cada item da lista de documentos
-    const DocumentItem = ({ item }: { item: (typeof DOCUMENTS)[0] }) => (
-        <TouchableOpacity
-            style={[styles.docItem, isDark && styles.docItemDark]}
-            onPress={() => handleUpload(item.title, item.id)}
-        >
-            <Ionicons
-                name="document-text-outline"
-                size={24}
-                color={isDark ? "#AAA" : "#888"}
-            />
-            <View style={styles.docTextContainer}>
-                <Text style={[styles.docTitle, isDark && styles.docTitleDark]}>
-                    {item.title}
-                </Text>
-                <Text
-                    style={[
-                        styles.docSubtitle,
-                        isDark && styles.docSubtitleDark,
-                    ]}
-                >
-                    Toque aqui para enviar o documento
-                </Text>
-            </View>
-            <Text style={[styles.arrow, isDark && styles.arrowDark]}>›</Text>
-        </TouchableOpacity>
-    );
+    /*
+    ================================================
+    COMPONENTE: DocumentItem
+    Exibe cada documento com status visual diferente
+    ================================================
+    */
+    const DocumentItem = ({
+        doc,
+    }: {
+        doc: { id: string; title: string; status: DocumentStatus };
+    }) => {
+        // Define cores e ícones baseado no status
+        const isSent = doc.status !== "pending";
+        const iconColor = isSent
+            ? "#1E6BE3" // Azul para enviado
+            : isDark
+              ? "#AAA"
+              : "#888"; // Cinza para pendente
+        const iconName = isSent ? "checkmark-circle" : "document-text-outline";
+
+        return (
+            <TouchableOpacity
+                style={[
+                    styles.docItem,
+                    isDark && styles.docItemDark,
+                    isSent && styles.docItemSent, // Destaque para enviado
+                ]}
+                onPress={() => !isSent && handleUpload(doc.title, doc.id)}
+                disabled={isSent} // Não permite clicar se já enviado
+            >
+                <Ionicons name={iconName as any} size={24} color={iconColor} />
+                <View style={styles.docTextContainer}>
+                    <Text
+                        style={[
+                            styles.docTitle,
+                            isDark && styles.docTitleDark,
+                            isSent && styles.docTitleSent, // Texto azul se enviado
+                        ]}
+                    >
+                        {doc.title}
+                    </Text>
+                    <Text
+                        style={[
+                            styles.docSubtitle,
+                            isDark && styles.docSubtitleDark,
+                        ]}
+                    >
+                        {
+                            isSent
+                                ? "Seu documento está sendo analisado" // Status enviado
+                                : "Toque aqui para enviar o documento" // Status pendente
+                        }
+                    </Text>
+                </View>
+                {isSent ? (
+                    // Check verde/azul para documento enviado
+                    <Ionicons name="checkmark" size={24} color="#1E6BE3" />
+                ) : (
+                    // Seta para documento pendente
+                    <Text style={[styles.arrow, isDark && styles.arrowDark]}>
+                        ›
+                    </Text>
+                )}
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
@@ -104,20 +150,21 @@ export default function DocumentationScreen() {
                     >
                         Documentos obrigatórios
                     </Text>
+                    {/* Contador dinâmico baseado no contexto */}
                     <Text
                         style={[
                             styles.headerCounter,
                             isDark && styles.headerCounterDark,
                         ]}
                     >
-                        0/3 items
+                        {getSentCount()}/3 itens
                     </Text>
                 </View>
 
                 {/* LISTA DE DOCUMENTOS */}
                 <View style={styles.listContainer}>
-                    {DOCUMENTS.map((doc) => (
-                        <DocumentItem key={doc.id} item={doc} />
+                    {documents.map((doc) => (
+                        <DocumentItem key={doc.id} doc={doc} />
                     ))}
                 </View>
 
@@ -208,6 +255,8 @@ const styles = StyleSheet.create({
     headerCounter: { fontSize: 14, color: "#E74C3C" },
     headerCounterDark: { color: "#FF6B6B" },
     listContainer: { paddingHorizontal: 20 },
+
+    // Item de documento
     docItem: {
         backgroundColor: "#FFF",
         padding: 20,
@@ -222,13 +271,25 @@ const styles = StyleSheet.create({
         backgroundColor: "#1C1C1E",
         borderColor: "#2C2C2E",
     },
+    // Estilo para documento enviado (azul)
+    docItemSent: {
+        backgroundColor: "#E8F4FF",
+        borderColor: "#1E6BE3",
+        borderWidth: 2,
+    },
     docTextContainer: { flex: 1, marginLeft: 15 },
     docTitle: { fontSize: 16, fontWeight: "500", color: "#333" },
     docTitleDark: { color: "#FFF" },
+    // Texto azul para documento enviado
+    docTitleSent: {
+        color: "#1E6BE3",
+        fontWeight: "600",
+    },
     docSubtitle: { fontSize: 14, color: "#888", marginTop: 4 },
     docSubtitleDark: { color: "#AAA" },
     arrow: { fontSize: 24, color: "#CCC" },
     arrowDark: { color: "#555" },
+
     tipsContainer: {
         padding: 20,
         marginTop: 20,

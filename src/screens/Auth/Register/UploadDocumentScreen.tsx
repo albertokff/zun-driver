@@ -42,7 +42,7 @@ export default function UploadDocumentScreen() {
         "physical" | "digital" | null
     >(null);
 
-    // ✅ Correção: Navegar para a próxima tela
+    // Correção: Navegar para a próxima tela
     const handleNext = () => {
         if (selectedOption) {
             navigation.navigate("DocumentRequirements", {
