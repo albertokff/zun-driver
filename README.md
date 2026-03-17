@@ -135,15 +135,21 @@ zun-driver
 │    ├── screens/
 │    │   └── Auth/
 │    │       ├── Register/
+│    │       │   ├── AnalysisInProgressScreen.tsx
+│    │       │   ├── CameraCaptureScreen.tsx
+│    │       │   ├── CNHInfoScreen.tsx
 │    │       │   ├── ConfirmInfoScreen.tsx
 │    │       │   ├── DocumentationScreen.tsx
 │    │       │   ├── DocumentGuidelinesScreen.tsx
 │    │       │   ├── DocumentRequirementsScreen.tsx
 │    │       │   ├── DriverCategoryScreen.tsx
 │    │       │   ├── DriverInfoScreen.tsx
+│    │       │   ├── OptimizationCompleteScreen.tsx
+│    │       │   ├── OptimizationScreen.tsx
 │    │       │   ├── OtpScreen.tsx
 │    │       │   ├── PasswordScreen.tsx
 │    │       │   ├── PhoneScreen.tsx
+│    │       │   ├── PhotoTipsScreen.tsx
 │    │       │   ├── UploadDocumentScreen.tsx
 │    │       │   └── VehicleDocumentInfoScreen.tsx
 │    │       │

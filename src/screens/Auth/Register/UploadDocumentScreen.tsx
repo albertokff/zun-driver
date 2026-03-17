@@ -2,9 +2,11 @@
 ========================================================
 TELA DE UPLOAD DE DOCUMENTO
 O usuário seleciona se vai enviar documento físico ou digital (PDF).
+
+DEBUG: Adicionado console.log para rastrear navegação
 ========================================================
 */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Adicionado useEffect
 import {
     View,
     Text,
@@ -38,13 +40,34 @@ export default function UploadDocumentScreen() {
     // Recebe os parâmetros da tela anterior
     const { documentId, documentTitle } = route.params;
 
+    /*
+    ================================================
+    DEBUG: Log dos parâmetros recebidos
+    ================================================
+    */
+    useEffect(() => {
+        console.log("🔍 [UploadDocument] Parâmetros recebidos:", {
+            documentId,
+            documentTitle,
+        });
+    }, [documentId, documentTitle]);
+
     const [selectedOption, setSelectedOption] = useState<
         "physical" | "digital" | null
     >(null);
 
-    // Correção: Navegar para a próxima tela
+    // Correção: Navegar para a próxima tela COM LOGS
     const handleNext = () => {
         if (selectedOption) {
+            console.log(
+                "🚀 [UploadDocument] Navegando para DocumentRequirements:",
+                {
+                    documentId,
+                    documentTitle,
+                    documentType: selectedOption,
+                },
+            );
+
             navigation.navigate("DocumentRequirements", {
                 documentId,
                 documentTitle,
@@ -87,7 +110,12 @@ export default function UploadDocumentScreen() {
                             selectedOption === "physical" &&
                                 styles.optionItemSelected,
                         ]}
-                        onPress={() => setSelectedOption("physical")}
+                        onPress={() => {
+                            console.log(
+                                "📝 [UploadDocument] Selecionado: Documento físico",
+                            );
+                            setSelectedOption("physical");
+                        }}
                     >
                         <View style={styles.optionLeft}>
                             {/* Placeholder para imagem do documento físico */}
@@ -149,7 +177,12 @@ export default function UploadDocumentScreen() {
                             selectedOption === "digital" &&
                                 styles.optionItemSelected,
                         ]}
-                        onPress={() => setSelectedOption("digital")}
+                        onPress={() => {
+                            console.log(
+                                "📝 [UploadDocument] Selecionado: Documento digital",
+                            );
+                            setSelectedOption("digital");
+                        }}
                     >
                         <View style={styles.optionLeft}>
                             {/* Placeholder para imagem do documento digital */}

@@ -2,9 +2,16 @@
 ========================================================
 TELA DE REQUISITOS DE ENVIO
 Mostra os requisitos para envio do documento.
+
+FLUXO ATUALIZADO:
+- CRLV → VehicleDocumentInfoScreen (PLACA, RENAVAM, CPF)
+- CNH → CNHInfoScreen (Nº REGISTRO)
+- Foto → Direto para upload (sem formulário)
+
+DEBUG: Adicionado console.log para rastrear navegação
 ========================================================
 */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Adicionado useEffect
 import {
     View,
     Text,
@@ -40,6 +47,19 @@ export default function DocumentRequirementsScreen() {
 
     const { documentId, documentTitle, documentType } = route.params;
 
+    /*
+    ================================================
+    DEBUG: Log dos parâmetros recebidos
+    ================================================
+    */
+    useEffect(() => {
+        console.log("🔍 [DocumentRequirements] Parâmetros recebidos:", {
+            documentId,
+            documentTitle,
+            documentType,
+        });
+    }, [documentId, documentTitle, documentType]);
+
     // Estado para controlar o modal de escolha de imagem
     const [isImagePickerModalVisible, setIsImagePickerModalVisible] =
         useState(false);
@@ -51,30 +71,68 @@ export default function DocumentRequirementsScreen() {
         setIsImagePickerModalVisible(true);
     };
 
+    /*
+    ================================================
+    NAVEGAÇÃO CONDICIONAL BASEADA NO DOCUMENTO
+    ================================================
+    */
+    const navigateToNextScreen = (imageUri: string) => {
+        // Normaliza o documentId para garantir comparação correta
+        const normalizedDocId = documentId?.trim().toLowerCase();
+
+        console.log(
+            "🔍 [DocumentRequirements] Navegando com documentId:",
+            normalizedDocId,
+        );
+
+        if (normalizedDocId === "crlv") {
+            // CRLV: Precisa de PLACA, RENAVAM, CPF/CNPJ
+            console.log("🚀 Navegando para VehicleDocumentInfo (CRLV)");
+            navigation.navigate("VehicleDocumentInfo", {
+                documentId,
+                documentTitle,
+                documentType,
+                imageUri,
+            });
+        } else if (normalizedDocId === "cnh") {
+            // CNH: Precisa apenas do Nº REGISTRO
+            console.log("🚀 Navegando para CNHInfo (CNH)");
+            navigation.navigate("CNHInfo", {
+                documentId,
+                documentTitle,
+                documentType,
+                imageUri,
+            });
+        } else if (normalizedDocId === "photo") {
+            // Foto: Sem formulário adicional (apenas upload)
+            console.log("🚀 Navegando direto para Documentation (Foto)");
+            // Simula upload direto e volta para Documentation
+            navigation.navigate("Documentation");
+        } else {
+            // Fallback para documentId desconhecido
+            console.error(
+                "❌ [DocumentRequirements] documentId desconhecido:",
+                documentId,
+            );
+            Alert.alert("Erro", `Documento não reconhecido: ${documentId}`);
+        }
+    };
+
     // Callback quando tira foto
     const handleTakePhoto = (imageUri: string) => {
         setSelectedImage(imageUri);
-
-        // Navega para próxima tela passando a imagem
-        navigation.navigate("VehicleDocumentInfo", {
-            documentId,
-            documentTitle,
-            documentType,
-            imageUri, // Passa a URI da imagem
-        });
+        console.log("📸 [DocumentRequirements] Foto tirada, URI:", imageUri);
+        navigateToNextScreen(imageUri);
     };
 
     // Callback quando seleciona do álbum
     const handleSelectFromAlbum = (imageUri: string) => {
         setSelectedImage(imageUri);
-
-        // Navega para próxima tela passando a imagem
-        navigation.navigate("VehicleDocumentInfo", {
-            documentId,
-            documentTitle,
-            documentType,
-            imageUri, // Passa a URI da imagem
-        });
+        console.log(
+            "🖼️ [DocumentRequirements] Imagem selecionada, URI:",
+            imageUri,
+        );
+        navigateToNextScreen(imageUri);
     };
 
     return (

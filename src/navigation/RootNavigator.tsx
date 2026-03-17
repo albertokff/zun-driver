@@ -3,6 +3,8 @@
 ROOT NAVIGATOR - Navegação Principal do App
 Configura todas as rotas do aplicativo Zun Driver.
 Funciona tanto na Web quanto no Android.
+
+CORREÇÃO: Adicionado imageUri?: string nas rotas que recebem imagem
 ========================================================
 */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -16,7 +18,7 @@ Usamos um tipo simples (string) para funcionar em ambas plataformas:
 ========================================================
 */
 // import { Permission } from "react-native-permissions"; // ❌ Removido - causa erro no Android
-type Permission = "camera" | "media-library" | "location" | string; // ✅ Tipo compatível
+type Permission = "camera" | "media-library" | "location" | string; // Tipo compatível
 
 /*
 ========================================================
@@ -50,12 +52,20 @@ import UploadDocumentScreen from "../screens/Auth/Register/UploadDocumentScreen"
 import DocumentRequirementsScreen from "../screens/Auth/Register/DocumentRequirementsScreen";
 import DocumentGuidelinesScreen from "../screens/Auth/Register/DocumentGuidelinesScreen";
 import VehicleDocumentInfoScreen from "../screens/Auth/Register/VehicleDocumentInfoScreen";
+import CNHInfoScreen from "../screens/Auth/Register/CNHInfoScreen";
+import PhotoTipsScreen from "../screens/Auth/Register/PhotoTipsScreen";
+import CameraCaptureScreen from "../screens/Auth/Register/CameraCaptureScreen";
+import OptimizationScreen from "../screens/Auth/Register/OptimizationScreen";
+import OptimizationCompleteScreen from "../screens/Auth/Register/OptimizationCompleteScreen";
+import AnalysisInProgressScreen from "../screens/Auth/Register/AnalysisInProgressScreen";
 
 /*
 ========================================================
 TIPO DE PARÂMETROS DAS ROTAS (ROOT STACK)
 Define os parâmetros que cada tela pode receber.
 Isso garante type-safety na navegação.
+
+CORREÇÃO: Adicionado imageUri?: string onde necessário
 ========================================================
 */
 export type RootStackParamList = {
@@ -108,6 +118,37 @@ export type RootStackParamList = {
         documentType: "physical" | "digital";
         imageUri?: string; // URI da imagem selecionada (opcional)
     };
+    CNHInfo: {
+        documentId: string;
+        documentTitle: string;
+        documentType: "physical" | "digital";
+        imageUri?: string; // ADICIONADO: URI da imagem selecionada (opcional)
+    };
+    /*
+    ================================================
+    NOVAS TELAS DO FLUXO DE FOTO DE PERFIL
+    ================================================
+    */
+    PhotoTips: {
+        documentId: string;
+        documentTitle: string;
+        documentType: "physical" | "digital";
+    };
+    CameraCapture: {
+        documentId: string;
+        documentTitle: string;
+    };
+    Optimization: {
+        documentId: string;
+        documentTitle: string;
+        imageUri: string;
+    };
+    OptimizationComplete: {
+        documentId: string;
+        documentTitle: string;
+        imageUri: string;
+    };
+    AnalysisInProgress: undefined;
 
     /*
     ================================================
@@ -184,6 +225,24 @@ export default function RootNavigator() {
                 <Stack.Screen
                     name="VehicleDocumentInfo"
                     component={VehicleDocumentInfoScreen}
+                />
+                <Stack.Screen name="CNHInfo" component={CNHInfoScreen} />
+                <Stack.Screen name="PhotoTips" component={PhotoTipsScreen} />
+                <Stack.Screen
+                    name="CameraCapture"
+                    component={CameraCaptureScreen}
+                />
+                <Stack.Screen
+                    name="Optimization"
+                    component={OptimizationScreen}
+                />
+                <Stack.Screen
+                    name="OptimizationComplete"
+                    component={OptimizationCompleteScreen}
+                />
+                <Stack.Screen
+                    name="AnalysisInProgress"
+                    component={AnalysisInProgressScreen}
                 />
             </Stack.Group>
 
