@@ -205,7 +205,7 @@ export default function CNHInfoScreen() {
             <Modal transparent={true} visible={isLoading} animationType="fade">
                 <View style={styles.loadingOverlay}>
                     <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#FFC107" />
+                        <ActivityIndicator size="large" color="#1E6BE3" />
                         <Text style={styles.loadingText}>Carregando...</Text>
                     </View>
                 </View>
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     confirmButtonText: {
-        color: "#000",
+        color: "#FFF",
         fontSize: 16,
         fontWeight: "600",
     },

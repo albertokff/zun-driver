@@ -47,11 +47,20 @@ export default function DocumentationScreen() {
         useDocumentContext();
 
     const handleUpload = (docTitle: string, docId: string) => {
-        // Navega para a tela de upload do documento específico
-        navigation.navigate("UploadDocument", {
-            documentId: docId,
-            documentTitle: docTitle,
-        });
+        // Para FOTO: vai direto para PhotoTipsScreen
+        if (docId === "photo") {
+            navigation.navigate("PhotoTips", {
+                documentId: docId,
+                documentTitle: docTitle,
+                documentType: "physical", // Valor padrão para foto
+            });
+        } else {
+            // Para CRLV e CNH: segue fluxo normal
+            navigation.navigate("UploadDocument", {
+                documentId: docId,
+                documentTitle: docTitle,
+            });
+        }
     };
 
     /*
@@ -123,7 +132,7 @@ export default function DocumentationScreen() {
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
-            <ScrollView 
+            <ScrollView
                 contentContainerStyle={styles.scrollContainer}
                 stickyHeaderIndices={[0]}
             >

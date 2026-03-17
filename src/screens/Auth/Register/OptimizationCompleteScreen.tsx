@@ -85,7 +85,7 @@ export default function OptimizationCompleteScreen() {
                     <Ionicons name="arrow-back" size={24} color="#222" />
                 </TouchableOpacity>
                 <Text style={styles.headerClose}>×</Text>
-                <Text style={styles.headerTitle}>99</Text>
+                <Text style={styles.headerTitle}>Zun</Text>
             </View>
 
             {/* FOTO OTIMIZADA */}
@@ -268,14 +268,14 @@ const styles = StyleSheet.create({
         backgroundColor: "#1C1C1E",
     },
     sendButton: {
-        backgroundColor: "#FFC107",
+        backgroundColor: "#1E6BE3",
         padding: 18,
         borderRadius: 40,
         alignItems: "center",
         marginBottom: 15,
     },
     sendButtonText: {
-        color: "#000",
+        color: "#FFF",
         fontSize: 16,
         fontWeight: "600",
     },

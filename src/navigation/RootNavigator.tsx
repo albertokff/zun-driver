@@ -3,7 +3,6 @@
 ROOT NAVIGATOR - Navegação Principal do App
 Configura todas as rotas do aplicativo Zun Driver.
 Funciona tanto na Web quanto no Android.
-
 CORREÇÃO: Adicionado imageUri?: string nas rotas que recebem imagem
 ========================================================
 */
@@ -122,21 +121,18 @@ export type RootStackParamList = {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
-        imageUri?: string; // ADICIONADO: URI da imagem selecionada (opcional)
+        imageUri?: string; // URI da imagem selecionada (opcional)
     };
-    /*
-    ================================================
-    NOVAS TELAS DO FLUXO DE FOTO DE PERFIL
-    ================================================
-    */
     PhotoTips: {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
+        imageUri?: string; // ADICIONADO: URI da imagem (opcional)
     };
     CameraCapture: {
         documentId: string;
         documentTitle: string;
+        imageUri?: string; // ADICIONADO: URI da imagem (opcional)
     };
     Optimization: {
         documentId: string;

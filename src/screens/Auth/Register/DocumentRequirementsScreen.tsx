@@ -6,7 +6,7 @@ Mostra os requisitos para envio do documento.
 FLUXO ATUALIZADO:
 - CRLV → VehicleDocumentInfoScreen (PLACA, RENAVAM, CPF)
 - CNH → CNHInfoScreen (Nº REGISTRO)
-- Foto → Direto para upload (sem formulário)
+- Foto → PhotoTipsScreen (Dicas + Câmera)
 
 DEBUG: Adicionado console.log para rastrear navegação
 ========================================================
@@ -104,10 +104,14 @@ export default function DocumentRequirementsScreen() {
                 imageUri,
             });
         } else if (normalizedDocId === "photo") {
-            // Foto: Sem formulário adicional (apenas upload)
-            console.log("🚀 Navegando direto para Documentation (Foto)");
-            // Simula upload direto e volta para Documentation
-            navigation.navigate("Documentation");
+            // ✅ Foto: Vai para tela de dicas antes de tirar foto
+            console.log("🚀 Navegando para PhotoTips (Foto)");
+            navigation.navigate("PhotoTips", {
+                documentId,
+                documentTitle,
+                documentType,
+                imageUri,
+            });
         } else {
             // Fallback para documentId desconhecido
             console.error(
