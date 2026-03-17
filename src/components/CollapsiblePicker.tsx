@@ -22,7 +22,7 @@ if (
 interface CollapsiblePickerProps {
     label: string;
     options: string[];
-    selectedValue: string | null; // ✅ Correção: aceita null também
+    selectedValue: string | null; // Correção: aceita null também
     onSelect: (value: string) => void;
     isDark: boolean;
 }

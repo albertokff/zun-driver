@@ -2,9 +2,16 @@
 ========================================================
 TELA DE DIRETRIZES DO DOCUMENTO
 Mostra erros comuns a serem evitados com exemplos visuais.
+
+FLUXO ATUALIZADO:
+- CRLV → VehicleDocumentInfoScreen (PLACA, RENAVAM, CPF)
+- CNH → CNHInfoScreen (Nº REGISTRO)
+- Foto → PhotoTipsScreen (Dicas + Câmera)
+
+DEBUG: Adicionado console.log para verificar parâmetros recebidos
 ========================================================
 */
-import React from "react";
+import React, { useEffect } from "react"; // Adicionado useEffect
 import {
     View,
     Text,
@@ -13,6 +20,7 @@ import {
     ScrollView,
     Image,
     Platform,
+    Alert,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -67,12 +75,68 @@ export default function DocumentGuidelinesScreen() {
 
     const { documentId, documentTitle, documentType } = route.params;
 
-    const handleSendPhoto = () => {
-        navigation.navigate("VehicleDocumentInfo", {
+    /*
+    ================================================
+    DEBUG: Log dos parâmetros recebidos
+    ================================================
+    */
+    useEffect(() => {
+        console.log("🔍 [DocumentGuidelines] Parâmetros recebidos:", {
             documentId,
             documentTitle,
             documentType,
+            documentIdType: typeof documentId,
+            documentIdTrimmed: documentId?.trim?.().toLowerCase(),
         });
+    }, [documentId, documentTitle, documentType]);
+
+    /*
+    ================================================
+    NAVEGAÇÃO CONDICIONAL BASEADA NO DOCUMENTO
+    Normaliza documentId para garantir comparação correta
+    ================================================
+    */
+    const handleSendPhoto = () => {
+        // Normaliza o documentId: remove espaços e converte para minúsculo
+        const normalizedDocId = documentId?.trim().toLowerCase();
+
+        console.log(
+            "🔍 [DocumentGuidelines] Navegando com documentId:",
+            normalizedDocId,
+        );
+
+        if (normalizedDocId === "crlv") {
+            // CRLV: Precisa de PLACA, RENAVAM, CPF/CNPJ
+            console.log("🚀 Navegando para VehicleDocumentInfo (CRLV)");
+            navigation.navigate("VehicleDocumentInfo", {
+                documentId,
+                documentTitle,
+                documentType,
+            });
+        } else if (normalizedDocId === "cnh") {
+            // CNH: Precisa apenas do Nº REGISTRO
+            console.log("🚀 Navegando para CNHInfo (CNH)");
+            navigation.navigate("CNHInfo", {
+                documentId,
+                documentTitle,
+                documentType,
+            });
+        } else if (normalizedDocId === "photo") {
+            // Foto: Vai para tela de dicas antes de tirar foto
+            console.log("🚀 Navegando para PhotoTips (Foto)");
+            navigation.navigate("PhotoTips", {
+                documentId,
+                documentTitle,
+                documentType,
+            });
+        } else {
+            // Fallback para documentId desconhecido
+            console.error(
+                "❌ [DocumentGuidelines] documentId desconhecido:",
+                documentId,
+            );
+            Alert.alert("Erro", `Documento não reconhecido: ${documentId}`);
+        }
     };
 
     return (
@@ -286,7 +350,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     buttonText: {
-        color: "#FFF",
+        color: "#000",
         fontSize: 16,
         fontWeight: "600",
     },
