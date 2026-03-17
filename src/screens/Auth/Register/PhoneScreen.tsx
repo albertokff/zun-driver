@@ -1,3 +1,19 @@
+/*
+========================================================
+TELA DE TELEFONE
+Usuário insere número de telefone para login ou cadastro.
+
+FLUXO ATUALIZADO:
+- Diferencia entre Login e Cadastro
+- Login: Botão "Entrar" na StartScreen passa fromLogin: true
+- Cadastro: Botão "Criar conta" na StartScreen passa fromLogin: false
+
+PARÂMETROS RECEBIDOS:
+- fromLogin?: boolean (opcional)
+  - true: Fluxo de Login (Entrar)
+  - false/undefined: Fluxo de Cadastro
+========================================================
+*/
 import React from "react";
 import {
     View,
@@ -7,7 +23,7 @@ import {
     TouchableOpacity,
 } from "react-native";
 
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../../navigation/RootNavigator";
@@ -15,10 +31,14 @@ import { usePhoneMask } from "../../../hooks/usePhoneMask";
 import { useTheme } from "../../../context/ThemeContext";
 import BackButton from "../../../components/BackButton";
 
+// Tipagem para navegação
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Phone">;
+// Tipagem para rota com parâmetros
+type PhoneRouteProp = RouteProp<RootStackParamList, "Phone">;
 
 export default function PhoneScreen() {
     const navigation = useNavigation<NavigationProp>();
+    const route = useRoute<PhoneRouteProp>();
 
     const { phone, unmaskedPhone, isPhoneValid, handlePhoneChange } =
         usePhoneMask();
@@ -27,9 +47,24 @@ export default function PhoneScreen() {
 
     const isDark = theme === "dark";
 
+    /*
+    ================================================
+    VERIFICAR SE VEIO DO FLUXO DE LOGIN
+    route.params pode ser undefined, então usamos || {}
+    ================================================
+    */
+    const { fromLogin = false } = route.params || {};
+
+    /*
+    ================================================
+    AVANÇAR PARA OTP
+    Passa o parâmetro fromLogin para o próximo tela
+    ================================================
+    */
     const handleNext = () => {
         navigation.navigate("Otp", {
             phone: unmaskedPhone,
+            fromLogin, // Passa o parâmetro para OtpScreen
         });
     };
 
@@ -38,10 +73,12 @@ export default function PhoneScreen() {
             {/* BOTÃO VOLTAR */}
             <BackButton />
 
+            {/* TÍTULO */}
             <Text style={[styles.title, isDark && styles.titleDark]}>
                 Digite seu telefone
             </Text>
 
+            {/* INPUT DE TELEFONE */}
             <TextInput
                 style={[styles.input, isDark && styles.inputDark]}
                 placeholder="(00) 00000-0000"
@@ -52,6 +89,7 @@ export default function PhoneScreen() {
                 maxLength={15}
             />
 
+            {/* BOTÃO CONTINUAR */}
             <TouchableOpacity
                 style={[styles.button, { opacity: isPhoneValid ? 1 : 0.5 }]}
                 onPress={handleNext}
@@ -63,6 +101,11 @@ export default function PhoneScreen() {
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
     container: {
         flex: 1,
