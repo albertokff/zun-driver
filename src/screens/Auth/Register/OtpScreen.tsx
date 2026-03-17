@@ -1,3 +1,19 @@
+/*
+========================================================
+TELA DE VERIFICAÇÃO DE CÓDIGO OTP
+Usuário insere o código de 6 dígitos enviado por SMS.
+
+FLUXO ATUALIZADO:
+- Diferencia entre Login e Cadastro
+- Login: Após confirmar, vai para AssistantPermission
+- Cadastro: Após confirmar, vai para Password
+
+PARÂMETROS RECEBIDOS:
+- fromLogin?: boolean (opcional)
+  - true: Fluxo de Login
+  - false/undefined: Fluxo de Cadastro
+========================================================
+*/
 import React, { useState, useEffect } from "react";
 import {
     View,
@@ -7,24 +23,44 @@ import {
     TouchableOpacity,
 } from "react-native";
 
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 import BackButton from "../../../components/BackButton";
 
+// Tipagem para navegação
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Otp">;
+// Tipagem para rota com parâmetros
+type OtpRouteProp = RouteProp<RootStackParamList, "Otp">;
 
 export default function OtpScreen() {
     const navigation = useNavigation<NavigationProp>();
+    const route = useRoute<OtpRouteProp>();
     const { theme } = useTheme();
 
+    // Estado para armazenar o código digitado
     const [code, setCode] = useState("");
+    // Estado para timer de reenvio (60 segundos)
     const [timer, setTimer] = useState(60);
 
     const isDark = theme === "dark";
 
+    /*
+    ================================================
+    VERIFICAR SE VEIO DO FLUXO DE LOGIN
+    route.params pode ser undefined, então usamos || {}
+    ================================================
+    */
+    const { fromLogin = false } = route.params || {};
+
+    /*
+    ================================================
+    TIMER DE REENVIO
+    Decrementa a cada segundo até chegar a 0
+    ================================================
+    */
     useEffect(() => {
         if (timer === 0) return;
 
@@ -32,33 +68,69 @@ export default function OtpScreen() {
             setTimer((prev) => prev - 1);
         }, 1000);
 
+        // Limpa o intervalo quando o componente desmontar
         return () => clearInterval(interval);
     }, [timer]);
 
+    /*
+    ================================================
+    CONFIRMAR CÓDIGO
+    Navegação condicional baseada no fluxo (Login/Cadastro)
+    ================================================
+    */
     const handleConfirm = () => {
-        // Aqui futuramente validará com backend
-        navigation.navigate("Password");
+        // Aqui futuramente validará o código com backend
+
+        if (fromLogin) {
+            /*
+            ================================================
+            FLUXO DE LOGIN (ENTRAR)
+            Após confirmar código, vai para permissões
+            ================================================
+            */
+            navigation.navigate("AssistantPermission");
+        } else {
+            /*
+            ================================================
+            FLUXO DE CADASTRO
+            Após confirmar código, cria senha
+            ================================================
+            */
+            navigation.navigate("Password");
+        }
     };
 
+    /*
+    ================================================
+    REENVIAR CÓDIGO
+    Permite reenviar o SMS após timer chegar a 0
+    ================================================
+    */
     const handleResend = () => {
+        // Só permite reenviar se timer chegou a 0
         if (timer > 0) return;
 
-        // futuramente chamará API de envio SMS
+        // Futuramente chamará API de envio SMS
+        // Reseta timer para 60 segundos
         setTimer(60);
     };
 
     return (
         <View style={[styles.container, isDark && styles.containerDark]}>
+            {/* BOTÃO DE VOLTAR */}
             <BackButton />
 
+            {/* TÍTULO */}
             <Text style={[styles.title, isDark && styles.titleDark]}>
                 Digite o código
             </Text>
 
+            {/* SUBTÍTULO */}
             <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
                 Enviamos um código por SMS para confirmar seu telefone
             </Text>
 
+            {/* INPUT DO CÓDIGO */}
             <TextInput
                 style={[styles.input, isDark && styles.inputDark]}
                 keyboardType="number-pad"
@@ -69,6 +141,7 @@ export default function OtpScreen() {
                 onChangeText={setCode}
             />
 
+            {/* BOTÃO CONFIRMAR */}
             <TouchableOpacity
                 style={[
                     styles.button,
@@ -80,6 +153,7 @@ export default function OtpScreen() {
                 <Text style={styles.buttonText}>Confirmar</Text>
             </TouchableOpacity>
 
+            {/* TIMER OU LINK DE REENVIO */}
             {timer > 0 ? (
                 <Text style={[styles.timer, isDark && styles.timerDark]}>
                     Reenviar código em {timer}s
@@ -95,6 +169,11 @@ export default function OtpScreen() {
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
     container: {
         flex: 1,

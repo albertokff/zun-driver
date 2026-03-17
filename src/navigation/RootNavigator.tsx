@@ -3,7 +3,10 @@
 ROOT NAVIGATOR - Navegação Principal do App
 Configura todas as rotas do aplicativo Zun Driver.
 Funciona tanto na Web quanto no Android.
-CORREÇÃO: Adicionado imageUri?: string nas rotas que recebem imagem
+
+CORREÇÃO CRÍTICA:
+- Phone: Mudado de 'boolean' para '{ fromLogin?: boolean }'
+  (parâmetros devem ser undefined ou object, nunca primitivo)
 ========================================================
 */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -60,11 +63,21 @@ import AnalysisInProgressScreen from "../screens/Auth/Register/AnalysisInProgres
 
 /*
 ========================================================
+IMPORTAÇÃO DAS TELAS DO FLUXO DE LOGIN (ENTRAR)
+Novas telas para o fluxo de entrada do motorista
+========================================================
+*/
+import AssistantPermissionScreen from "../screens/Auth/AssistantPermissionScreen";
+import LocationPermissionScreen from "../screens/Auth/LocationPermissionScreen";
+import HomeScreen from "../screens/Main/HomeScreen";
+
+/*
+========================================================
 TIPO DE PARÂMETROS DAS ROTAS (ROOT STACK)
 Define os parâmetros que cada tela pode receber.
 Isso garante type-safety na navegação.
 
-CORREÇÃO: Adicionado imageUri?: string onde necessário
+CORREÇÃO: Phone agora é { fromLogin?: boolean } em vez de boolean
 ========================================================
 */
 export type RootStackParamList = {
@@ -75,9 +88,21 @@ export type RootStackParamList = {
     */
     Splash: undefined;
     Start: undefined;
-    Phone: undefined;
+
+    /*
+    ================================================
+    CORREÇÃO: Phone deve ser object, não boolean
+    ================================================
+    */
+    Phone: {
+        fromLogin?: boolean; // Objeto com parâmetro opcional
+    };
+
     Password: undefined;
-    Otp: { phone: string }; // Recebe número de telefone
+    Otp: {
+        phone: string;
+        fromLogin?: boolean;
+    };
     PrivacyPolicy: undefined;
     Permissions: undefined;
 
@@ -86,8 +111,8 @@ export type RootStackParamList = {
     NOVAS TELAS DO FLUXO DE CADASTRO DO MOTORISTA
     ================================================
     */
-    DriverCategory: undefined; // Seleção da categoria (entregador/moto/carro)
-    DriverInfo: undefined; // Informações pessoais do motorista
+    DriverCategory: undefined;
+    DriverInfo: undefined;
     ConfirmInfo: {
         firstName: string;
         cpf: string;
@@ -95,7 +120,7 @@ export type RootStackParamList = {
         state: string;
         city: string;
     };
-    Documentation: undefined; // Lista de documentos obrigatórios
+    Documentation: undefined;
     UploadDocument: {
         documentId: string;
         documentTitle: string;
@@ -109,31 +134,38 @@ export type RootStackParamList = {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
-        imageUri?: string; // URI da imagem selecionada (opcional)
+        imageUri?: string;
     };
     VehicleDocumentInfo: {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
-        imageUri?: string; // URI da imagem selecionada (opcional)
+        imageUri?: string;
     };
     CNHInfo: {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
-        imageUri?: string; // URI da imagem selecionada (opcional)
+        imageUri?: string;
     };
     PhotoTips: {
         documentId: string;
         documentTitle: string;
         documentType: "physical" | "digital";
-        imageUri?: string; // ADICIONADO: URI da imagem (opcional)
+        imageUri?: string;
     };
+
+    /*
+    ================================================
+    CameraCapture: Tipagem explícita
+    ================================================
+    */
     CameraCapture: {
         documentId: string;
         documentTitle: string;
-        imageUri?: string; // ADICIONADO: URI da imagem (opcional)
+        imageUri?: string;
     };
+
     Optimization: {
         documentId: string;
         documentTitle: string;
@@ -148,15 +180,24 @@ export type RootStackParamList = {
 
     /*
     ================================================
+    NOVAS TELAS DO FLUXO DE LOGIN (ENTRAR)
+    ================================================
+    */
+    AssistantPermission: undefined;
+    LocationPermission: undefined;
+    Home: undefined;
+
+    /*
+    ================================================
     TELAS MODAIS (Aparecem por cima das outras)
     presentation: "transparentModal"
     ================================================
     */
     BatteryPermission: {
-        nextScreen: keyof RootStackParamList; // Próxima tela após permissão
+        nextScreen: keyof RootStackParamList;
     };
     PermissionBackdrop: {
-        permissionToRequest: Permission; // Tipo de permissão a solicitar
+        permissionToRequest: Permission;
     };
 };
 
@@ -224,10 +265,13 @@ export default function RootNavigator() {
                 />
                 <Stack.Screen name="CNHInfo" component={CNHInfoScreen} />
                 <Stack.Screen name="PhotoTips" component={PhotoTipsScreen} />
+
+                {/* CameraCapture registrado */}
                 <Stack.Screen
                     name="CameraCapture"
                     component={CameraCaptureScreen}
                 />
+
                 <Stack.Screen
                     name="Optimization"
                     component={OptimizationScreen}
@@ -240,6 +284,17 @@ export default function RootNavigator() {
                     name="AnalysisInProgress"
                     component={AnalysisInProgressScreen}
                 />
+
+                {/* Telas do fluxo de login (Entrar) */}
+                <Stack.Screen
+                    name="AssistantPermission"
+                    component={AssistantPermissionScreen}
+                />
+                <Stack.Screen
+                    name="LocationPermission"
+                    component={LocationPermissionScreen}
+                />
+                <Stack.Screen name="Home" component={HomeScreen} />
             </Stack.Group>
 
             {/* 
