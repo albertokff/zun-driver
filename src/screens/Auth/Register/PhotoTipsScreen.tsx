@@ -121,7 +121,7 @@ export default function PhotoTipsScreen() {
                         <Ionicons name="arrow-back" size={24} color="#222" />
                     </TouchableOpacity>
                     <Text style={styles.headerClose}>×</Text>
-                    <Text style={styles.headerTitle}>99</Text>
+                    <Text style={styles.headerTitle}>Zun</Text>
                 </View>
 
                 {/* FOTO DE EXEMPLO */}
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     buttonText: {
-        color: "#000",
+        color: "#FFF",
         fontSize: 16,
         fontWeight: "600",
     },
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     allowButtonText: {
-        color: "#000",
+        color: "#FFF",
         fontSize: 16,
         fontWeight: "600",
     },
