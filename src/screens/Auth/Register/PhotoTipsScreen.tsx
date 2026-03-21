@@ -128,9 +128,7 @@ export default function PhotoTipsScreen() {
                 <View style={styles.photoContainer}>
                     <View style={styles.photoCircle}>
                         <Image
-                            source={{
-                                uri: "https://via.placeholder.com/200x200/4A90E2/FFFFFF?text=Foto",
-                            }}
+                            source={require('../../../assets/images/foto_exemplo.png')}
                             style={styles.photoExample}
                         />
                     </View>
@@ -192,36 +190,39 @@ export default function PhotoTipsScreen() {
                     {/* ERROS COMUNS */}
                     <View style={styles.errorsContainer}>
                         <View style={styles.errorItem}>
-                            <View style={styles.errorIcon}>
-                                <Ionicons
-                                    name="close-circle"
-                                    size={40}
-                                    color="#FF5252"
-                                />
+                            <View style={styles.photoContainer}>
+                                <View style={styles.photoCircleParcialmenteCortado}>
+                                    <Image
+                                        source={require('../../../assets/images/foto_parcialmente_cortada.png')}
+                                        style={styles.photoExampleParcialmenteCortado}
+                                    />
+                                </View>
                             </View>
                             <Text style={styles.errorLabel}>
                                 Parcialmente cortado
                             </Text>
                         </View>
                         <View style={styles.errorItem}>
-                            <View style={styles.errorIcon}>
-                                <Ionicons
-                                    name="close-circle"
-                                    size={40}
-                                    color="#FF5252"
-                                />
+                            <View style={styles.photoContainer}>
+                                <View style={styles.photoCircleParcialmenteCortado}>
+                                    <Image
+                                        source={require('../../../assets/images/foto_descentralizado.png')}
+                                        style={styles.photoExampleParcialmenteCortado}
+                                    />
+                                </View>
                             </View>
                             <Text style={styles.errorLabel}>
                                 Descentralizado
                             </Text>
                         </View>
                         <View style={styles.errorItem}>
-                            <View style={styles.errorIcon}>
-                                <Ionicons
-                                    name="close-circle"
-                                    size={40}
-                                    color="#FF5252"
-                                />
+                            <View style={styles.photoContainer}>
+                                <View style={styles.photoCircleParcialmenteCortado}>
+                                    <Image
+                                        source={require('../../../assets/images/foto_parcialmente_coberto.png')}
+                                        style={styles.photoExampleParcialmenteCortado}
+                                    />
+                                </View>
                             </View>
                             <Text style={styles.errorLabel}>
                                 Parcialmente coberto
@@ -349,7 +350,18 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         backgroundColor: "#F0F0F0",
     },
+    photoCircleParcialmenteCortado: {
+        width: 70,
+        height: 70,
+        borderRadius: 75,
+        overflow: "hidden",
+        backgroundColor: "#F0F0F0",
+    },
     photoExample: {
+        width: "100%",
+        height: "100%",
+    },
+    photoExampleParcialmenteCortado: {
         width: "100%",
         height: "100%",
     },

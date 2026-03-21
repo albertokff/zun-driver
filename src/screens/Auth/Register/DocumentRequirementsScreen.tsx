@@ -163,9 +163,10 @@ export default function DocumentRequirementsScreen() {
                     ]}
                 >
                     <Image
-                        source={{
-                            uri: "https://via.placeholder.com/300x180/4CAF50/FFFFFF?text=CRLV",
-                        }}
+                        source={
+                            documentId?.trim().toLowerCase() === "crlv"
+                                ? require('../../../assets/images/imagecrlv.png')
+                                : require('../../../assets/images/imagecnh.png')}
                         style={styles.documentImage}
                         resizeMode="contain"
                     />
@@ -245,6 +246,29 @@ export default function DocumentRequirementsScreen() {
                             Clique aqui para acessar o site
                         </Text>
                     </TouchableOpacity>
+
+                    <Text
+                        style={[
+                            styles.sectionTitle,
+                            styles.sectionTitleSecondary,
+                            isDark && styles.sectionTitleDark,
+                        ]}
+                    >
+                        Erros comuns a serem evitados
+                    </Text>
+
+                    <View
+                        style={[
+                            styles.documentImageContainer,
+                            isDark && styles.documentImageContainerDark,
+                        ]}
+                    >
+                        <Image
+                            source={require('../../../assets/images/erroscomuns.png')}
+                            style={styles.documentImage}
+                            resizeMode="contain"
+                        />
+                    </View>
                 </View>
             </ScrollView>
 
