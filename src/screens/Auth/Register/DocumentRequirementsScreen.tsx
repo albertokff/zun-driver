@@ -104,7 +104,7 @@ export default function DocumentRequirementsScreen() {
                 imageUri,
             });
         } else if (normalizedDocId === "photo") {
-            // ✅ Foto: Vai para tela de dicas antes de tirar foto
+            // Foto: Vai para tela de dicas antes de tirar foto
             console.log("🚀 Navegando para PhotoTips (Foto)");
             navigation.navigate("PhotoTips", {
                 documentId,
@@ -165,8 +165,9 @@ export default function DocumentRequirementsScreen() {
                     <Image
                         source={
                             documentId?.trim().toLowerCase() === "crlv"
-                                ? require('../../../assets/images/imagecrlv.png')
-                                : require('../../../assets/images/imagecnh.png')}
+                                ? require("../../../assets/images/imagecrlv.png")
+                                : require("../../../assets/images/imagecnh.png")
+                        }
                         style={styles.documentImage}
                         resizeMode="contain"
                     />
@@ -264,7 +265,7 @@ export default function DocumentRequirementsScreen() {
                         ]}
                     >
                         <Image
-                            source={require('../../../assets/images/erroscomuns.png')}
+                            source={require("../../../assets/images/erroscomuns.png")}
                             style={styles.documentImage}
                             resizeMode="contain"
                         />

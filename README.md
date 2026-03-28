@@ -79,111 +79,127 @@ Join our community of developers creating universal apps.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
 
-Estrutura de Pasta e Arquivos (Profissional e Escalável) 
+Estrutura de Pasta e Arquivos (Profissional e Escalável).
+
+Light / Dark
 ```bash
 zun-driver
+├── .expo
+├── .idea
 ├── .vscode
 ├── node_modules
 ├── src/
-│    ├── assets/
-│    │   ├── images
-│    │   └── logo
-│    │
-│    ├── components/
-│    │   ├── AppBackdrop.tsx
-│    │   ├── BackButton.tsx
-│    │   ├── ButtonPrimary.tsx
-│    │   ├── ButtonSecondary.tsx
-│    │   ├── CityPicker.tsx
-│    │   ├── CollapsiblePicker.tsx
-│    │   ├── FormTextInput.tsx
-│    │   ├── ImagePickerModal.tsx
-│    │   └── ModalBackdrop.tsx
-│    │
-│    ├── constants/
-│    │   └── permissions.ts
-│    │
-│    ├── context/
-│    │   ├── DocumentContext.tsx
-│    │   └── ThemeContext.tsx
-│    │
-│    ├── hooks/
-│    │   ├── useAuth.ts
-│    │   ├── useBatteryOptimization.ts
-│    │   ├── useBrazilianCities.ts
-│    │   ├── useCardForm.ts
-│    │   ├── usePhoneMask.ts
-│    │   ├── useSystemPermissions.ts
-│    │   └── useTrip.ts
-│    │
-│    ├── i18n/
-│    │   ├── locales/
-│    │   │   ├── en.json
-│    │   │   ├── es.json
-│    │   │   └── pt.json
-│    │   │
-│    │   ├── i18next.d.ts
-│    │   └── index.ts
-│    │
-│    ├── main/
-│    │   └── AndroidManifest.xml
-│    │
-│    ├── navigation/
-│    │   ├── AuthNavigator.tsx
-│    │   └── RootNavigator.tsx
-│    │
-│    ├── screens/
-│    │   └── Auth/
-│    │       ├── Register/
-│    │       │   ├── AnalysisInProgressScreen.tsx
-│    │       │   ├── CameraCaptureScreen.tsx
-│    │       │   ├── CNHInfoScreen.tsx
-│    │       │   ├── ConfirmInfoScreen.tsx
-│    │       │   ├── DocumentationScreen.tsx
-│    │       │   ├── DocumentGuidelinesScreen.tsx
-│    │       │   ├── DocumentRequirementsScreen.tsx
-│    │       │   ├── DriverCategoryScreen.tsx
-│    │       │   ├── DriverInfoScreen.tsx
-│    │       │   ├── OptimizationCompleteScreen.tsx
-│    │       │   ├── OptimizationScreen.tsx
-│    │       │   ├── OtpScreen.tsx
-│    │       │   ├── PasswordScreen.tsx
-│    │       │   ├── PhoneScreen.tsx
-│    │       │   ├── PhotoTipsScreen.tsx
-│    │       │   ├── UploadDocumentScreen.tsx
-│    │       │   └── VehicleDocumentInfoScreen.tsx
-│    │       │
-│    │       ├── BatteryPermissionScreen.tsx
-│    │       ├── PermissionBackdropScreen.tsx
-│    │       ├── PermissionsScreen.tsx
-│    │       ├── PrivacyPolicyScreen.tsx
-│    │       ├── SplashScreen.tsx
-│    │       ├── StartScreen.tsx
-│    │       └── VerifyCodeScreen.tsx
-│    │
-│    │
-│    ├── theme/
-│    │   ├── colors.ts
-│    │   ├── index.ts 
-│    │   ├── spacing.ts
-│    │   └── typography.ts
-│    │
-│    ├── type/
-│    │   └── react-native-battery-optimization-check.d.ts
-│    │
-│    ├── App.tsx
-│    └── index.ts
+│   ├── assets/
+│   │   ├── icon/
+│   │   ├── images/
+│   │   └── logo/
+│   │
+│   ├── components/
+│   │   ├── AppBackdrop.tsx
+│   │   ├── BackButton.tsx
+│   │   ├── ButtonPrimary.tsx
+│   │   ├── ButtonSecondary.tsx
+│   │   ├── CityPicker.tsx
+│   │   ├── CollapsiblePicker.tsx
+│   │   ├── FormTextInput.tsx
+│   │   ├── ImagePickerModal.tsx
+│   │   └── ModalBackdrop.tsx
+│   │
+│   ├── constants/
+│   │   └── permissions.ts
+│   │
+│   ├── context/
+│   │   ├── DocumentContext.tsx
+│   │   └── ThemeContext.tsx
+│   │
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   ├── useBatteryOptimization.ts
+│   │   ├── useBrazilianCities.ts
+│   │   ├── useCardForm.ts
+│   │   ├── usePhoneMask.ts
+│   │   ├── useSystemPermissions.ts
+│   │   └── useTrip.ts
+│   │
+│   ├── i18n/
+│   │   ├── locales/
+│   │   │   ├── en.json
+│   │   │   ├── es.json
+│   │   │   └── pt.json
+│   │   │
+│   │   ├── i18next.d.ts
+│   │   └── index.ts
+│   │
+│   ├── main/
+│   │   └── AndroidManifest.xml
+│   │
+│   ├── navigation/
+│   │   ├── AuthNavigator.tsx
+│   │   └── RootNavigator.tsx
+│   │
+│   ├── screens/
+│   │   ├── Auth/
+│   │   │   ├── Register/
+│   │   │   │   ├── AnalysisInProgressScreen.tsx
+│   │   │   │   ├── CameraCaptureScreen.tsx
+│   │   │   │   ├── CNHInfoScreen.tsx
+│   │   │   │   ├── ConfirmInfoScreen.tsx
+│   │   │   │   ├── DocumentationScreen.tsx
+│   │   │   │   ├── DocumentGuidelinesScreen.tsx
+│   │   │   │   ├── DocumentRequirementsScreen.tsx
+│   │   │   │   ├── DriverCategoryScreen.tsx
+│   │   │   │   ├── DriverInfoScreen.tsx
+│   │   │   │   ├── OptimizationCompleteScreen.tsx
+│   │   │   │   ├── OptimizationScreen.tsx
+│   │   │   │   ├── OtpScreen.tsx
+│   │   │   │   ├── PasswordScreen.tsx
+│   │   │   │   ├── PhoneScreen.tsx
+│   │   │   │   ├── PhotoTipsScreen.tsx
+│   │   │   │   ├── UploadDocumentScreen.tsx
+│   │   │   │   └── VehicleDocumentInfoScreen.tsx
+│   │   │   │
+│   │   │   ├── AssistantPermissionScreen.tsx
+│   │   │   ├── BatteryPermissionScreen.tsx
+│   │   │   ├── LocationPermissionScreen.tsx
+│   │   │   ├── PermissionBackdropScreen.tsx
+│   │   │   ├── PermissionsScreen.tsx
+│   │   │   ├── PrivacyPolicyScreen.tsx
+│   │   │   ├── SplashScreen.tsx
+│   │   │   ├── StartScreen.tsx
+│   │   │   └── VerifyCodeScreen.tsx
+│   │   │
+│   │   ├── Drawer/
+│   │   │   ├── components/
+│   │   │   │   ├── DrawerHeader.tsx
+│   │   │   │   └── DrawerItem.tsx
+│   │   │   │
+│   │   │   └── DrawerMenu.tsx
+│   │   │
+│   │   └── Main/
+│   │       └── HomeScreen.tsx
+│   │
+│   ├── theme/
+│   │   ├── colors.ts
+│   │   ├── index.ts 
+│   │   ├── spacing.ts
+│   │   └── typography.ts
+│   │
+│   ├── type/
+│   │   └── react-native-battery-optimization-check.d.ts
+│   │
+│   ├── App.tsx
+│   └── index.ts
 │
 ├── .editorconfig
 ├── .gitignore
 ├── app.json
+├── babel.config.json
 ├── eslint.config.js
 ├── package-lock.json
 ├── package.json
 ├── README.md
 ├── tsconfig.json
 ```
-Light / Dark
 
 
 ## COMANDOS GitHub
