@@ -96,7 +96,7 @@ export default function OptimizationScreen() {
                     <Ionicons name="arrow-back" size={24} color="#222" />
                 </TouchableOpacity>
                 <Text style={styles.headerClose}>×</Text>
-                <Text style={styles.headerTitle}>99</Text>
+                <Text style={styles.headerTitle}>Zun</Text>
             </View>
 
             {/* FOTO COM PROGRESSO */}
