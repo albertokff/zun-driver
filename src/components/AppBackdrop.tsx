@@ -4,28 +4,60 @@ import { useTheme } from "../context/ThemeContext";
 
 type Props = {
     children?: React.ReactNode;
+    title?: string;
+    subtitle?: string;
 };
 
-export default function AppBackdrop({ children }: Props) {
-    const { theme } = useTheme();
+export default function AppBackdrop({
+    children,
+    title = "Z - Motorista",
+    subtitle = "Mobilidade inteligente para motoristas parceiros.",
+}: Props) {
+    const { theme, colors } = useTheme();
 
     const logo =
         theme === "dark"
             ? require("../assets/logo/zun-logo-dark.png")
             : require("../assets/logo/zun-logo-light.png");
 
-    const backgroundColor = theme === "dark" ? "#000000" : "#ffffff";
-    const textColor = theme === "dark" ? "#9BA1A6" : "#687076";
-
     return (
-        <View style={[styles.container, { backgroundColor }]}>
-            <Image source={logo} style={styles.logo} resizeMode="contain" />
+        <View
+            style={[
+                styles.container,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* Bloco principal de branding */}
+            <View style={styles.brandingContainer}>
+                <Image source={logo} style={styles.logo} resizeMode="contain" />
 
-            <Text style={[styles.primaryTextOpac, { color: textColor }]}>
-                Z - Motorista
-            </Text>
+                <Text
+                    style={[
+                        styles.title,
+                        {
+                            color: colors.text,
+                        },
+                    ]}
+                >
+                    {title}
+                </Text>
 
-            {children}
+                <Text
+                    style={[
+                        styles.subtitle,
+                        {
+                            color: colors.textSecondary,
+                        },
+                    ]}
+                >
+                    {subtitle}
+                </Text>
+            </View>
+
+            {/* Área de conteúdo reutilizável */}
+            <View style={styles.content}>{children}</View>
         </View>
     );
 }
@@ -38,16 +70,38 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
 
-    logo: {
-        width: 180,
-        height: 180,
-        marginBottom: 10,
+    brandingContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        marginBottom: 24,
     },
 
-    primaryTextOpac: {
-        fontSize: 20,
+    logo: {
+        width: 168,
+        height: 168,
+        marginBottom: 8,
+    },
+
+    title: {
+        fontSize: 22,
         fontWeight: "700",
-        letterSpacing: 2,
-        marginTop: 6,
+        letterSpacing: 1.2,
+        textAlign: "center",
+        marginTop: 4,
+    },
+
+    subtitle: {
+        fontSize: 14,
+        fontWeight: "400",
+        textAlign: "center",
+        lineHeight: 20,
+        marginTop: 8,
+        maxWidth: 280,
+    },
+
+    content: {
+        width: "100%",
+        alignItems: "center",
     },
 });

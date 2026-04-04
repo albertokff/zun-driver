@@ -1,30 +1,42 @@
 /*
 ========================================================
 TELA DE PERMISSÕES
-Explica ao usuário quais permissões o app precisa e por quê.
+
+OBJETIVO:
+- Explicar ao usuário quais permissões o app precisa
+- Mostrar de forma clara e amigável o motivo de cada uma
+- Manter uma experiência elegante, leve e confiável
 
 COMPATIBILIDADE:
-- Web: Permissões são gerenciadas pelo navegador
-- Android: Permissões são gerenciadas pelo expo-permissions
-- iOS: Permissões são gerenciadas pelo expo-permissions
+- Web: permissões gerenciadas pelo navegador
+- Android: permissões gerenciadas pelo fluxo do app
+- iOS: permissões gerenciadas pelo fluxo do app
 
-NÃO USA react-native-permissions (evita conflitos no Android)
+OBSERVAÇÃO:
+- Ainda estamos em fase de desenvolvimento com dados mockados
+- O fluxo foi mantido preparado para futura integração real
 ========================================================
 */
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
-
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    SafeAreaView,
+    StatusBar,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import { RootStackParamList } from "../../navigation/RootNavigator";
+import { useTheme } from "../../context/ThemeContext";
+import { permissions } from "../../constants/permissions";
 
 import ButtonPrimary from "../../components/ButtonPrimary";
 import ButtonSecondary from "../../components/ButtonSecondary";
-
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-
-import { permissions } from "../../constants/permissions";
+import BackButton from "../../components/BackButton";
 
 /*
 ========================================================
@@ -36,8 +48,8 @@ const DEV_SIMULATE_PERMISSION = true;
 
 /*
 ========================================================
-TIPOS DE PERMISSÃO (Compatível com Web e Android)
-Usamos strings simples em vez do pacote react-native-permissions
+TIPOS DE PERMISSÃO
+Compatível com Web e Android usando strings simples
 ========================================================
 */
 type PermissionType = "camera" | "media-library" | "location" | string;
@@ -55,7 +67,9 @@ const ANDROID_PERMISSIONS = {
 } as const;
 
 /*
+========================================================
 TIPAGEM DE NAVEGAÇÃO
+========================================================
 */
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -72,11 +86,18 @@ export default function PermissionsScreen() {
     const navigation = useNavigation<NavigationProp>();
 
     /*
-    ==========================================
-    BOTÃO PERMITIR
-    ==========================================
-    Agora apenas navega para a tela de fundo
-    onde o popup será chamado
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
+    */
+    const { theme, colors, isDark } = useTheme();
+
+    /*
+    ========================================================
+    BOTÃO "PERMITIR"
+    Em desenvolvimento, segue o fluxo mockado.
+    Em produção, segue para a tela que dispara a permissão.
+    ========================================================
     */
     function handleAllow() {
         /*
@@ -86,7 +107,9 @@ export default function PermissionsScreen() {
         */
         if (DEV_SIMULATE_PERMISSION) {
             console.log("Permissão simulada (DEV)");
-            navigation.navigate("Phone");
+            navigation.navigate("Phone", {
+                fromLogin: false,
+            });
             return;
         }
 
@@ -94,11 +117,9 @@ export default function PermissionsScreen() {
         =====================================
         MODO PRODUÇÃO
         =====================================
-        Usa permissões compatíveis com Expo (não react-native-permissions)
+        Usa permissões compatíveis com o fluxo atual
         =====================================
         */
-
-        // Tipo simples (string) em vez de PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION
         const locationPermission: PermissionType = ANDROID_PERMISSIONS.LOCATION;
 
         if (!locationPermission) return;
@@ -109,52 +130,135 @@ export default function PermissionsScreen() {
     }
 
     /*
-    Caso o usuário não aceite
-    volta para tela inicial
+    ========================================================
+    BOTÃO "NÃO PERMITIR E SAIR"
+    Retorna para a tela inicial do fluxo
+    ========================================================
     */
     function handleDenyAndExit() {
         navigation.navigate("Start");
     }
 
     return (
-        <View style={styles.container}>
-            {/* CABEÇALHO FIXO */}
-            <View style={styles.header}>
-                <Text style={styles.title}>Política de Privacidade</Text>
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-                <Text style={styles.subtitle}>
-                    A Zun Motorista precisa das seguintes permissões:
-                </Text>
-            </View>
-
-            {/* LISTA DE PERMISSÕES */}
-            <ScrollView
-                style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
+                ]}
             >
-                {permissions.map((item, index) => (
-                    <PermissionItem
-                        key={index}
-                        icon={item.icon}
-                        title={item.title}
-                        description={item.description}
-                    />
-                ))}
-            </ScrollView>
+                {/* ========================================================
+                    BOTÃO DE VOLTAR
+                ======================================================== */}
+                <BackButton />
 
-            {/* BOTÕES FIXOS */}
-            <View style={styles.buttonsContainer}>
-                <View style={styles.buttonPrimary}>
-                    <ButtonPrimary title="Permitir" onPress={handleAllow} />
+                {/* ========================================================
+                    CABEÇALHO
+                ======================================================== */}
+                <View style={styles.header}>
+                    <Text
+                        style={[
+                            styles.badge,
+                            {
+                                color: colors.primary,
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                                borderColor: colors.divider,
+                            },
+                        ]}
+                    >
+                        Permissões do aplicativo
+                    </Text>
+
+                    <Text
+                        style={[
+                            styles.title,
+                            {
+                                color: colors.text,
+                            },
+                        ]}
+                    >
+                        Para uma melhor experiência
+                    </Text>
+
+                    <Text
+                        style={[
+                            styles.subtitle,
+                            {
+                                color: colors.textSecondary,
+                            },
+                        ]}
+                    >
+                        A Zun precisa de algumas permissões para funcionar
+                        corretamente no seu dispositivo.
+                    </Text>
                 </View>
 
-                <ButtonSecondary
-                    title="Não permitir e sair"
-                    onPress={handleDenyAndExit}
-                />
+                {/* ========================================================
+                    LISTA DE PERMISSÕES
+                ======================================================== */}
+                <ScrollView
+                    style={styles.scroll}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {permissions.map((item, index) => (
+                        <PermissionItem
+                            key={index}
+                            icon={item.icon}
+                            title={item.title}
+                            description={item.description}
+                            isDark={isDark}
+                        />
+                    ))}
+                </ScrollView>
+
+                {/* ========================================================
+                    BOTÕES FIXOS
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.buttonsContainer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
+                    ]}
+                >
+                    <View style={styles.buttonPrimary}>
+                        <ButtonPrimary
+                            title="Permitir"
+                            onPress={handleAllow}
+                            isDark={isDark}
+                        />
+                    </View>
+
+                    <ButtonSecondary
+                        title="Não permitir e sair"
+                        onPress={handleDenyAndExit}
+                        isDark={isDark}
+                    />
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -164,44 +268,107 @@ COMPONENTE ITEM DE PERMISSÃO
 Exibe cada permissão com ícone, título e descrição
 ========================================================
 */
-function PermissionItem({ icon, title, description }: PermissionItemProps) {
+function PermissionItem({
+    icon,
+    title,
+    description,
+    isDark,
+}: PermissionItemProps & { isDark: boolean }) {
+    const { colors } = useTheme();
+
     return (
-        <View style={styles.permissionItem}>
-            <View style={styles.iconContainer}>
-                <Icon name={icon} size={24} color="#687076" />
+        <View
+            style={[
+                styles.permissionCard,
+                {
+                    backgroundColor: isDark ? colors.card : colors.surface,
+                    borderColor: colors.divider,
+                },
+            ]}
+        >
+            <View
+                style={[
+                    styles.iconContainer,
+                    {
+                        backgroundColor: isDark
+                            ? colors.inputBackground
+                            : colors.background,
+                    },
+                ]}
+            >
+                <Icon name={icon} size={24} color={colors.primary} />
             </View>
 
             <View style={styles.permissionTextContainer}>
-                <Text style={styles.permissionTitle}>{title}</Text>
+                <Text
+                    style={[
+                        styles.permissionTitle,
+                        {
+                            color: colors.text,
+                        },
+                    ]}
+                >
+                    {title}
+                </Text>
 
-                <Text style={styles.permissionDescription}>{description}</Text>
+                <Text
+                    style={[
+                        styles.permissionDescription,
+                        {
+                            color: colors.textSecondary,
+                        },
+                    ]}
+                >
+                    {description}
+                </Text>
             </View>
         </View>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+    },
+
     container: {
         flex: 1,
-        backgroundColor: "#ffffff",
     },
 
     header: {
         paddingHorizontal: 24,
-        paddingTop: 20,
+        paddingTop: 12,
         paddingBottom: 10,
     },
 
+    badge: {
+        alignSelf: "flex-start",
+        fontSize: 13,
+        fontWeight: "600",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 999,
+        borderWidth: 1,
+        marginBottom: 18,
+    },
+
     title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#0B0B0B",
+        fontSize: 28,
+        fontWeight: "700",
+        lineHeight: 34,
+        marginBottom: 10,
+        maxWidth: 320,
     },
 
     subtitle: {
         fontSize: 16,
-        color: "#687076",
-        marginTop: 8,
+        lineHeight: 24,
+        maxWidth: 340,
     },
 
     scroll: {
@@ -210,21 +377,24 @@ const styles = StyleSheet.create({
 
     scrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 10,
-        paddingBottom: 30,
+        paddingTop: 18,
+        paddingBottom: 24,
+        gap: 14,
     },
 
-    permissionItem: {
+    permissionCard: {
         flexDirection: "row",
         alignItems: "flex-start",
-        marginBottom: 25,
+        borderWidth: 1,
+        borderRadius: 18,
+        padding: 16,
     },
 
     iconContainer: {
-        width: 40,
-        height: 40,
-        marginRight: 16,
-        marginTop: 5,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        marginRight: 14,
         justifyContent: "center",
         alignItems: "center",
     },
@@ -234,23 +404,21 @@ const styles = StyleSheet.create({
     },
 
     permissionTitle: {
-        fontSize: 17,
-        fontWeight: "bold",
-        color: "#333",
+        fontSize: 16,
+        fontWeight: "700",
+        marginBottom: 4,
     },
 
     permissionDescription: {
-        fontSize: 15,
-        color: "#687076",
-        marginTop: 4,
-        lineHeight: 22,
+        fontSize: 14,
+        lineHeight: 21,
     },
 
     buttonsContainer: {
         paddingHorizontal: 24,
+        paddingTop: 14,
         paddingBottom: 20,
-        paddingTop: 10,
-        backgroundColor: "#ffffff",
+        borderTopWidth: 1,
     },
 
     buttonPrimary: {

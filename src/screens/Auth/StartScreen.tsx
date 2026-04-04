@@ -1,81 +1,124 @@
 /*
 ========================================================
-TELA INICIAL - START
-Primeira tela do aplicativo com opções de Login e Cadastro.
+TELA INICIAL - START (VERSÃO REFINADA)
+Foco em conversão + simplicidade + elegância
 
-FLUXO ATUALIZADO:
-- Botão "Entrar": Navega para Phone com fromLogin: true
-- Botão "Criar minha conta": Navega para PrivacyPolicy (cadastro)
+OBJETIVO:
+- Reduzir carga de texto
+- Melhorar UX
+- Aumentar conversão
+- Estilo similar a apps como 99
 
-PARÂMETROS ENVIADOS:
-- Phone: { fromLogin: boolean }
-  - true: Fluxo de Login (Entrar)
-  - false: Fluxo de Cadastro
+FLUXO:
+- Entrar → Phone (login)
+- Criar conta → PrivacyPolicy
 ========================================================
 */
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+    SafeAreaView,
+    StatusBar,
+} from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootNavigator";
+import ButtonPrimary from "../../components/ButtonPrimary";
 
 // Tipagem para navegação
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Start">;
 
 export default function StartScreen() {
-    const { theme } = useTheme();
+    const { theme, colors } = useTheme();
     const navigation = useNavigation<NavigationProp>();
 
-    // Seleciona logo baseado no tema
     const logo =
         theme === "dark"
             ? require("../../assets/logo/zun-logo-dark.png")
             : require("../../assets/logo/zun-logo-light.png");
 
     return (
-        <View
-            style={[styles.container, theme === "dark" && styles.containerDark]}
+        <SafeAreaView
+            style={[styles.safeArea, { backgroundColor: colors.background }]}
         >
-            {/* LOGO E TÍTULO */}
-            <View style={styles.logoContainer}>
-                <Image source={logo} style={styles.logo} resizeMode="contain" />
-                <Text style={styles.primaryTextOpac}>Z Motorista</Text>
-            </View>
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-            {/* BOTÕES DE AÇÃO */}
-            <View style={styles.buttonsContainer}>
-                {/*
-                ================================================
-                BOTÃO "ENTRAR" - FLUXO DE LOGIN
-                Navega para Phone passando fromLogin: true
-                ================================================
-                */}
-                <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={() =>
-                        navigation.navigate("Phone", {
-                            fromLogin: true, // ✅ Parâmetro crítico para diferenciar fluxos
-                        })
-                    }
-                >
-                    <Text style={styles.primaryText}>Entrar</Text>
-                </TouchableOpacity>
+            <View style={styles.container}>
+                {/* BLOCO CENTRAL */}
+                <View style={styles.centerContent}>
+                    <Image
+                        source={logo}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
 
-                {/*
-                ================================================
-                BOTÃO "CRIAR MINHA CONTA" - FLUXO DE CADASTRO
-                Navega para PrivacyPolicy (início do cadastro)
-                ================================================
-                */}
-                <TouchableOpacity
-                    style={styles.secondaryButton}
-                    onPress={() => navigation.navigate("PrivacyPolicy")}
-                >
-                    <Text style={styles.secondaryText}>Criar minha conta</Text>
-                </TouchableOpacity>
+                    <Text style={[styles.title, { color: colors.text }]}>
+                        Bem-vindo à Zun
+                    </Text>
+
+                    <Text
+                        style={[
+                            styles.subtitle,
+                            { color: colors.textSecondary },
+                        ]}
+                    >
+                        Ganhe mais dirigindo com liberdade
+                    </Text>
+                </View>
+
+                {/* BOTÕES */}
+                <View style={styles.buttonsContainer}>
+                    <ButtonPrimary
+                        title="Entrar"
+                        onPress={() =>
+                            navigation.navigate("Phone", {
+                                fromLogin: true,
+                            })
+                        }
+                        isDark={theme === "dark"}
+                    />
+
+                    <TouchableOpacity
+                        style={[
+                            styles.secondaryButton,
+                            {
+                                borderColor: colors.primary,
+                            },
+                        ]}
+                        activeOpacity={0.85}
+                        onPress={() => navigation.navigate("PrivacyPolicy")}
+                    >
+                        <Text
+                            style={[
+                                styles.secondaryText,
+                                { color: colors.primary },
+                            ]}
+                        >
+                            Criar minha conta
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* TEXTO LEGAL (leve e discreto) */}
+                    <Text
+                        style={[
+                            styles.footerText,
+                            { color: colors.textSecondary },
+                        ]}
+                    >
+                        Ao continuar, você concorda com os termos e a política
+                        de privacidade.
+                    </Text>
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -85,56 +128,64 @@ ESTILOS
 ========================================================
 */
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+    },
+
     container: {
         flex: 1,
-        backgroundColor: "#ffffff",
-        alignItems: "center",
         justifyContent: "space-between",
-        paddingVertical: 120,
+        paddingHorizontal: 24,
+        paddingBottom: 24,
     },
-    containerDark: {
-        backgroundColor: "#0B0B0B",
-    },
-    logoContainer: {
+
+    centerContent: {
+        flex: 1,
         alignItems: "center",
+        justifyContent: "center",
     },
+
     logo: {
         width: 200,
         height: 200,
+        marginBottom: 24,
     },
-    primaryTextOpac: {
-        color: "#687076",
-        fontSize: 18,
-        fontWeight: "600",
+
+    title: {
+        fontSize: 26,
+        fontWeight: "700",
+        textAlign: "center",
+        marginBottom: 8,
     },
+
+    subtitle: {
+        fontSize: 15,
+        textAlign: "center",
+    },
+
     buttonsContainer: {
         width: "100%",
-        alignItems: "center",
+        gap: 14,
     },
-    primaryButton: {
-        backgroundColor: "#1E6BE3",
-        width: "80%",
-        paddingVertical: 18,
-        borderRadius: 40,
-        alignItems: "center",
-        marginBottom: 14,
-    },
-    primaryText: {
-        color: "#fff",
-        fontSize: 18,
-        fontWeight: "600",
-    },
+
     secondaryButton: {
-        borderWidth: 2,
-        borderColor: "#1E6BE3",
-        width: "80%",
+        width: "100%",
         paddingVertical: 18,
         borderRadius: 40,
         alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 2,
     },
+
     secondaryText: {
-        color: "#1E6BE3",
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "600",
+    },
+
+    footerText: {
+        fontSize: 12,
+        textAlign: "center",
+        marginTop: 12,
+        paddingHorizontal: 10,
     },
 });

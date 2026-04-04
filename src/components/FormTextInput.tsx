@@ -1,12 +1,18 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import {
+    View,
+    Text,
+    TextInput,
+    StyleSheet,
+    TextInputProps,
+} from "react-native";
+import { lightColors, darkColors } from "../themes/colors";
 
-interface FormTextInputProps {
+interface FormTextInputProps extends TextInputProps {
     label: string;
     value: string;
     onChangeText: (text: string) => void;
     isDark: boolean;
-    [key: string]: any;
 }
 
 export default function FormTextInput({
@@ -16,19 +22,47 @@ export default function FormTextInput({
     isDark,
     ...props
 }: FormTextInputProps) {
+    const palette = isDark ? darkColors : lightColors;
+
+    const [isFocused, setIsFocused] = useState(false);
+    const hasValue = value?.length > 0;
+
     return (
         <View style={styles.inputContainer}>
-            {value ? (
-                <Text style={[styles.label, isDark && styles.labelDark]}>
+            {/* Label flutuante */}
+            {(hasValue || isFocused) && (
+                <Text
+                    style={[
+                        styles.label,
+                        {
+                            color: isFocused
+                                ? palette.primary
+                                : palette.subtext,
+                            backgroundColor: palette.surface,
+                        },
+                    ]}
+                >
                     {label}
                 </Text>
-            ) : null}
+            )}
+
             <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
+                style={[
+                    styles.input,
+                    {
+                        backgroundColor: palette.inputBackground,
+                        borderColor: isFocused
+                            ? palette.primary
+                            : palette.border,
+                        color: palette.text,
+                    },
+                ]}
                 value={value}
                 onChangeText={onChangeText}
-                placeholder={label}
-                placeholderTextColor={isDark ? "#555" : "#AAA"}
+                placeholder={!isFocused ? label : ""}
+                placeholderTextColor={palette.placeholder}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
                 {...props}
             />
         </View>
@@ -37,38 +71,26 @@ export default function FormTextInput({
 
 const styles = StyleSheet.create({
     inputContainer: {
-        marginBottom: 15,
+        marginBottom: 16,
         paddingHorizontal: 20,
         position: "relative",
     },
+
     label: {
-        color: "#888",
         fontSize: 12,
         position: "absolute",
         top: -8,
         left: 30,
         zIndex: 1,
-        backgroundColor: "#FFF",
-        paddingHorizontal: 4,
+        paddingHorizontal: 6,
     },
-    labelDark: {
-        color: "#777",
-        backgroundColor: "#1C1C1E",
-    },
+
     input: {
-        backgroundColor: "#FFF",
         borderWidth: 1,
-        borderColor: "#E0E0E0",
-        borderRadius: 8,
-        height: 58,
+        borderRadius: 14,
+        height: 56,
         fontSize: 16,
-        paddingHorizontal: 15,
-        color: "#222",
+        paddingHorizontal: 16,
         justifyContent: "center",
-    },
-    inputDark: {
-        backgroundColor: "#1C1C1E",
-        borderColor: "#444",
-        color: "#FFF",
     },
 });
