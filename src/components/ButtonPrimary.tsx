@@ -51,8 +51,8 @@ export default function ButtonPrimary({
 const styles = StyleSheet.create({
     button: {
         width: "100%",
-        paddingVertical: 18,
-        borderRadius: 40,
+        height: 52,
+        borderRadius: 999,
         alignItems: "center",
         justifyContent: "center",
     },

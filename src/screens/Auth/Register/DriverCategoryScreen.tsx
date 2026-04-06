@@ -1,9 +1,20 @@
 /*
 ========================================================
 TELA DE CATEGORIA DO MOTORISTA
-O usuário seleciona o tipo de veículo/serviço que irá operar.
+
+OBJETIVO:
+- Permitir que o usuário selecione a categoria em que vai atuar
+- Seguir a estrutura visual da referência da 99
+- Aplicar identidade Zun por cima da estrutura base
+- Usar apenas cores dinâmicas do tema
+
+FLUXO:
+- Usuário escolhe uma categoria
+- Botão "Próximo" habilita após seleção
+- Navega para DriverInfo
 ========================================================
 */
+
 import React, { useState } from "react";
 import {
     View,
@@ -11,21 +22,32 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    Platform,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../../navigation/RootNavigator";
-import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 
-// Tipagem
+import { RootStackParamList } from "../../../navigation/RootNavigator";
+import { useTheme } from "../../../context/ThemeContext";
+
+/*
+========================================================
+TIPAGEM DE NAVEGAÇÃO
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     "DriverCategory"
 >;
 
-// Opções de Categoria
+/*
+========================================================
+OPÇÕES DE CATEGORIA
+Seguem a lógica da referência, adaptadas para a Zun
+========================================================
+*/
 const CATEGORIES = [
     {
         id: "delivery",
@@ -45,267 +67,467 @@ const CATEGORIES = [
         title: "Eu tenho um carro",
         subtitle: "Quero fazer corridas com passageiros ou realizar entregas",
     },
+    {
+        id: "rent",
+        icon: "car-outline",
+        title: "Preciso de ajuda para alugar um carro",
+        subtitle: "A Zun pode te ajudar a encontrar",
+    },
 ];
 
+/*
+========================================================
+COMPONENTE PRINCIPAL
+========================================================
+*/
 export default function DriverCategoryScreen() {
     const navigation = useNavigation<NavigationProp>();
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
 
+    /*
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
+    */
+    const { theme, colors, isDark } = useTheme();
+
+    /*
+    ========================================================
+    ESTADO DA SELEÇÃO
+    ========================================================
+    */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(
         null,
     );
 
+    /*
+    ========================================================
+    AÇÃO DE AVANÇAR
+    ========================================================
+    */
     const handleNext = () => {
-        if (selectedCategory) {
-            navigation.navigate("DriverInfo");
-        }
-    };
+        if (!selectedCategory) return;
 
-    // Componente para cada item da lista
-    const CategoryItem = ({ item }: { item: (typeof CATEGORIES)[0] }) => {
-        const isSelected = selectedCategory === item.id;
-        return (
-            <TouchableOpacity
-                style={[
-                    styles.categoryItem,
-                    isDark && styles.categoryItemDark,
-                    isSelected && styles.categoryItemSelected,
-                ]}
-                onPress={() => setSelectedCategory(item.id)}
-            >
-                <Ionicons
-                    name={item.icon as any}
-                    size={32}
-                    color={isDark ? "#FFF" : "#000"}
-                    style={styles.categoryIcon}
-                />
-                <View style={styles.categoryTextContainer}>
-                    <Text
-                        style={[
-                            styles.categoryTitle,
-                            isDark && styles.categoryTitleDark,
-                        ]}
-                    >
-                        {item.title}
-                    </Text>
-                    <Text
-                        style={[
-                            styles.categorySubtitle,
-                            isDark && styles.categorySubtitleDark,
-                        ]}
-                    >
-                        {item.subtitle}
-                    </Text>
-                </View>
-                <View
-                    style={[
-                        styles.radioCircle,
-                        isDark && styles.radioCircleDark,
-                    ]}
-                >
-                    {isSelected && <View style={styles.radioChecked} />}
-                </View>
-            </TouchableOpacity>
-        );
+        navigation.navigate("DriverInfo");
     };
 
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            <ScrollView>
-                {/* BANNER SUPERIOR */}
-                <View style={styles.banner}>
-                    {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={isDark ? colors.background : colors.white}
+            />
+
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
+                ]}
+            >
+                {/* ========================================================
+                    TOPO DA TELA
+                    Estrutura inspirada na referência da 99
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.topBar,
+                        {
+                            backgroundColor: isDark
+                                ? colors.background
+                                : colors.white,
+                            borderBottomColor: colors.divider,
+                        },
+                    ]}
+                >
                     <TouchableOpacity
-                        style={styles.backButton}
+                        style={styles.topIconButton}
                         onPress={() => navigation.goBack()}
+                        activeOpacity={0.8}
                     >
-                        <Text style={styles.backButtonText}>‹</Text>
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color={colors.text}
+                        />
                     </TouchableOpacity>
 
-                    <View style={styles.bannerTextContainer}>
-                        <Text style={styles.bannerTitle}>
-                            Zun é segurança em todas as categorias
-                        </Text>
-                        <Text style={styles.bannerSubtitle}>
-                            Monitoramos suas corridas em tempo real e em caso de
-                            anormalidade um agente entrará em contato
-                        </Text>
-                    </View>
-                    <Ionicons
-                        name="map-outline"
-                        size={50}
-                        color="#333"
-                        style={styles.bannerIcon}
-                    />
-                </View>
+                    <TouchableOpacity
+                        style={styles.topIconButton}
+                        onPress={() => navigation.goBack()}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="close" size={22} color={colors.text} />
+                    </TouchableOpacity>
 
-                {/* LISTA DE CATEGORIAS */}
-                <View style={styles.listContainer}>
-                    {CATEGORIES.map((item) => (
-                        <CategoryItem key={item.id} item={item} />
-                    ))}
-
-                    {/* ITEM NÃO SELECIONÁVEL */}
-                    <View
+                    <Text
                         style={[
-                            styles.categoryItem,
-                            isDark && styles.categoryItemDark,
-                            { opacity: 0.7 },
+                            styles.topBrand,
+                            {
+                                color: colors.text,
+                            },
                         ]}
                     >
-                        <Ionicons
-                            name="car-sport-outline"
-                            size={32}
-                            color={isDark ? "#FFF" : "#000"}
-                            style={styles.categoryIcon}
-                        />
-                        <View style={styles.categoryTextContainer}>
+                        Zun
+                    </Text>
+
+                    <View style={styles.topSpacer} />
+                </View>
+
+                {/* ========================================================
+                    CONTEÚDO ROLÁVEL
+                ======================================================== */}
+                <ScrollView
+                    style={styles.scroll}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    bounces={false}
+                >
+                    {/* ====================================================
+                        BANNER SUPERIOR
+                        Estrutura da 99, identidade Zun
+                    ==================================================== */}
+                    <View
+                        style={[
+                            styles.banner,
+                            {
+                                backgroundColor: colors.primary,
+                            },
+                        ]}
+                    >
+                        <View style={styles.bannerTextContainer}>
                             <Text
                                 style={[
-                                    styles.categoryTitle,
-                                    isDark && styles.categoryTitleDark,
+                                    styles.bannerTitle,
+                                    {
+                                        color: colors.white,
+                                    },
                                 ]}
                             >
-                                Preciso de ajuda para alugar um carro
+                                Zun é segurança em todas as categorias
                             </Text>
+
                             <Text
                                 style={[
-                                    styles.categorySubtitle,
-                                    isDark && styles.categorySubtitleDark,
+                                    styles.bannerSubtitle,
+                                    {
+                                        color: colors.white,
+                                    },
                                 ]}
                             >
-                                A Zun pode te ajudar a encontrar
+                                Monitoramos suas corridas em tempo real e, em
+                                caso de anormalidade, um agente poderá entrar em
+                                contato.
                             </Text>
                         </View>
-                        <Ionicons
-                            name="chatbubble-ellipses-outline"
-                            size={24}
-                            color="#1E6BE3"
-                        />
-                    </View>
-                </View>
-            </ScrollView>
 
-            {/* BOTÃO INFERIOR */}
-            <View style={[styles.footer, isDark && styles.footerDark]}>
-                <TouchableOpacity
+                        <View style={styles.bannerArt}>
+                            <Ionicons
+                                name="shield-checkmark"
+                                size={52}
+                                color={colors.white}
+                            />
+                        </View>
+                    </View>
+
+                    {/* ====================================================
+                        LISTA DE CATEGORIAS
+                    ==================================================== */}
+                    <View style={styles.listContainer}>
+                        {CATEGORIES.map((item) => {
+                            const isSelected = selectedCategory === item.id;
+
+                            return (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    style={[
+                                        styles.categoryItem,
+                                        {
+                                            backgroundColor: isDark
+                                                ? colors.background
+                                                : colors.white,
+                                            borderColor: isSelected
+                                                ? colors.primary
+                                                : colors.divider,
+                                        },
+                                    ]}
+                                    activeOpacity={0.85}
+                                    onPress={() => setSelectedCategory(item.id)}
+                                >
+                                    <View
+                                        style={[
+                                            styles.categoryIconWrap,
+                                            {
+                                                backgroundColor: isDark
+                                                    ? colors.background
+                                                    : colors.white,
+                                                borderColor: colors.divider,
+                                            },
+                                        ]}
+                                    >
+                                        <Ionicons
+                                            name={item.icon as any}
+                                            size={30}
+                                            color={colors.text}
+                                        />
+                                    </View>
+
+                                    <View style={styles.categoryTextContainer}>
+                                        <Text
+                                            style={[
+                                                styles.categoryTitle,
+                                                {
+                                                    color: colors.text,
+                                                },
+                                            ]}
+                                        >
+                                            {item.title}
+                                        </Text>
+
+                                        <Text
+                                            style={[
+                                                styles.categorySubtitle,
+                                                {
+                                                    color: colors.subtext,
+                                                },
+                                            ]}
+                                        >
+                                            {item.subtitle}
+                                        </Text>
+                                    </View>
+
+                                    <View
+                                        style={[
+                                            styles.radioCircle,
+                                            {
+                                                borderColor: isSelected
+                                                    ? colors.primary
+                                                    : colors.divider,
+                                            },
+                                        ]}
+                                    >
+                                        {isSelected && (
+                                            <View
+                                                style={[
+                                                    styles.radioChecked,
+                                                    {
+                                                        backgroundColor:
+                                                            colors.primary,
+                                                    },
+                                                ]}
+                                            />
+                                        )}
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </ScrollView>
+
+                {/* ========================================================
+                    RODAPÉ FIXO
+                ======================================================== */}
+                <View
                     style={[
-                        styles.button,
-                        { opacity: selectedCategory ? 1 : 0.5 },
+                        styles.footer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
                     ]}
-                    disabled={!selectedCategory}
-                    onPress={handleNext}
                 >
-                    <Text style={styles.buttonText}>Próximo</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.button,
+                            {
+                                backgroundColor: colors.primary,
+                                opacity: selectedCategory ? 1 : 0.35,
+                            },
+                        ]}
+                        disabled={!selectedCategory}
+                        onPress={handleNext}
+                        activeOpacity={0.88}
+                    >
+                        <Text
+                            style={[
+                                styles.buttonText,
+                                {
+                                    color: colors.white,
+                                },
+                            ]}
+                        >
+                            Próximo
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#F8F9FA" },
-    containerDark: { backgroundColor: "#000" },
+    safeArea: {
+        flex: 1,
+    },
 
-    // Banner com posição relativa para conter o botão absoluto
-    banner: {
-        backgroundColor: "#1E6BE3",
-        padding: 20,
-        paddingTop: Platform.OS === "ios" ? 65 : 45, // Espaço para status bar + botão
-        paddingBottom: 30,
+    container: {
+        flex: 1,
+    },
+
+    topBar: {
+        height: 56,
+        borderBottomWidth: 1,
         flexDirection: "row",
         alignItems: "center",
-        position: "relative", // Necessário para posicionar o botão absolutamente
+        paddingHorizontal: 10,
     },
-    // Botão de voltar posicionado no canto superior esquerdo do banner
-    backButton: {
-        position: "absolute",
-        top: Platform.OS === "ios" ? 15 : 10, // Ajuste fino para ficar acima do texto
-        left: 10,
-        width: 40,
-        height: 40,
-        justifyContent: "center",
+
+    topIconButton: {
+        width: 36,
+        height: 36,
         alignItems: "center",
-        zIndex: 10,
+        justifyContent: "center",
+        marginRight: 2,
     },
-    backButtonText: {
-        fontSize: 36,
-        color: "#FFF",
-        fontWeight: "300",
-        marginTop: -5, // Ajuste fino para centralizar verticalmente
+
+    topBrand: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginLeft: 4,
     },
+
+    topSpacer: {
+        flex: 1,
+    },
+
+    scroll: {
+        flex: 1,
+    },
+
+    scrollContent: {
+        paddingBottom: 16,
+    },
+
+    banner: {
+        minHeight: 120,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        flexDirection: "row",
+        alignItems: "center",
+    },
+
     bannerTextContainer: {
         flex: 1,
-        marginRight: 10,
-        marginTop: Platform.OS === "ios" ? 35 : 30, // Espaço para não ficar embaixo do botão
+        paddingRight: 10,
     },
-    bannerTitle: { fontSize: 18, fontWeight: "bold", color: "#FFF" },
-    bannerSubtitle: { fontSize: 13, color: "#555", marginTop: 5 },
-    bannerIcon: { opacity: 0.8 },
 
-    listContainer: { padding: 20 },
+    bannerTitle: {
+        fontSize: 17,
+        fontWeight: "700",
+        lineHeight: 22,
+        marginBottom: 6,
+    },
+
+    bannerSubtitle: {
+        fontSize: 13,
+        lineHeight: 18,
+    },
+
+    bannerArt: {
+        width: 78,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    listContainer: {
+        paddingHorizontal: 14,
+        paddingTop: 14,
+    },
+
     categoryItem: {
-        backgroundColor: "#FFF",
-        padding: 20,
-        borderRadius: 12,
+        minHeight: 98,
+        borderRadius: 14,
+        borderWidth: 1,
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 15,
+        paddingHorizontal: 14,
+        paddingVertical: 14,
+        marginBottom: 12,
+    },
+
+    categoryIconWrap: {
+        width: 72,
+        height: 72,
+        borderRadius: 14,
         borderWidth: 1,
-        borderColor: "#EEE",
+        alignItems: "center",
+        justifyContent: "center",
+        marginRight: 14,
     },
-    categoryItemDark: {
-        backgroundColor: "#1C1C1E",
-        borderColor: "#2C2C2E",
+
+    categoryTextContainer: {
+        flex: 1,
+        paddingRight: 12,
     },
-    categoryItemSelected: {
-        borderColor: "#1E6BE3",
-        borderWidth: 2,
+
+    categoryTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        lineHeight: 22,
+        marginBottom: 4,
     },
-    categoryIcon: { marginRight: 15 },
-    categoryTextContainer: { flex: 1 },
-    categoryTitle: { fontSize: 16, fontWeight: "600", color: "#222" },
-    categoryTitleDark: { color: "#FFF" },
-    categorySubtitle: { fontSize: 14, color: "#666", marginTop: 4 },
-    categorySubtitleDark: { color: "#AAA" },
+
+    categorySubtitle: {
+        fontSize: 13,
+        lineHeight: 18,
+    },
+
     radioCircle: {
         width: 24,
         height: 24,
         borderRadius: 12,
         borderWidth: 2,
-        borderColor: "#DDD",
         alignItems: "center",
         justifyContent: "center",
-        marginLeft: 10,
     },
-    radioCircleDark: { borderColor: "#555" },
+
     radioChecked: {
         width: 12,
         height: 12,
         borderRadius: 6,
-        backgroundColor: "#1E6BE3",
     },
+
     footer: {
-        padding: 20,
-        paddingBottom: 30,
-        backgroundColor: "#F8F9FA",
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 14,
         borderTopWidth: 1,
-        borderTopColor: "#EEE",
     },
-    footerDark: {
-        backgroundColor: "#1C1C1E",
-        borderTopColor: "#2C2C2E",
-    },
+
     button: {
-        backgroundColor: "#1E6BE3",
-        padding: 18,
-        borderRadius: 40,
+        minHeight: 54,
+        borderRadius: 16,
         alignItems: "center",
+        justifyContent: "center",
     },
+
     buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "600",
+        fontSize: 17,
+        fontWeight: "700",
     },
 });

@@ -4,47 +4,65 @@ TELA PRINCIPAL - HOME
 Tela inicial do motorista após login bem-sucedido.
 
 FUNCIONALIDADES:
-- Mapa de localização em tempo real
+- Placeholder do mapa de localização em tempo real
 - Botão "Conectar" para receber corridas
-- Menu lateral (Drawer) acessível pelo ícone de 3 traços
+- Menu lateral (Drawer) acessível pelo ícone de menu
 - Exibe status do motorista (Offline/Online)
+- Exibe localização atual de forma amigável
 
 FLUXO:
 - Acessada após LocationPermissionScreen
 - Botão "Conectar" alterna status Online/Offline
-- Ícone de menu abre DrawerMenu
+- Ícone de menu abre DrawerMenu futuramente
 ========================================================
 */
+
 import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Image,
-    Platform,
     Alert,
+    SafeAreaView,
+    StatusBar,
+    ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/RootNavigator";
-import { useTheme } from "../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 
-// Tipagem
+import { RootStackParamList } from "../../navigation/RootNavigator";
+import { useTheme } from "../../context/ThemeContext";
+
+/*
+========================================================
+TIPAGEM DE NAVEGAÇÃO
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
 export default function HomeScreen() {
     const navigation = useNavigation<NavigationProp>();
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
 
-    // Estado de conexão do motorista
+    /*
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
+    */
+    const { theme, colors, isDark } = useTheme();
+
+    /*
+    ========================================================
+    ESTADOS DA TELA
+    ========================================================
+    */
     const [isConnected, setIsConnected] = useState(false);
     const [currentAddress, setCurrentAddress] = useState(
         "Carregando localização...",
     );
+    const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
     /*
     ================================================
@@ -62,6 +80,8 @@ export default function HomeScreen() {
                         "Permissão necessária",
                         "Precisamos de acesso à sua localização para mostrar corridas próximas.",
                     );
+                    setCurrentAddress("Localização não autorizada");
+                    setIsLoadingLocation(false);
                     return;
                 }
 
@@ -73,11 +93,21 @@ export default function HomeScreen() {
 
                 if (address.length > 0) {
                     const { street, city, region } = address[0];
-                    setCurrentAddress(`${street}, ${city} - ${region}`);
+                    const formattedAddress = [street, city, region]
+                        .filter(Boolean)
+                        .join(", ");
+
+                    setCurrentAddress(
+                        formattedAddress || "Localização identificada",
+                    );
+                } else {
+                    setCurrentAddress("Localização identificada");
                 }
             } catch (error) {
                 console.error("Erro ao obter localização:", error);
                 setCurrentAddress("Não foi possível obter sua localização");
+            } finally {
+                setIsLoadingLocation(false);
             }
         })();
     }, []);
@@ -88,8 +118,6 @@ export default function HomeScreen() {
     ================================================
     */
     const openDrawer = () => {
-        // Em produção, isso abriria o Drawer Navigator
-        // Para agora, mostramos um alert de demonstração
         Alert.alert(
             "Menu",
             "Menu lateral com opções:\n• Perfil\n• Ganhos\n• Histórico\n• Configurações\n• Sair",
@@ -104,7 +132,6 @@ export default function HomeScreen() {
     */
     const toggleConnection = () => {
         if (!isConnected) {
-            // Conectando
             Alert.alert(
                 "Conectar",
                 "Você está se conectando para receber solicitações de corrida.",
@@ -117,7 +144,6 @@ export default function HomeScreen() {
                 ],
             );
         } else {
-            // Desconectando
             Alert.alert(
                 "Desconectar",
                 "Você ficará offline e não receberá novas solicitações.",
@@ -133,335 +159,476 @@ export default function HomeScreen() {
     };
 
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            {/* CABEÇALHO */}
-            <View style={[styles.header, isDark && styles.headerDark]}>
-                {/* Botão Menu (3 traços) */}
-                <TouchableOpacity
-                    style={styles.menuButton}
-                    onPress={openDrawer}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                    <Ionicons
-                        name="menu"
-                        size={28}
-                        color={isDark ? "#FFF" : "#222"}
-                    />
-                </TouchableOpacity>
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-                {/* Logo/Title */}
-                <Text
-                    style={[
-                        styles.headerTitle,
-                        isDark && styles.headerTitleDark,
-                    ]}
-                >
-                    Zun Motorista
-                </Text>
-
-                {/* Placeholder para notificações */}
-                <TouchableOpacity style={styles.notificationButton}>
-                    <Ionicons
-                        name="notifications-outline"
-                        size={24}
-                        color={isDark ? "#FFF" : "#222"}
-                    />
-                    <View style={styles.notificationBadge} />
-                </TouchableOpacity>
-            </View>
-
-            {/* MAPA */}
-            <View style={styles.mapContainer}>
-                {/* Placeholder do mapa - em produção, usar react-native-maps */}
-                <View
-                    style={[
-                        styles.mapPlaceholder,
-                        isDark && styles.mapPlaceholderDark,
-                    ]}
-                >
-                    <Ionicons
-                        name="map"
-                        size={60}
-                        color={isDark ? "#555" : "#CCC"}
-                    />
-                    <Text
-                        style={[
-                            styles.mapPlaceholderText,
-                            isDark && styles.mapPlaceholderTextDark,
-                        ]}
-                    >
-                        Mapa em desenvolvimento
-                    </Text>
-                    <Text
-                        style={[
-                            styles.mapSubtext,
-                            isDark && styles.mapSubtextDark,
-                        ]}
-                    >
-                        Integração com Google Maps/Mapbox será adicionada
-                    </Text>
-                </View>
-
-                {/* Indicador de localização atual */}
-                <View style={styles.locationIndicator}>
-                    <Ionicons name="location" size={20} color="#1E6BE3" />
-                    <Text style={styles.locationText} numberOfLines={1}>
-                        {currentAddress}
-                    </Text>
-                </View>
-            </View>
-
-            {/* STATUS DO MOTORISTA */}
             <View
                 style={[
-                    styles.statusContainer,
-                    isDark && styles.statusContainerDark,
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
                 ]}
             >
-                <View style={styles.statusRow}>
-                    <Text
-                        style={[
-                            styles.statusLabel,
-                            isDark && styles.statusLabelDark,
-                        ]}
+                {/* ========================================================
+                    CABEÇALHO
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.header,
+                        {
+                            backgroundColor: colors.surface,
+                            borderBottomColor: colors.divider,
+                        },
+                    ]}
+                >
+                    {/* Botão Menu */}
+                    <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={openDrawer}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                        Status:
-                    </Text>
-                    <View
-                        style={[
-                            styles.statusBadge,
-                            isConnected
-                                ? styles.statusOnline
-                                : styles.statusOffline,
-                        ]}
-                    >
-                        <View
-                            style={[
-                                styles.statusDot,
-                                isConnected
-                                    ? styles.statusDotOnline
-                                    : styles.statusDotOffline,
-                            ]}
-                        />
+                        <Ionicons name="menu" size={26} color={colors.text} />
+                    </TouchableOpacity>
+
+                    {/* Título central */}
+                    <View style={styles.headerCenter}>
                         <Text
                             style={[
-                                styles.statusText,
-                                isConnected
-                                    ? styles.statusTextOnline
-                                    : styles.statusTextOffline,
+                                styles.headerTitle,
+                                {
+                                    color: colors.text,
+                                },
+                            ]}
+                        >
+                            Zun Motorista
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.headerSubtitle,
+                                {
+                                    color: colors.textSecondary,
+                                },
                             ]}
                         >
                             {isConnected ? "Online" : "Offline"}
                         </Text>
                     </View>
-                </View>
-            </View>
 
-            {/* BOTÃO CONECTAR */}
-            <View style={[styles.footer, isDark && styles.footerDark]}>
-                <TouchableOpacity
-                    style={[
-                        styles.connectButton,
-                        isConnected && styles.connectButtonActive,
-                    ]}
-                    onPress={toggleConnection}
-                >
-                    <Text
+                    {/* Notificações */}
+                    <TouchableOpacity
+                        style={styles.iconButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <Ionicons
+                            name="notifications-outline"
+                            size={22}
+                            color={colors.text}
+                        />
+                        <View
+                            style={[
+                                styles.notificationBadge,
+                                {
+                                    backgroundColor: colors.error,
+                                },
+                            ]}
+                        />
+                    </TouchableOpacity>
+                </View>
+
+                {/* ========================================================
+                    ÁREA PRINCIPAL / MAPA PLACEHOLDER
+                ======================================================== */}
+                <View style={styles.mapContainer}>
+                    <View
                         style={[
-                            styles.connectButtonText,
-                            isConnected && styles.connectButtonTextActive,
+                            styles.mapPlaceholder,
+                            {
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                            },
                         ]}
                     >
-                        {isConnected ? "Desconectar" : "Conectar"}
-                    </Text>
-                </TouchableOpacity>
+                        <Ionicons
+                            name="map-outline"
+                            size={62}
+                            color={colors.textMuted}
+                        />
+
+                        <Text
+                            style={[
+                                styles.mapPlaceholderTitle,
+                                {
+                                    color: colors.text,
+                                },
+                            ]}
+                        >
+                            Mapa em desenvolvimento
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.mapPlaceholderText,
+                                {
+                                    color: colors.textSecondary,
+                                },
+                            ]}
+                        >
+                            A integração com Google Maps ou Mapbox será
+                            adicionada em uma próxima etapa.
+                        </Text>
+                    </View>
+
+                    {/* Localização atual */}
+                    <View
+                        style={[
+                            styles.locationCard,
+                            {
+                                backgroundColor: colors.surface,
+                                borderColor: colors.divider,
+                            },
+                        ]}
+                    >
+                        <View
+                            style={[
+                                styles.locationIconWrap,
+                                {
+                                    backgroundColor: isDark
+                                        ? colors.inputBackground
+                                        : colors.background,
+                                },
+                            ]}
+                        >
+                            <Ionicons
+                                name="location"
+                                size={18}
+                                color={colors.primary}
+                            />
+                        </View>
+
+                        <View style={styles.locationTextWrap}>
+                            <Text
+                                style={[
+                                    styles.locationLabel,
+                                    {
+                                        color: colors.textSecondary,
+                                    },
+                                ]}
+                            >
+                                Sua localização
+                            </Text>
+
+                            {isLoadingLocation ? (
+                                <View style={styles.loadingRow}>
+                                    <ActivityIndicator
+                                        size="small"
+                                        color={colors.primary}
+                                    />
+                                    <Text
+                                        style={[
+                                            styles.locationText,
+                                            {
+                                                color: colors.text,
+                                            },
+                                        ]}
+                                    >
+                                        Carregando...
+                                    </Text>
+                                </View>
+                            ) : (
+                                <Text
+                                    style={[
+                                        styles.locationText,
+                                        {
+                                            color: colors.text,
+                                        },
+                                    ]}
+                                    numberOfLines={2}
+                                >
+                                    {currentAddress}
+                                </Text>
+                            )}
+                        </View>
+                    </View>
+                </View>
+
+                {/* ========================================================
+                    RODAPÉ / STATUS + BOTÃO
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.footer,
+                        {
+                            backgroundColor: colors.surface,
+                            borderTopColor: colors.divider,
+                        },
+                    ]}
+                >
+                    <View style={styles.statusRow}>
+                        <Text
+                            style={[
+                                styles.statusLabel,
+                                {
+                                    color: colors.textSecondary,
+                                },
+                            ]}
+                        >
+                            Status do motorista
+                        </Text>
+
+                        <View
+                            style={[
+                                styles.statusBadge,
+                                {
+                                    backgroundColor: isConnected
+                                        ? "rgba(46, 204, 113, 0.16)"
+                                        : "rgba(120, 120, 128, 0.14)",
+                                },
+                            ]}
+                        >
+                            <View
+                                style={[
+                                    styles.statusDot,
+                                    {
+                                        backgroundColor: isConnected
+                                            ? colors.success
+                                            : colors.textMuted,
+                                    },
+                                ]}
+                            />
+
+                            <Text
+                                style={[
+                                    styles.statusText,
+                                    {
+                                        color: isConnected
+                                            ? colors.success
+                                            : colors.textMuted,
+                                    },
+                                ]}
+                            >
+                                {isConnected ? "Online" : "Offline"}
+                            </Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.connectButton,
+                            {
+                                backgroundColor: isConnected
+                                    ? colors.error
+                                    : colors.primary,
+                            },
+                        ]}
+                        onPress={toggleConnection}
+                        activeOpacity={0.88}
+                    >
+                        <Text style={styles.connectButtonText}>
+                            {isConnected ? "Desconectar" : "Conectar"}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#FFF" },
-    containerDark: { backgroundColor: "#0B0B0B" },
+    safeArea: {
+        flex: 1,
+    },
 
-    // Header
+    container: {
+        flex: 1,
+    },
+
     header: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        paddingHorizontal: 15,
-        paddingVertical: 12,
-        backgroundColor: "#FFF",
+        paddingHorizontal: 14,
+        paddingTop: 8,
+        paddingBottom: 10,
         borderBottomWidth: 1,
-        borderBottomColor: "#EEE",
     },
-    headerDark: {
-        backgroundColor: "#1C1C1E",
-        borderBottomColor: "#2C2C2E",
-    },
-    menuButton: {
-        padding: 8,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#222",
-    },
-    headerTitleDark: {
-        color: "#FFF",
-    },
-    notificationButton: {
-        padding: 8,
+
+    iconButton: {
+        width: 40,
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center",
         position: "relative",
     },
+
+    headerCenter: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: "700",
+    },
+
+    headerSubtitle: {
+        fontSize: 12,
+        marginTop: 2,
+    },
+
     notificationBadge: {
         position: "absolute",
-        top: 4,
-        right: 4,
+        top: 8,
+        right: 8,
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: "#E74C3C",
     },
 
-    // Mapa
     mapContainer: {
         flex: 1,
+        padding: 16,
         position: "relative",
     },
+
     mapPlaceholder: {
         flex: 1,
-        backgroundColor: "#F0F0F0",
-        justifyContent: "center",
+        borderRadius: 24,
         alignItems: "center",
-    },
-    mapPlaceholderDark: {
-        backgroundColor: "#1C1C1E",
-    },
-    mapPlaceholderText: {
-        fontSize: 16,
-        color: "#666",
-        marginTop: 15,
-    },
-    mapPlaceholderTextDark: {
-        color: "#AAA",
-    },
-    mapSubtext: {
-        fontSize: 12,
-        color: "#999",
-        marginTop: 5,
-    },
-    mapSubtextDark: {
-        color: "#777",
+        justifyContent: "center",
+        paddingHorizontal: 24,
     },
 
-    // Indicador de localização
-    locationIndicator: {
+    mapPlaceholderTitle: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginTop: 16,
+        textAlign: "center",
+    },
+
+    mapPlaceholderText: {
+        fontSize: 14,
+        lineHeight: 20,
+        textAlign: "center",
+        marginTop: 8,
+        maxWidth: 280,
+    },
+
+    locationCard: {
         position: "absolute",
-        bottom: 20,
-        left: 20,
-        right: 20,
-        backgroundColor: "#FFF",
-        padding: 12,
-        borderRadius: 8,
+        left: 16,
+        right: 16,
+        bottom: 22,
+        borderRadius: 18,
+        borderWidth: 1,
+        padding: 14,
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "flex-start",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
         elevation: 3,
     },
-    locationText: {
+
+    locationIconWrap: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        alignItems: "center",
+        justifyContent: "center",
+        marginRight: 10,
+    },
+
+    locationTextWrap: {
         flex: 1,
+    },
+
+    locationLabel: {
+        fontSize: 12,
+        marginBottom: 4,
+    },
+
+    locationText: {
         fontSize: 14,
-        color: "#222",
+        lineHeight: 20,
         marginLeft: 8,
     },
 
-    // Status
-    statusContainer: {
-        padding: 15,
-        backgroundColor: "#FFF",
+    loadingRow: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+
+    footer: {
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: 20,
         borderTopWidth: 1,
-        borderTopColor: "#EEE",
     },
-    statusContainerDark: {
-        backgroundColor: "#1C1C1E",
-        borderTopColor: "#2C2C2E",
-    },
+
     statusRow: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
+        marginBottom: 14,
     },
+
     statusLabel: {
         fontSize: 14,
-        color: "#666",
     },
-    statusLabelDark: {
-        color: "#AAA",
-    },
+
     statusBadge: {
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 20,
+        borderRadius: 999,
     },
-    statusOnline: {
-        backgroundColor: "rgba(46, 204, 113, 0.2)",
-    },
-    statusOffline: {
-        backgroundColor: "rgba(149, 165, 166, 0.2)",
-    },
+
     statusDot: {
         width: 8,
         height: 8,
         borderRadius: 4,
         marginRight: 6,
     },
-    statusDotOnline: {
-        backgroundColor: "#2ECC71",
-    },
-    statusDotOffline: {
-        backgroundColor: "#95A5A6",
-    },
+
     statusText: {
-        fontSize: 14,
-        fontWeight: "600",
-    },
-    statusTextOnline: {
-        color: "#2ECC71",
-    },
-    statusTextOffline: {
-        color: "#95A5A6",
+        fontSize: 13,
+        fontWeight: "700",
     },
 
-    // Footer
-    footer: {
-        padding: 20,
-        paddingBottom: 30,
-        backgroundColor: "#FFF",
-    },
-    footerDark: {
-        backgroundColor: "#1C1C1E",
-    },
     connectButton: {
-        backgroundColor: "#1E6BE3",
-        padding: 18,
+        paddingVertical: 18,
         borderRadius: 40,
         alignItems: "center",
+        justifyContent: "center",
     },
-    connectButtonActive: {
-        backgroundColor: "#E74C3C",
-    },
+
     connectButtonText: {
-        color: "#FFF",
-        fontSize: 18,
-        fontWeight: "600",
-    },
-    connectButtonTextActive: {
-        color: "#FFF",
+        color: "#FFFFFF",
+        fontSize: 17,
+        fontWeight: "700",
     },
 });

@@ -1,32 +1,45 @@
 /*
 ========================================================
 TELA DE PERMISSÃO DO ASSISTENTE
-Modal que solicita ativação do assistente para receber
-solicitações de corrida e notificações.
+
+OBJETIVO:
+- Solicitar ativação do assistente para receber
+  solicitações de corrida e notificações
+- Manter uma experiência clara, confortável e moderna
+- Seguir o novo padrão visual do fluxo da Zun
 
 FLUXO:
 - Aparece após confirmação do código OTP
 - Usuário pode ativar agora ou pular
-- Se ativar, abre configurações de sobreposição do Android
+- Se ativar, segue para a próxima etapa do fluxo
 ========================================================
 */
+
 import React from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
-    Image,
-    Modal,
-    Platform,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/RootNavigator";
-import { useTheme } from "../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 
-// Tipagem
+import { RootStackParamList } from "../../navigation/RootNavigator";
+import { useTheme } from "../../context/ThemeContext";
+
+import BackButton from "../../components/BackButton";
+import ButtonPrimary from "../../components/ButtonPrimary";
+import ButtonSecondary from "../../components/ButtonSecondary";
+
+/*
+========================================================
+TIPAGEM DE NAVEGAÇÃO
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     "AssistantPermission"
@@ -34,25 +47,29 @@ type NavigationProp = NativeStackNavigationProp<
 
 export default function AssistantPermissionScreen() {
     const navigation = useNavigation<NavigationProp>();
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+
+    /*
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
+    */
+    const { theme, colors, isDark } = useTheme();
 
     /*
     ================================================
     ATIVAR ASSISTENTE AGORA
-    Redireciona para configurações de sobreposição
+    Em produção, pode abrir configuração específica
+    do Android. No fluxo atual segue para localização.
     ================================================
     */
     const handleActivateNow = () => {
-        // Em produção, isso abriria as configurações do Android
-        // Para sobreposição (draw over other apps)
         navigation.navigate("LocationPermission");
     };
 
     /*
     ================================================
     PULAR / NÃO OBRIGADO
-    Vai direto para tela de permissão de localização
+    Segue para a próxima etapa do fluxo
     ================================================
     */
     const handleSkip = () => {
@@ -60,195 +77,280 @@ export default function AssistantPermissionScreen() {
     };
 
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            {/* CABEÇALHO */}
-            <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => navigation.goBack()}
-                >
-                    <Ionicons name="arrow-back" size={24} color="#222" />
-                </TouchableOpacity>
-                <Text style={styles.headerClose}>×</Text>
-                <Text style={styles.headerTitle}>Zun</Text>
-            </View>
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-            {/* CONTEÚDO PRINCIPAL */}
-            <View style={styles.contentContainer}>
-                {/* ILUSTRAÇÃO */}
-                <View style={styles.illustrationContainer}>
-                    <View style={styles.illustration}>
-                        <Ionicons
-                            name="phone-portrait"
-                            size={60}
-                            color="#1E6BE3"
-                        />
-                        <View style={styles.toggleIcon}>
-                            <View style={styles.toggleCircle} />
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
+                ]}
+            >
+                {/* ========================================================
+                    BOTÃO DE VOLTAR
+                ======================================================== */}
+                <BackButton />
+
+                {/* ========================================================
+                    CONTEÚDO PRINCIPAL
+                ======================================================== */}
+                <View style={styles.content}>
+                    {/* Badge de contexto */}
+                    <Text
+                        style={[
+                            styles.badge,
+                            {
+                                color: colors.primary,
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                                borderColor: colors.divider,
+                            },
+                        ]}
+                    >
+                        Assistente do aplicativo
+                    </Text>
+
+                    {/* Ilustração simplificada */}
+                    <View
+                        style={[
+                            styles.illustrationContainer,
+                            {
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                                borderColor: colors.divider,
+                            },
+                        ]}
+                    >
+                        <View
+                            style={[
+                                styles.phoneCard,
+                                {
+                                    backgroundColor: colors.inputBackground,
+                                    borderColor: colors.divider,
+                                },
+                            ]}
+                        >
+                            <Ionicons
+                                name="phone-portrait-outline"
+                                size={42}
+                                color={colors.primary}
+                            />
                         </View>
-                        <Ionicons name="navigate" size={40} color="#1E6BE3" />
+
+                        <View
+                            style={[
+                                styles.switchTrack,
+                                {
+                                    backgroundColor: colors.green,
+                                },
+                            ]}
+                        >
+                            <View style={styles.switchThumb} />
+                        </View>
+
+                        <View
+                            style={[
+                                styles.locationBadge,
+                                {
+                                    backgroundColor: isDark
+                                        ? colors.inputBackground
+                                        : colors.background,
+                                    borderColor: colors.divider,
+                                },
+                            ]}
+                        >
+                            <Ionicons
+                                name="navigate"
+                                size={26}
+                                color={colors.primary}
+                            />
+                        </View>
                     </View>
+
+                    {/* Título */}
+                    <Text
+                        style={[
+                            styles.title,
+                            {
+                                color: colors.text,
+                            },
+                        ]}
+                    >
+                        Ative o assistente para receber solicitações e
+                        notificações
+                    </Text>
+
+                    {/* Descrição */}
+                    <Text
+                        style={[
+                            styles.description,
+                            {
+                                color: colors.textSecondary,
+                            },
+                        ]}
+                    >
+                        Configure ações rápidas para visualizar alertas do app e
+                        responder com mais agilidade quando chegar uma
+                        solicitação.
+                    </Text>
                 </View>
 
-                {/* TÍTULO */}
-                <Text style={[styles.title, isDark && styles.titleDark]}>
-                    Ative o Assistente para receber solicitações e notificações
-                </Text>
-
-                {/* DESCRIÇÃO */}
-                <Text
+                {/* ========================================================
+                    BOTÕES DE AÇÃO
+                ======================================================== */}
+                <View
                     style={[
-                        styles.description,
-                        isDark && styles.descriptionDark,
+                        styles.footer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
                     ]}
                 >
-                    Toque no Assistente do aplicativo para configurar ações
-                    rápidas para quando chegar uma solicitação ou notificação.
-                </Text>
-
-                {/* BOTÕES */}
-                <View style={styles.buttonsContainer}>
-                    <TouchableOpacity
-                        style={styles.activateButton}
+                    <ButtonPrimary
+                        title="Ativar agora"
                         onPress={handleActivateNow}
-                    >
-                        <Text style={styles.activateButtonText}>
-                            Ativar agora
-                        </Text>
-                    </TouchableOpacity>
+                        isDark={isDark}
+                    />
 
-                    <TouchableOpacity
-                        style={styles.skipButton}
-                        onPress={handleSkip}
-                    >
-                        <Text style={styles.skipButtonText}>
-                            Não, obrigado(a)
-                        </Text>
-                    </TouchableOpacity>
+                    <View style={styles.secondaryButtonWrapper}>
+                        <ButtonSecondary
+                            title="Não, obrigado(a)"
+                            onPress={handleSkip}
+                            isDark={isDark}
+                        />
+                    </View>
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#FFF" },
-    containerDark: { backgroundColor: "#0B0B0B" },
-
-    // Header
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: "#EEE",
-    },
-    backButton: {
-        marginRight: 15,
-    },
-    headerClose: {
-        fontSize: 28,
-        color: "#222",
-        marginRight: 15,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#222",
+    safeArea: {
+        flex: 1,
     },
 
-    // Conteúdo
-    contentContainer: {
+    container: {
+        flex: 1,
+        justifyContent: "space-between",
+    },
+
+    content: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        padding: 30,
+        paddingHorizontal: 24,
     },
+
+    badge: {
+        alignSelf: "flex-start",
+        fontSize: 13,
+        fontWeight: "600",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 999,
+        borderWidth: 1,
+        marginBottom: 22,
+    },
+
     illustrationContainer: {
-        marginBottom: 40,
+        width: 220,
+        height: 220,
+        borderRadius: 28,
+        borderWidth: 1,
         alignItems: "center",
-    },
-    illustration: {
-        width: 200,
-        height: 200,
-        backgroundColor: "#F5F5F5",
-        borderRadius: 20,
         justifyContent: "center",
-        alignItems: "center",
+        marginBottom: 28,
         position: "relative",
     },
-    toggleIcon: {
+
+    phoneCard: {
+        width: 90,
+        height: 120,
+        borderRadius: 24,
+        borderWidth: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    switchTrack: {
         position: "absolute",
-        width: 60,
+        top: 52,
+        right: 34,
+        width: 64,
         height: 34,
-        backgroundColor: "#4CAF50",
-        borderRadius: 17,
-        top: 60,
+        borderRadius: 18,
+        justifyContent: "center",
     },
-    toggleCircle: {
-        width: 30,
-        height: 30,
-        backgroundColor: "#FFF",
-        borderRadius: 15,
+
+    switchThumb: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: "#FFFFFF",
+        alignSelf: "flex-end",
+        marginRight: 3,
+    },
+
+    locationBadge: {
         position: "absolute",
-        right: 2,
-        top: 2,
+        bottom: 34,
+        right: 44,
+        width: 58,
+        height: 58,
+        borderRadius: 29,
+        borderWidth: 1,
+        alignItems: "center",
+        justifyContent: "center",
     },
 
-    // Título
     title: {
-        fontSize: 24,
-        fontWeight: "bold",
-        color: "#222",
+        fontSize: 26,
+        fontWeight: "700",
         textAlign: "center",
-        marginBottom: 20,
-        lineHeight: 32,
-    },
-    titleDark: {
-        color: "#FFF",
+        lineHeight: 34,
+        marginBottom: 14,
+        maxWidth: 330,
     },
 
-    // Descrição
     description: {
         fontSize: 16,
-        color: "#666",
         textAlign: "center",
         lineHeight: 24,
-        marginBottom: 40,
-    },
-    descriptionDark: {
-        color: "#AAA",
+        maxWidth: 330,
     },
 
-    // Botões
-    buttonsContainer: {
-        width: "100%",
-        alignItems: "center",
+    footer: {
+        paddingHorizontal: 24,
+        paddingTop: 14,
+        paddingBottom: 20,
+        borderTopWidth: 1,
     },
-    activateButton: {
-        backgroundColor: "#1E6BE3",
-        width: "100%",
-        paddingVertical: 18,
-        borderRadius: 40,
-        alignItems: "center",
-        marginBottom: 15,
-    },
-    activateButtonText: {
-        color: "#FFF",
-        fontSize: 16,
-        fontWeight: "600",
-    },
-    skipButton: {
-        backgroundColor: "#F5F5F5",
-        width: "100%",
-        paddingVertical: 18,
-        borderRadius: 40,
-        alignItems: "center",
-    },
-    skipButtonText: {
-        color: "#666",
-        fontSize: 16,
-        fontWeight: "500",
+
+    secondaryButtonWrapper: {
+        marginTop: 14,
     },
 });

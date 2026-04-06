@@ -5,10 +5,11 @@ TELA: PRIVACY POLICY (POLÍTICA DE PRIVACIDADE)
 OBJETIVO:
 - Informar o usuário sobre os termos de uso
 - Solicitar aceite antes de continuar o cadastro
-- Manter experiência leve e direta (estilo 99)
+- Seguir o padrão visual inspirado na 99:
+  fundo fixo + fundo atenuado + card inferior
 
 FLUXO:
-- "Concordo e continuar" → Permissions
+- "Concordo" → Permissions
 - "Sair" → Volta para tela anterior
 ========================================================
 */
@@ -21,6 +22,7 @@ import {
     TouchableOpacity,
     SafeAreaView,
     StatusBar,
+    Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -29,7 +31,7 @@ import { useTheme } from "../../context/ThemeContext";
 
 // Componentes reutilizáveis
 import ButtonPrimary from "../../components/ButtonPrimary";
-import BackButton from "../../components/BackButton";
+import ButtonSecondary from "../../components/ButtonSecondary";
 
 // Tipagem para navegação
 type NavigationProp = NativeStackNavigationProp<
@@ -45,7 +47,16 @@ export default function PrivacyPolicyScreen() {
     TEMA GLOBAL (LIGHT / DARK)
     ========================================================
     */
-    const { theme, colors, isDark } = useTheme();
+    const { colors, isDark } = useTheme();
+
+    /*
+    ========================================================
+    LOGO DE FUNDO
+    Como o fundo usa a cor principal da marca, a logo branca
+    gera melhor contraste.
+    ========================================================
+    */
+    const logo = require("../../assets/logo/zun-logo-white.png");
 
     /*
     ========================================================
@@ -68,7 +79,7 @@ export default function PrivacyPolicyScreen() {
             style={[
                 styles.safeArea,
                 {
-                    backgroundColor: colors.background,
+                    backgroundColor: colors.primary,
                 },
             ]}
         >
@@ -76,43 +87,58 @@ export default function PrivacyPolicyScreen() {
                 STATUS BAR
             ======================================================== */}
             <StatusBar
-                barStyle={theme === "dark" ? "light-content" : "dark-content"}
-                backgroundColor={colors.background}
+                barStyle="light-content"
+                backgroundColor={colors.primary}
             />
 
             <View
                 style={[
                     styles.container,
                     {
-                        backgroundColor: colors.background,
+                        backgroundColor: colors.primary,
                     },
                 ]}
             >
                 {/* ========================================================
-                    BOTÃO DE VOLTAR
+                    FUNDO COM MARCA CENTRALIZADA
                 ======================================================== */}
-                <BackButton />
+                <View style={styles.brandArea}>
+                    <Image
+                        source={logo}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
+
+                    <Text style={styles.brandText}>Zun Motorista</Text>
+                </View>
 
                 {/* ========================================================
-                    CONTEÚDO PRINCIPAL
+                    FUNDO ATENUADO
+                    Não é uma camada escura pesada.
+                    Serve apenas para tirar foco do fundo e destacar o card.
                 ======================================================== */}
-                <View style={styles.content}>
-                    {/* Badge indicando etapa */}
-                    <Text
-                        style={[
-                            styles.badge,
-                            {
-                                color: colors.primary,
-                                backgroundColor: isDark
-                                    ? colors.card
-                                    : colors.surface,
-                                borderColor: colors.divider,
-                            },
-                        ]}
-                    >
-                        Cadastro do motorista
-                    </Text>
+                <View
+                    style={[
+                        styles.overlay,
+                        {
+                            backgroundColor: isDark
+                                ? "rgba(255, 255, 255, 0.06)"
+                                : "rgba(255, 255, 255, 0.18)",
+                        },
+                    ]}
+                />
 
+                {/* ========================================================
+                    CARD PRINCIPAL
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.card,
+                        {
+                            backgroundColor: colors.surface,
+                        },
+                    ]}
+                >
                     {/* Título principal */}
                     <Text
                         style={[
@@ -122,7 +148,7 @@ export default function PrivacyPolicyScreen() {
                             },
                         ]}
                     >
-                        Antes de continuar
+                        Política de privacidade e uso Zun Motorista
                     </Text>
 
                     {/* Texto explicativo */}
@@ -134,8 +160,12 @@ export default function PrivacyPolicyScreen() {
                             },
                         ]}
                     >
-                        Leia e concorde com os termos de uso e com a política de
-                        privacidade para continuar seu cadastro na Zun.
+                        Antes de usar os produtos ou serviços da Zun Motorista,
+                        leia atentamente os Termos de Uso, as regras da
+                        plataforma e a Política de Privacidade. Ao tocar em
+                        "Concordo" e usar nossos produtos e serviços, você
+                        confirma que leu, entendeu e concorda em agir de acordo
+                        com os termos.
                     </Text>
 
                     {/* Link (futuro: abrir documento real) */}
@@ -148,54 +178,28 @@ export default function PrivacyPolicyScreen() {
                                 },
                             ]}
                         >
-                            Ver termos de uso e política de privacidade
+                            Privacidade e uso da Zun Motorista &gt;
                         </Text>
                     </TouchableOpacity>
-                </View>
 
-                {/* ========================================================
-                    BOTÕES DE AÇÃO
-                ======================================================== */}
-                <View
-                    style={[
-                        styles.buttons,
-                        {
-                            backgroundColor: colors.background,
-                        },
-                    ]}
-                >
-                    {/* BOTÃO PRINCIPAL */}
-                    <ButtonPrimary
-                        title="Concordo e continuar"
-                        onPress={handleAgree}
-                        isDark={isDark}
-                    />
+                    {/* ========================================================
+                        BOTÕES DE AÇÃO
+                    ======================================================== */}
+                    <View style={styles.buttons}>
+                        {/* BOTÃO PRINCIPAL */}
+                        <ButtonPrimary
+                            title="Concordo"
+                            onPress={handleAgree}
+                            isDark={isDark}
+                        />
 
-                    {/* BOTÃO SECUNDÁRIO */}
-                    <TouchableOpacity
-                        style={[
-                            styles.secondaryButton,
-                            {
-                                borderColor: colors.primary,
-                                backgroundColor: isDark
-                                    ? colors.card
-                                    : colors.surface,
-                            },
-                        ]}
-                        activeOpacity={0.85}
-                        onPress={handleExit}
-                    >
-                        <Text
-                            style={[
-                                styles.secondaryText,
-                                {
-                                    color: colors.primary,
-                                },
-                            ]}
-                        >
-                            Sair
-                        </Text>
-                    </TouchableOpacity>
+                        {/* BOTÃO SECUNDÁRIO */}
+                        <ButtonSecondary
+                            title="Sair"
+                            onPress={handleExit}
+                            isDark={isDark}
+                        />
+                    </View>
                 </View>
             </View>
         </SafeAreaView>
@@ -214,65 +218,64 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        justifyContent: "space-between",
-        paddingHorizontal: 24,
-        paddingTop: 12,
-        paddingBottom: 24,
+        justifyContent: "flex-end",
     },
 
-    content: {
-        flex: 1,
+    brandArea: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: "center",
         justifyContent: "center",
-        alignItems: "flex-start",
+        paddingHorizontal: 24,
     },
 
-    badge: {
-        fontSize: 13,
-        fontWeight: "600",
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 999,
-        borderWidth: 1,
-        marginBottom: 18,
+    logo: {
+        width: 150,
+        height: 150,
+        opacity: 0.22,
+        marginBottom: 8,
+    },
+
+    brandText: {
+        fontSize: 18,
+        fontWeight: "300",
+        color: "rgba(255,255,255,0.58)",
+    },
+
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+    },
+
+    card: {
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: 22,
+        paddingTop: 30,
+        paddingBottom: 28,
+        minHeight: 560,
     },
 
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: "700",
-        lineHeight: 34,
-        marginBottom: 14,
-        maxWidth: 320,
+        lineHeight: 32,
+        marginBottom: 18,
     },
 
     bodyText: {
         fontSize: 16,
         lineHeight: 24,
-        marginBottom: 20,
-        maxWidth: 340,
+        marginBottom: 24,
     },
 
     linkText: {
         fontSize: 15,
         fontWeight: "600",
         lineHeight: 22,
+        marginBottom: 28,
     },
 
     buttons: {
-        width: "100%",
         gap: 14,
-    },
-
-    secondaryButton: {
-        width: "100%",
-        paddingVertical: 18,
-        borderRadius: 40,
-        alignItems: "center",
-        justifyContent: "center",
-        borderWidth: 2,
-    },
-
-    secondaryText: {
-        fontSize: 16,
-        fontWeight: "600",
+        marginTop: "auto",
     },
 });

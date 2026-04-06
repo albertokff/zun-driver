@@ -5,7 +5,8 @@ TELA DE PERMISSÕES
 OBJETIVO:
 - Explicar ao usuário quais permissões o app precisa
 - Mostrar de forma clara e amigável o motivo de cada uma
-- Manter uma experiência elegante, leve e confiável
+- Seguir um layout mais limpo, inspirado na estrutura
+  visual da 99, com foco em leitura e confiança
 
 COMPATIBILIDADE:
 - Web: permissões gerenciadas pelo navegador
@@ -17,6 +18,7 @@ OBSERVAÇÃO:
 - O fluxo foi mantido preparado para futura integração real
 ========================================================
 */
+
 import React from "react";
 import {
     View,
@@ -82,6 +84,11 @@ type PermissionItemProps = {
     description: string;
 };
 
+/*
+========================================================
+COMPONENTE PRINCIPAL
+========================================================
+*/
 export default function PermissionsScreen() {
     const navigation = useNavigation<NavigationProp>();
 
@@ -175,40 +182,14 @@ export default function PermissionsScreen() {
                 <View style={styles.header}>
                     <Text
                         style={[
-                            styles.badge,
-                            {
-                                color: colors.primary,
-                                backgroundColor: isDark
-                                    ? colors.card
-                                    : colors.surface,
-                                borderColor: colors.divider,
-                            },
-                        ]}
-                    >
-                        Permissões do aplicativo
-                    </Text>
-
-                    <Text
-                        style={[
                             styles.title,
                             {
                                 color: colors.text,
                             },
                         ]}
                     >
-                        Para uma melhor experiência
-                    </Text>
-
-                    <Text
-                        style={[
-                            styles.subtitle,
-                            {
-                                color: colors.textSecondary,
-                            },
-                        ]}
-                    >
-                        A Zun precisa de algumas permissões para funcionar
-                        corretamente no seu dispositivo.
+                        Política de Privacidade{"\n"}A Zun Motorista precisa das
+                        seguintes permissões:
                     </Text>
                 </View>
 
@@ -219,6 +200,7 @@ export default function PermissionsScreen() {
                     style={styles.scroll}
                     contentContainerStyle={styles.scrollContent}
                     showsVerticalScrollIndicator={false}
+                    bounces={false}
                 >
                     {permissions.map((item, index) => (
                         <PermissionItem
@@ -277,26 +259,13 @@ function PermissionItem({
     const { colors } = useTheme();
 
     return (
-        <View
-            style={[
-                styles.permissionCard,
-                {
-                    backgroundColor: isDark ? colors.card : colors.surface,
-                    borderColor: colors.divider,
-                },
-            ]}
-        >
-            <View
-                style={[
-                    styles.iconContainer,
-                    {
-                        backgroundColor: isDark
-                            ? colors.inputBackground
-                            : colors.background,
-                    },
-                ]}
-            >
-                <Icon name={icon} size={24} color={colors.primary} />
+        <View style={styles.permissionItem}>
+            <View style={styles.iconContainer}>
+                <Icon
+                    name={icon}
+                    size={22}
+                    color={isDark ? colors.textSecondary : "#6F6F6F"}
+                />
             </View>
 
             <View style={styles.permissionTextContainer}>
@@ -341,33 +310,15 @@ const styles = StyleSheet.create({
     },
 
     header: {
-        paddingHorizontal: 24,
-        paddingTop: 12,
-        paddingBottom: 10,
-    },
-
-    badge: {
-        alignSelf: "flex-start",
-        fontSize: 13,
-        fontWeight: "600",
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 999,
-        borderWidth: 1,
-        marginBottom: 18,
+        paddingHorizontal: 16,
+        paddingTop: 14,
+        paddingBottom: 2,
     },
 
     title: {
-        fontSize: 28,
+        fontSize: 20,
         fontWeight: "700",
-        lineHeight: 34,
-        marginBottom: 10,
-        maxWidth: 320,
-    },
-
-    subtitle: {
-        fontSize: 16,
-        lineHeight: 24,
+        lineHeight: 27,
         maxWidth: 340,
     },
 
@@ -376,27 +327,22 @@ const styles = StyleSheet.create({
     },
 
     scrollContent: {
-        paddingHorizontal: 24,
-        paddingTop: 18,
-        paddingBottom: 24,
-        gap: 14,
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: 10,
     },
 
-    permissionCard: {
+    permissionItem: {
         flexDirection: "row",
         alignItems: "flex-start",
-        borderWidth: 1,
-        borderRadius: 18,
-        padding: 16,
+        marginBottom: 18,
     },
 
     iconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        marginRight: 14,
-        justifyContent: "center",
+        width: 24,
         alignItems: "center",
+        marginRight: 8,
+        paddingTop: 2,
     },
 
     permissionTextContainer: {
@@ -404,24 +350,25 @@ const styles = StyleSheet.create({
     },
 
     permissionTitle: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: "700",
-        marginBottom: 4,
+        lineHeight: 20,
+        marginBottom: 2,
     },
 
     permissionDescription: {
-        fontSize: 14,
-        lineHeight: 21,
+        fontSize: 13,
+        lineHeight: 18,
     },
 
     buttonsContainer: {
-        paddingHorizontal: 24,
-        paddingTop: 14,
-        paddingBottom: 20,
+        paddingHorizontal: 16,
+        paddingTop: 8,
+        paddingBottom: 12,
         borderTopWidth: 1,
     },
 
     buttonPrimary: {
-        marginBottom: 14,
+        marginBottom: 10,
     },
 });

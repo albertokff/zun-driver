@@ -1,8 +1,15 @@
 /*
 ========================================================
-TELA DE INFORMAÇÕES DO MOTORISTA.
+TELA DE INFORMAÇÕES DO MOTORISTA
+
+OBJETIVO:
+- Coletar os dados básicos do motorista
+- Seguir a estrutura visual da referência da 99
+- Manter topo e rodapé com altura padronizada
+- Usar apenas cores dinâmicas do tema
 ========================================================
 */
+
 import React, { useState, useMemo } from "react";
 import {
     View,
@@ -11,10 +18,13 @@ import {
     TouchableOpacity,
     ScrollView,
     Alert,
-    Platform,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 
@@ -25,7 +35,11 @@ import CollapsiblePicker from "../../../components/CollapsiblePicker";
 import CityPicker from "../../../components/CityPicker";
 import ButtonPrimary from "../../../components/ButtonPrimary";
 
-// Tipagem para a navegação
+/*
+========================================================
+TIPAGEM PARA A NAVEGAÇÃO
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     "DriverInfo"
@@ -33,9 +47,13 @@ type NavigationProp = NativeStackNavigationProp<
 
 export default function DriverInfoScreen() {
     const navigation = useNavigation<NavigationProp>();
-    const { isDark, colors } = useTheme();
+    const { theme, isDark, colors } = useTheme();
 
-    // Hook para gerenciar estados e cidades
+    /*
+    ========================================================
+    HOOK PARA GERENCIAR ESTADOS E CIDADES
+    ========================================================
+    */
     const {
         states,
         cities,
@@ -45,11 +63,20 @@ export default function DriverInfoScreen() {
         setSelectedCity,
     } = useBrazilianCities();
 
+    /*
+    ========================================================
+    STATES DO FORMULÁRIO
+    ========================================================
+    */
     const [firstName, setFirstName] = useState("");
     const [cpf, setCpf] = useState("");
     const [gender, setGender] = useState("");
 
-    // Validação do formulário
+    /*
+    ========================================================
+    VALIDAÇÃO DO FORMULÁRIO
+    ========================================================
+    */
     const isFormValid = useMemo(() => {
         return (
             firstName.trim().length > 2 &&
@@ -60,6 +87,11 @@ export default function DriverInfoScreen() {
         );
     }, [firstName, cpf, gender, selectedState, selectedCity]);
 
+    /*
+    ========================================================
+    FORMATAR CPF
+    ========================================================
+    */
     const formatCpf = (value: string) => {
         return value
             .replace(/\D/g, "")
@@ -69,6 +101,11 @@ export default function DriverInfoScreen() {
             .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     };
 
+    /*
+    ========================================================
+    AÇÃO DE AVANÇAR
+    ========================================================
+    */
     const handleNext = () => {
         if (!isFormValid) {
             Alert.alert(
@@ -88,221 +125,332 @@ export default function DriverInfoScreen() {
     };
 
     return (
-        <View
+        <SafeAreaView
             style={[
-                styles.container,
+                styles.safeArea,
                 {
                     backgroundColor: colors.background,
                 },
             ]}
         >
-            <ScrollView
-                contentContainerStyle={styles.scrollContainer}
-                showsVerticalScrollIndicator={false}
-                bounces={false}
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={isDark ? colors.background : colors.white}
+            />
+
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
+                ]}
             >
-                {/* Banner fixo no topo */}
+                {/* ========================================================
+                    TOPO PADRONIZADO
+                    Mantém a mesma sensação visual entre telas
+                ======================================================== */}
                 <View
                     style={[
-                        styles.banner,
+                        styles.topBar,
                         {
-                            backgroundColor: colors.primary,
+                            backgroundColor: isDark
+                                ? colors.background
+                                : colors.white,
+                            borderBottomColor: colors.divider,
                         },
                     ]}
                 >
-                    {/* Botão de voltar posicionado dentro do banner, acima do texto */}
                     <TouchableOpacity
-                        style={styles.backButton}
+                        style={styles.topIconButton}
                         onPress={() => navigation.goBack()}
                         activeOpacity={0.8}
                     >
-                        <Text
-                            style={[
-                                styles.backButtonText,
-                                { color: colors.white },
-                            ]}
-                        >
-                            ‹
-                        </Text>
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color={colors.text}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.topIconButton}
+                        onPress={() => navigation.goBack()}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="close" size={22} color={colors.text} />
                     </TouchableOpacity>
 
                     <Text
                         style={[
-                            styles.bannerTitle,
+                            styles.topBrand,
                             {
-                                color: colors.white,
+                                color: colors.text,
                             },
                         ]}
                     >
-                        Vem pra Zun e aproveite várias formas de ganhar
-                        dinheiro!
+                        Zun
                     </Text>
 
-                    <Text
-                        style={[
-                            styles.bannerSubtitle,
-                            {
-                                color: "rgba(255,255,255,0.88)",
-                            },
-                        ]}
-                    >
-                        Mais eventos de recompensa | Garantia Zun | Resgates
-                        flexíveis
-                    </Text>
+                    <View style={styles.topSpacer} />
                 </View>
 
-                {/* Área do formulário */}
+                {/* ========================================================
+                    CONTEÚDO ROLÁVEL
+                ======================================================== */}
+                <ScrollView
+                    style={styles.scroll}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    bounces={false}
+                >
+                    {/* ====================================================
+                        BANNER SUPERIOR
+                        Mesmo padrão estrutural da tela anterior
+                    ==================================================== */}
+                    <View
+                        style={[
+                            styles.banner,
+                            {
+                                backgroundColor: colors.primary,
+                            },
+                        ]}
+                    >
+                        <View style={styles.bannerTextContainer}>
+                            <Text
+                                style={[
+                                    styles.bannerTitle,
+                                    {
+                                        color: colors.white,
+                                    },
+                                ]}
+                            >
+                                Vem pra Zun e aproveite várias formas de ganhar
+                                dinheiro!
+                            </Text>
+
+                            <Text
+                                style={[
+                                    styles.bannerSubtitle,
+                                    {
+                                        color: colors.white,
+                                    },
+                                ]}
+                            >
+                                Mais eventos de recompensa | Garantia Zun |
+                                Resgates flexíveis
+                            </Text>
+                        </View>
+
+                        <View style={styles.bannerArt}>
+                            <Ionicons
+                                name="cash-outline"
+                                size={52}
+                                color={colors.white}
+                            />
+                        </View>
+                    </View>
+
+                    {/* ====================================================
+                        FORMULÁRIO
+                    ==================================================== */}
+                    <View
+                        style={[
+                            styles.formArea,
+                            {
+                                backgroundColor: colors.background,
+                            },
+                        ]}
+                    >
+                        <FormTextInput
+                            label="Primeiro nome"
+                            value={firstName}
+                            onChangeText={setFirstName}
+                            isDark={isDark}
+                            autoCapitalize="words"
+                            autoCorrect={false}
+                            returnKeyType="next"
+                        />
+
+                        <FormTextInput
+                            label="CPF"
+                            value={cpf}
+                            onChangeText={(text: string) =>
+                                setCpf(formatCpf(text))
+                            }
+                            keyboardType="numeric"
+                            maxLength={14}
+                            isDark={isDark}
+                            returnKeyType="done"
+                        />
+
+                        <CollapsiblePicker
+                            label="Gênero"
+                            options={["Masculino", "Feminino", "Outro"]}
+                            selectedValue={gender}
+                            onSelect={setGender}
+                            isDark={isDark}
+                        />
+
+                        <Text
+                            style={[
+                                styles.linkText,
+                                {
+                                    color: colors.primary,
+                                },
+                            ]}
+                        >
+                            Confira aqui as cidades onde já operamos
+                        </Text>
+
+                        <CollapsiblePicker
+                            label="Estado"
+                            options={states}
+                            selectedValue={selectedState}
+                            onSelect={setSelectedState}
+                            isDark={isDark}
+                        />
+
+                        <CityPicker
+                            label="Cidade"
+                            cities={cities}
+                            selectedCity={selectedCity}
+                            onSelect={setSelectedCity}
+                            isDark={isDark}
+                            placeholder={
+                                selectedState
+                                    ? "Selecione uma cidade"
+                                    : "Selecione um estado primeiro"
+                            }
+                        />
+                    </View>
+                </ScrollView>
+
+                {/* ========================================================
+                    RODAPÉ FIXO PADRONIZADO
+                ======================================================== */}
                 <View
                     style={[
-                        styles.formArea,
+                        styles.footer,
                         {
-                            backgroundColor: colors.surface,
+                            backgroundColor: colors.background,
                             borderTopColor: colors.divider,
                         },
                     ]}
                 >
-                    <FormTextInput
-                        label="Primeiro nome"
-                        value={firstName}
-                        onChangeText={setFirstName}
+                    <ButtonPrimary
+                        title="Avançar"
+                        onPress={handleNext}
                         isDark={isDark}
-                        autoCapitalize="words"
-                        autoCorrect={false}
-                        returnKeyType="next"
-                    />
-
-                    <FormTextInput
-                        label="CPF"
-                        value={cpf}
-                        onChangeText={(text: string) => setCpf(formatCpf(text))}
-                        keyboardType="numeric"
-                        maxLength={14}
-                        isDark={isDark}
-                        returnKeyType="done"
-                    />
-
-                    <CollapsiblePicker
-                        label="Gênero"
-                        options={["Masculino", "Feminino", "Outro"]}
-                        selectedValue={gender}
-                        onSelect={setGender}
-                        isDark={isDark}
-                    />
-
-                    <Text
-                        style={[
-                            styles.linkText,
-                            {
-                                color: colors.primary,
-                            },
-                        ]}
-                    >
-                        Confira aqui as cidades onde já operamos
-                    </Text>
-
-                    <CollapsiblePicker
-                        label="Estado"
-                        options={states}
-                        selectedValue={selectedState}
-                        onSelect={setSelectedState}
-                        isDark={isDark}
-                    />
-
-                    <CityPicker
-                        label="Cidade"
-                        cities={cities}
-                        selectedCity={selectedCity}
-                        onSelect={setSelectedCity}
-                        isDark={isDark}
-                        placeholder={
-                            selectedState
-                                ? "Selecione uma cidade"
-                                : "Selecione um estado primeiro"
-                        }
+                        disabled={!isFormValid}
                     />
                 </View>
-            </ScrollView>
-
-            {/* Rodapé com o botão de avançar */}
-            <View
-                style={[
-                    styles.footer,
-                    {
-                        backgroundColor: colors.surface,
-                        borderTopColor: colors.divider,
-                    },
-                ]}
-            >
-                <ButtonPrimary
-                    title="Avançar"
-                    onPress={handleNext}
-                    isDark={isDark}
-                    disabled={!isFormValid}
-                />
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
-// ========================================================
-// FOLHA DE ESTILOS (CSS)
-// ========================================================
+/*
+========================================================
+FOLHA DE ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    // --- Estilos Gerais da Tela ---
+    safeArea: {
+        flex: 1,
+    },
+
     container: {
         flex: 1,
     },
 
-    scrollContainer: {
-        paddingBottom: 132,
-    },
-
-    // --- Estilos do Banner Superior ---
-    banner: {
-        paddingHorizontal: 20,
-        paddingTop: Platform.OS === "ios" ? 64 : 42,
-        paddingBottom: 24,
-        minHeight: 168,
-        justifyContent: "flex-end",
-    },
-
-    backButton: {
-        position: "absolute",
-        top: Platform.OS === "ios" ? 16 : 10,
-        left: 12,
-        width: 40,
-        height: 40,
-        justifyContent: "center",
+    /*
+    ========================================================
+    TOPO PADRONIZADO
+    ========================================================
+    */
+    topBar: {
+        height: 56,
+        borderBottomWidth: 1,
+        flexDirection: "row",
         alignItems: "center",
-        zIndex: 10,
+        paddingHorizontal: 10,
     },
 
-    backButtonText: {
-        fontSize: 34,
-        fontWeight: "300",
-        marginTop: -4,
+    topIconButton: {
+        width: 36,
+        height: 36,
+        alignItems: "center",
+        justifyContent: "center",
+        marginRight: 2,
+    },
+
+    topBrand: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginLeft: 4,
+    },
+
+    topSpacer: {
+        flex: 1,
+    },
+
+    scroll: {
+        flex: 1,
+    },
+
+    scrollContent: {
+        paddingBottom: 120,
+    },
+
+    /*
+    ========================================================
+    BANNER SUPERIOR
+    Mesma lógica visual de altura da tela anterior
+    ========================================================
+    */
+    banner: {
+        minHeight: 120,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        flexDirection: "row",
+        alignItems: "center",
+    },
+
+    bannerTextContainer: {
+        flex: 1,
+        paddingRight: 10,
     },
 
     bannerTitle: {
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: "700",
-        lineHeight: 24,
-        marginTop: 28,
-        maxWidth: "88%",
+        lineHeight: 22,
+        marginBottom: 6,
     },
 
     bannerSubtitle: {
         fontSize: 13,
         lineHeight: 18,
-        marginTop: 8,
-        maxWidth: "95%",
     },
 
-    // --- Estilos da Área do Formulário ---
+    bannerArt: {
+        width: 78,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    /*
+    ========================================================
+    FORMULÁRIO
+    ========================================================
+    */
     formArea: {
-        paddingTop: 18,
-        paddingBottom: 12,
-        borderTopWidth: 1,
+        paddingTop: 14,
+        paddingBottom: 10,
     },
 
     linkText: {
@@ -313,15 +461,20 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 
-    // --- Estilos do Rodapé e Botão Principal ---
+    /*
+    ========================================================
+    RODAPÉ FIXO
+    Mesmo padrão de sensação entre telas
+    ========================================================
+    */
     footer: {
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
-        paddingHorizontal: 20,
-        paddingTop: 14,
-        paddingBottom: Platform.OS === "ios" ? 30 : 20,
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 14,
         borderTopWidth: 1,
     },
 });

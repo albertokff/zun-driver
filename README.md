@@ -112,6 +112,39 @@ Devido à limitação de hardware, o projeto utiliza:
  - Navegação desacoplada
  - Estrutura escalável
 
+## Resultado do mapeamento
+O fluxo ideal da Zun fica assim:
+
+1 - SplashScreen.
+2 - StartScreen.
+3 - PrivacyPolicyScreen.
+4 - PermissionsScreen.
+5 - PermissionBackdropScreen.
+6 - telas de permissão específicas.
+7 - PhoneScreen.
+8 - OtpScreen.
+9 - PasswordScreen.
+10 - DriverInfoScreen.
+11 - demais telas de cadastro e documentos.
+
+
+Splash
+Start
+PrivacyPolicy
+Permissions
+PermissionBackdrop
+BatteryPermission
+Phone
+Otp
+Password
+DriverCategory
+DriverInfo
+ConfirmInfo
+Documentation
+sequência de documentos
+análise/finalização
+Home
+
 
 ## Estrutura de Pasta e Arquivos (Profissional e Escalável).
 
