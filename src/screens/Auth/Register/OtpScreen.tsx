@@ -21,6 +21,8 @@ import {
     StyleSheet,
     TextInput,
     TouchableOpacity,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
 
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -28,24 +30,34 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
+
 import BackButton from "../../../components/BackButton";
+import ButtonPrimary from "../../../components/ButtonPrimary";
 
 // Tipagem para navegação
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Otp">;
+
 // Tipagem para rota com parâmetros
 type OtpRouteProp = RouteProp<RootStackParamList, "Otp">;
 
 export default function OtpScreen() {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<OtpRouteProp>();
-    const { theme } = useTheme();
 
-    // Estado para armazenar o código digitado
+    /*
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
+    */
+    const { theme, colors, isDark } = useTheme();
+
+    /*
+    ========================================================
+    ESTADOS DA TELA
+    ========================================================
+    */
     const [code, setCode] = useState("");
-    // Estado para timer de reenvio (60 segundos)
     const [timer, setTimer] = useState(60);
-
-    const isDark = theme === "dark";
 
     /*
     ================================================
@@ -53,7 +65,7 @@ export default function OtpScreen() {
     route.params pode ser undefined, então usamos || {}
     ================================================
     */
-    const { fromLogin = false } = route.params || {};
+    const { fromLogin = false, phone } = route.params || {};
 
     /*
     ================================================
@@ -68,7 +80,6 @@ export default function OtpScreen() {
             setTimer((prev) => prev - 1);
         }, 1000);
 
-        // Limpa o intervalo quando o componente desmontar
         return () => clearInterval(interval);
     }, [timer]);
 
@@ -79,8 +90,9 @@ export default function OtpScreen() {
     ================================================
     */
     const handleConfirm = () => {
-        // Aqui futuramente validará o código com backend
+        if (code.length !== 6) return;
 
+        // Aqui futuramente validará o código com backend
         if (fromLogin) {
             /*
             ================================================
@@ -107,65 +119,164 @@ export default function OtpScreen() {
     ================================================
     */
     const handleResend = () => {
-        // Só permite reenviar se timer chegou a 0
         if (timer > 0) return;
 
         // Futuramente chamará API de envio SMS
-        // Reseta timer para 60 segundos
         setTimer(60);
     };
 
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            {/* BOTÃO DE VOLTAR */}
-            <BackButton />
-
-            {/* TÍTULO */}
-            <Text style={[styles.title, isDark && styles.titleDark]}>
-                Digite o código
-            </Text>
-
-            {/* SUBTÍTULO */}
-            <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
-                Enviamos um código por SMS para confirmar seu telefone
-            </Text>
-
-            {/* INPUT DO CÓDIGO */}
-            <TextInput
-                style={[styles.input, isDark && styles.inputDark]}
-                keyboardType="number-pad"
-                maxLength={6}
-                placeholder="000000"
-                placeholderTextColor={isDark ? "#777" : "#999"}
-                value={code}
-                onChangeText={setCode}
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
             />
 
-            {/* BOTÃO CONFIRMAR */}
-            <TouchableOpacity
+            <View
                 style={[
-                    styles.button,
-                    { opacity: code.length === 6 ? 1 : 0.5 },
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
                 ]}
-                disabled={code.length !== 6}
-                onPress={handleConfirm}
             >
-                <Text style={styles.buttonText}>Confirmar</Text>
-            </TouchableOpacity>
+                {/* BOTÃO DE VOLTAR */}
+                <BackButton />
 
-            {/* TIMER OU LINK DE REENVIO */}
-            {timer > 0 ? (
-                <Text style={[styles.timer, isDark && styles.timerDark]}>
-                    Reenviar código em {timer}s
-                </Text>
-            ) : (
-                <TouchableOpacity onPress={handleResend}>
-                    <Text style={[styles.resend, isDark && styles.resendDark]}>
-                        Reenviar código
+                {/* ========================================================
+                    CONTEÚDO PRINCIPAL
+                ======================================================== */}
+                <View style={styles.content}>
+                    {/* Badge de contexto da etapa */}
+                    <Text
+                        style={[
+                            styles.badge,
+                            {
+                                color: colors.primary,
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                                borderColor: colors.divider,
+                            },
+                        ]}
+                    >
+                        {fromLogin
+                            ? "Confirmar acesso"
+                            : "Verificação de telefone"}
                     </Text>
-                </TouchableOpacity>
-            )}
-        </View>
+
+                    {/* TÍTULO */}
+                    <Text
+                        style={[
+                            styles.title,
+                            {
+                                color: colors.text,
+                            },
+                        ]}
+                    >
+                        Digite o código
+                    </Text>
+
+                    {/* SUBTÍTULO */}
+                    <Text
+                        style={[
+                            styles.subtitle,
+                            {
+                                color: colors.textSecondary,
+                            },
+                        ]}
+                    >
+                        Enviamos um código de 6 dígitos por SMS para{" "}
+                        <Text style={{ fontWeight: "600", color: colors.text }}>
+                            {phone}
+                        </Text>
+                    </Text>
+
+                    {/* INPUT DO CÓDIGO */}
+                    <TextInput
+                        style={[
+                            styles.input,
+                            {
+                                borderColor: colors.border,
+                                backgroundColor: colors.inputBackground,
+                                color: colors.text,
+                            },
+                        ]}
+                        keyboardType="number-pad"
+                        maxLength={6}
+                        placeholder="000000"
+                        placeholderTextColor={colors.placeholder}
+                        value={code}
+                        onChangeText={(text) =>
+                            setCode(text.replace(/\D/g, "").slice(0, 6))
+                        }
+                        textAlign="center"
+                    />
+
+                    {/* TIMER OU LINK DE REENVIO */}
+                    <View style={styles.resendContainer}>
+                        {timer > 0 ? (
+                            <Text
+                                style={[
+                                    styles.timer,
+                                    {
+                                        color: colors.textSecondary,
+                                    },
+                                ]}
+                            >
+                                Reenviar código em {timer}s
+                            </Text>
+                        ) : (
+                            <TouchableOpacity
+                                onPress={handleResend}
+                                activeOpacity={0.8}
+                            >
+                                <Text
+                                    style={[
+                                        styles.resend,
+                                        {
+                                            color: colors.primary,
+                                        },
+                                    ]}
+                                >
+                                    Reenviar código
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </View>
+
+                {/* ========================================================
+                    ÁREA DE AÇÃO
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.footer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
+                    ]}
+                >
+                    <ButtonPrimary
+                        title="Confirmar"
+                        onPress={handleConfirm}
+                        isDark={isDark}
+                        disabled={code.length !== 6}
+                    />
+                </View>
+            </View>
+        </SafeAreaView>
     );
 }
 
@@ -175,88 +286,78 @@ ESTILOS
 ========================================================
 */
 const styles = StyleSheet.create({
-    container: {
+    safeArea: {
         flex: 1,
-        padding: 30,
-        justifyContent: "center",
-        backgroundColor: "#ffffff",
     },
 
-    containerDark: {
-        backgroundColor: "#0B0B0B",
+    container: {
+        flex: 1,
+        justifyContent: "space-between",
+    },
+
+    content: {
+        flex: 1,
+        justifyContent: "center",
+        paddingHorizontal: 24,
+    },
+
+    badge: {
+        alignSelf: "flex-start",
+        fontSize: 13,
+        fontWeight: "600",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 999,
+        borderWidth: 1,
+        marginBottom: 18,
     },
 
     title: {
-        fontSize: 22,
-        fontWeight: "600",
+        fontSize: 28,
+        fontWeight: "700",
+        lineHeight: 34,
         marginBottom: 10,
-        color: "#000",
-    },
-
-    titleDark: {
-        color: "#fff",
+        maxWidth: 320,
     },
 
     subtitle: {
-        fontSize: 14,
-        color: "#666",
-        marginBottom: 30,
-    },
-
-    subtitleDark: {
-        color: "#aaa",
+        fontSize: 16,
+        lineHeight: 24,
+        marginBottom: 24,
+        maxWidth: 340,
     },
 
     input: {
         borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 10,
-        padding: 15,
-        fontSize: 22,
-        textAlign: "center",
-        letterSpacing: 10,
-        color: "#000",
-        backgroundColor: "#fff",
-    },
-
-    inputDark: {
-        borderColor: "#333",
-        color: "#fff",
-        backgroundColor: "#1E1E1E",
-    },
-
-    button: {
-        marginTop: 30,
-        backgroundColor: "#1E6BE3",
-        padding: 18,
-        borderRadius: 40,
-        alignItems: "center",
-    },
-
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
+        borderRadius: 16,
+        height: 62,
+        fontSize: 24,
+        letterSpacing: 12,
+        paddingHorizontal: 16,
         fontWeight: "600",
     },
 
-    timer: {
-        marginTop: 20,
-        textAlign: "center",
-        color: "#666",
+    resendContainer: {
+        marginTop: 18,
+        minHeight: 24,
+        justifyContent: "center",
     },
 
-    timerDark: {
-        color: "#aaa",
+    timer: {
+        fontSize: 14,
+        textAlign: "center",
     },
 
     resend: {
-        marginTop: 20,
+        fontSize: 14,
+        fontWeight: "600",
         textAlign: "center",
-        color: "#1E6BE3",
-        fontWeight: "500",
     },
 
-    resendDark: {
-        color: "#4C8DFF",
+    footer: {
+        paddingHorizontal: 24,
+        paddingTop: 14,
+        paddingBottom: 20,
+        borderTopWidth: 1,
     },
 });

@@ -1,111 +1,286 @@
+/*
+========================================================
+TELA: BATTERY PERMISSION SCREEN
+
+OBJETIVO:
+- Orientar o usuário sobre a importância da permissão
+  relacionada à otimização de bateria
+- Explicar de forma clara e amigável por que essa etapa
+  melhora o recebimento de corridas
+- Seguir o padrão visual da referência:
+  fundo fixo + fundo atenuado + card inferior
+
+FLUXO ESPERADO:
+- Após as permissões anteriores
+- Exibe lembrete sobre recebimento de corridas
+- Em seguida abre a etapa de otimização de bateria
+- Depois segue para a próxima tela configurada
+========================================================
+*/
+
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    StatusBar,
+    Image,
+    SafeAreaView,
+} from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useTranslation } from "react-i18next";
 
 import { useTheme } from "../../context/ThemeContext";
-// CORREÇÃO: Importando diretamente do arquivo de cores
-import { lightColors, darkColors } from "../../themes/colors";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import ButtonSecondary from "../../components/ButtonSecondary";
 import { useBatteryOptimization } from "../../hooks/useBatteryOptimization";
 import { RootStackParamList } from "../../navigation/RootNavigator";
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type NavigationProp = NativeStackNavigationProp<
+    RootStackParamList,
+    "BatteryPermission"
+>;
+
 type ScreenRouteProp = RouteProp<RootStackParamList, "BatteryPermission">;
 
 export const BatteryPermissionScreen = () => {
     const { t } = useTranslation();
-    const { theme: themeName } = useTheme();
+    const { colors, isDark } = useTheme();
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<ScreenRouteProp>();
     const { nextScreen } = route.params;
 
-    // CORREÇÃO: Usando os nomes corretos importados
-    const colors = themeName === "dark" ? darkColors : lightColors;
+    /*
+    ========================================================
+    LOGO DE FUNDO
+    Como o fundo usa a cor principal da marca, usamos
+    a logo branca para melhor contraste visual.
+    ========================================================
+    */
+    const logo = require("../../assets/logo/zun-logo-white.png");
 
+    /*
+    ========================================================
+    FLUXO DE SUCESSO
+    Ao conceder a permissão, segue para a próxima tela
+    definida na navegação.
+    ========================================================
+    */
     const handleSuccess = () => {
-        // @ts-ignore
-        navigation.replace(nextScreen);
+        if (nextScreen === "Phone") {
+            navigation.replace("Phone", {
+                fromLogin: false,
+            });
+            return;
+        }
+
+        if (nextScreen === "Start") {
+            navigation.replace("Start");
+            return;
+        }
+
+        if (nextScreen === "Permissions") {
+            navigation.replace("Permissions");
+            return;
+        }
+
+        navigation.goBack();
     };
 
+    /*
+    ========================================================
+    FLUXO DE NEGATIVA
+    Se o usuário não permitir, volta para a tela anterior.
+    ========================================================
+    */
     const handleDeny = () => {
         navigation.goBack();
     };
 
+    /*
+    ========================================================
+    HOOK DE OTIMIZAÇÃO DE BATERIA
+    Mantém o comportamento atual centralizado no hook.
+    ========================================================
+    */
     const { requestPermission } = useBatteryOptimization(
         handleSuccess,
         handleDeny,
     );
 
     return (
-        <View style={styles.backdrop}>
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.primary,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle="light-content"
+                backgroundColor={colors.primary}
+            />
+
             <View
                 style={[
-                    styles.modalContainer,
-                    { backgroundColor: colors.background },
+                    styles.container,
+                    {
+                        backgroundColor: colors.primary,
+                    },
                 ]}
             >
-                <Text style={[styles.title, { color: colors.text }]}>
-                    {t("permissions.batteryOptimization.title")}
-                </Text>
-                <Text
+                {/* ========================================================
+                    FUNDO COM MARCA CENTRALIZADA
+                ======================================================== */}
+                <View style={styles.brandArea}>
+                    <Image
+                        source={logo}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
+
+                    <Text style={styles.brandText}>Zun Motorista</Text>
+                </View>
+
+                {/* ========================================================
+                    FUNDO ATENUADO
+                    Mantém a sensação de tela desativada ao fundo,
+                    sem escurecer excessivamente.
+                ======================================================== */}
+                <View
                     style={[
-                        styles.description,
-                        { color: colors.subtext || colors.subtext }, // Adicionado fallback
+                        styles.overlay,
+                        {
+                            backgroundColor: isDark
+                                ? "rgba(255, 255, 255, 0.06)"
+                                : "rgba(255, 255, 255, 0.18)",
+                        },
+                    ]}
+                />
+
+                {/* ========================================================
+                    CARD PRINCIPAL
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.card,
+                        {
+                            backgroundColor: colors.surface,
+                        },
                     ]}
                 >
-                    {t("permissions.batteryOptimization.description")}
-                </Text>
-                <View style={styles.buttonContainer}>
-                    <ButtonPrimary
-                        title={t("permissions.batteryOptimization.allow")}
-                        onPress={requestPermission}
-                    />
-                    <ButtonSecondary
-                        title={t("permissions.batteryOptimization.deny")}
-                        onPress={handleDeny}
-                    />
+                    <Text
+                        style={[
+                            styles.title,
+                            {
+                                color: colors.text,
+                            },
+                        ]}
+                    >
+                        {t("permissions.batteryOptimization.title")}
+                    </Text>
+
+                    <Text
+                        style={[
+                            styles.description,
+                            {
+                                color: colors.textSecondary,
+                            },
+                        ]}
+                    >
+                        {t("permissions.batteryOptimization.description")}
+                    </Text>
+
+                    {/* ========================================================
+                        BOTÕES DE AÇÃO
+                    ======================================================== */}
+                    <View style={styles.buttons}>
+                        <ButtonPrimary
+                            title={t("permissions.batteryOptimization.allow")}
+                            onPress={requestPermission}
+                            isDark={isDark}
+                        />
+
+                        <ButtonSecondary
+                            title={t("permissions.batteryOptimization.deny")}
+                            onPress={handleDeny}
+                            isDark={isDark}
+                        />
+                    </View>
                 </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    backdrop: {
+    safeArea: {
         flex: 1,
-        justifyContent: "center",
+    },
+
+    container: {
+        flex: 1,
+        justifyContent: "flex-end",
+    },
+
+    brandArea: {
+        ...StyleSheet.absoluteFillObject,
         alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        paddingHorizontal: 24,
     },
-    modalContainer: {
-        width: "90%",
-        maxWidth: 400,
-        borderRadius: 28,
-        padding: 24,
-        alignItems: "stretch",
-        elevation: 5,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
+
+    logo: {
+        width: 150,
+        height: 150,
+        opacity: 0.22,
+        marginBottom: 8,
     },
+
+    brandText: {
+        fontSize: 18,
+        fontWeight: "300",
+        color: "rgba(255,255,255,0.58)",
+    },
+
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+    },
+
+    card: {
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: 22,
+        paddingTop: 26,
+        paddingBottom: 24,
+        minHeight: 340,
+    },
+
     title: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: "700",
-        textAlign: "left",
-        marginBottom: 16,
+        lineHeight: 28,
+        marginBottom: 12,
     },
+
     description: {
         fontSize: 16,
-        textAlign: "left",
+        lineHeight: 24,
         marginBottom: 24,
-        lineHeight: 22,
     },
-    buttonContainer: {
-        width: "100%",
+
+    buttons: {
         gap: 12,
+        marginTop: "auto",
     },
 });

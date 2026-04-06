@@ -1,20 +1,19 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../context/ThemeContext";
 
 export default function BackButton() {
     const navigation = useNavigation();
-    const { theme } = useTheme();
-
-    const isDark = theme === "dark";
+    const { colors } = useTheme();
 
     return (
         <TouchableOpacity
             style={styles.container}
             onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
         >
-            <Text style={[styles.icon, isDark && styles.iconDark]}>←</Text>
+            <Text style={[styles.icon, { color: colors.white }]}>‹</Text>
         </TouchableOpacity>
     );
 }
@@ -22,17 +21,18 @@ export default function BackButton() {
 const styles = StyleSheet.create({
     container: {
         position: "absolute",
-        top: 60,
-        left: 25,
+        top: Platform.OS === "ios" ? 16 : 10,
+        left: 12,
+        width: 40,
+        height: 40,
+        justifyContent: "center",
+        alignItems: "center",
         zIndex: 10,
     },
 
     icon: {
-        fontSize: 28,
-        color: "#000",
-    },
-
-    iconDark: {
-        color: "#fff",
+        fontSize: 34,
+        fontWeight: "300",
+        marginTop: -4,
     },
 });

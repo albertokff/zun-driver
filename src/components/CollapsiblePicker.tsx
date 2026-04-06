@@ -9,7 +9,7 @@ import {
     Platform,
     UIManager,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { lightColors, darkColors } from "../themes/colors";
 
 // Habilita animação no Android
 if (
@@ -22,7 +22,7 @@ if (
 interface CollapsiblePickerProps {
     label: string;
     options: string[];
-    selectedValue: string | null; // Correção: aceita null também
+    selectedValue: string | null;
     onSelect: (value: string) => void;
     isDark: boolean;
 }
@@ -35,48 +35,81 @@ export default function CollapsiblePicker({
     isDark,
 }: CollapsiblePickerProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const palette = isDark ? darkColors : lightColors;
+    const hasValue = !!selectedValue;
 
     const toggleOpen = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setIsOpen(!isOpen);
+        setIsOpen((prevState) => !prevState);
     };
 
     const handleSelect = (option: string) => {
         onSelect(option);
-        toggleOpen();
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setIsOpen(false);
     };
 
     return (
         <View style={styles.inputContainer}>
             <TouchableOpacity
                 onPress={toggleOpen}
+                activeOpacity={0.85}
                 style={[
                     styles.input,
-                    isDark && styles.inputDark,
                     styles.touchableInput,
+                    {
+                        backgroundColor: palette.inputBackground,
+                        borderColor: isOpen ? palette.primary : palette.border,
+                        borderBottomLeftRadius: isOpen ? 0 : 14,
+                        borderBottomRightRadius: isOpen ? 0 : 14,
+                    },
                 ]}
             >
-                {selectedValue ? (
-                    <Text style={[styles.label, isDark && styles.labelDark]}>
+                {hasValue ? (
+                    <Text
+                        style={[
+                            styles.label,
+                            {
+                                color: isOpen
+                                    ? palette.primary
+                                    : palette.subtext,
+                                backgroundColor: palette.surface,
+                            },
+                        ]}
+                    >
                         {label}
                     </Text>
                 ) : null}
+
                 <Text
                     style={[
                         styles.touchableInputText,
-                        isDark && styles.touchableInputTextDark,
-                        !selectedValue && styles.placeholderText,
-                        !selectedValue && isDark && styles.placeholderTextDark,
+                        {
+                            color: hasValue
+                                ? palette.text
+                                : palette.placeholder,
+                        },
                     ]}
+                    numberOfLines={1}
                 >
                     {selectedValue || label}
                 </Text>
+
                 <View
                     style={{
                         transform: [{ rotate: isOpen ? "90deg" : "0deg" }],
                     }}
                 >
-                    <Text style={[styles.arrow, isDark && styles.arrowDark]}>
+                    <Text
+                        style={[
+                            styles.arrow,
+                            {
+                                color: isOpen
+                                    ? palette.primary
+                                    : palette.textMuted,
+                            },
+                        ]}
+                    >
                         ›
                     </Text>
                 </View>
@@ -86,29 +119,50 @@ export default function CollapsiblePicker({
                 <View
                     style={[
                         styles.optionsContainer,
-                        isDark && styles.optionsContainerDark,
+                        {
+                            borderColor: palette.border,
+                            backgroundColor: palette.card,
+                        },
                     ]}
                 >
                     <ScrollView
-                        nestedScrollEnabled={true}
-                        style={{ maxHeight: 200 }}
+                        nestedScrollEnabled
+                        showsVerticalScrollIndicator={false}
+                        style={styles.optionsScroll}
                     >
-                        {options.map((option) => (
-                            <TouchableOpacity
-                                key={option}
-                                onPress={() => handleSelect(option)}
-                                style={styles.optionItem}
-                            >
-                                <Text
+                        {options.map((option) => {
+                            const isSelected = selectedValue === option;
+
+                            return (
+                                <TouchableOpacity
+                                    key={option}
+                                    onPress={() => handleSelect(option)}
+                                    activeOpacity={0.8}
                                     style={[
-                                        styles.optionText,
-                                        isDark && styles.optionTextDark,
+                                        styles.optionItem,
+                                        {
+                                            borderTopColor: palette.divider,
+                                            backgroundColor: isSelected
+                                                ? palette.primaryLight
+                                                : "transparent",
+                                        },
                                     ]}
                                 >
-                                    {option}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+                                    <Text
+                                        style={[
+                                            styles.optionText,
+                                            {
+                                                color: isSelected
+                                                    ? palette.primaryDark
+                                                    : palette.text,
+                                            },
+                                        ]}
+                                    >
+                                        {option}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </ScrollView>
                 </View>
             )}
@@ -118,93 +172,65 @@ export default function CollapsiblePicker({
 
 const styles = StyleSheet.create({
     inputContainer: {
-        marginBottom: 15,
+        marginBottom: 16,
         paddingHorizontal: 20,
         position: "relative",
     },
+
     input: {
-        backgroundColor: "#FFF",
         borderWidth: 1,
-        borderColor: "#E0E0E0",
-        borderRadius: 8,
-        height: 58,
-        fontSize: 16,
-        paddingHorizontal: 15,
-        color: "#222",
+        borderRadius: 14,
+        minHeight: 56,
+        paddingHorizontal: 16,
         justifyContent: "center",
     },
-    inputDark: {
-        backgroundColor: "#1C1C1E",
-        borderColor: "#444",
-        color: "#FFF",
-    },
+
     touchableInput: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
     },
+
     touchableInputText: {
+        flex: 1,
         fontSize: 16,
-        color: "#222",
+        marginRight: 12,
     },
-    touchableInputTextDark: {
-        color: "#FFF",
-    },
-    placeholderText: {
-        color: "#AAA",
-    },
-    placeholderTextDark: {
-        color: "#555",
-    },
+
     label: {
-        color: "#888",
         fontSize: 12,
         position: "absolute",
         top: -8,
         left: 30,
         zIndex: 1,
-        backgroundColor: "#FFF",
-        paddingHorizontal: 4,
+        paddingHorizontal: 6,
     },
-    labelDark: {
-        color: "#777",
-        backgroundColor: "#1C1C1E",
-    },
+
     arrow: {
         fontSize: 24,
-        color: "#888",
+        fontWeight: "400",
     },
-    arrowDark: {
-        color: "#777",
-    },
+
     optionsContainer: {
-        marginTop: -8,
+        marginTop: -2,
         borderWidth: 1,
-        borderColor: "#E0E0E0",
         borderTopWidth: 0,
-        borderBottomLeftRadius: 8,
-        borderBottomRightRadius: 8,
-        backgroundColor: "#FFF",
+        borderBottomLeftRadius: 14,
+        borderBottomRightRadius: 14,
         overflow: "hidden",
     },
-    optionsContainerDark: {
-        borderColor: "#444",
-        backgroundColor: "#1C1C1E",
+
+    optionsScroll: {
+        maxHeight: 220,
     },
+
     optionItem: {
         paddingVertical: 15,
-        paddingHorizontal: 15,
+        paddingHorizontal: 16,
         borderTopWidth: 1,
-        borderTopColor: "#F0F0F0",
     },
-    optionItemDark: {
-        borderTopColor: "#2C2C2E",
-    },
+
     optionText: {
         fontSize: 16,
-        color: "#333",
-    },
-    optionTextDark: {
-        color: "#FFF",
     },
 });

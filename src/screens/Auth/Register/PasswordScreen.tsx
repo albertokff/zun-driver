@@ -1,16 +1,20 @@
 /*
 ========================================================
 TELA DE CRIAÇÃO DE SENHA
+
 Fluxo de cadastro do motorista Zun
-REGRAS DE SENHA
+
+REGRAS DE SENHA:
 - mínimo 8 caracteres
 - possuir pelo menos 2 dos 3 tipos:
     letras
     números
     símbolos
+
 Também mostra feedback visual enquanto o usuário digita.
 ========================================================
 */
+
 import React, { useState } from "react";
 import {
     View,
@@ -18,19 +22,23 @@ import {
     StyleSheet,
     TextInput,
     TouchableOpacity,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
-import { Ionicons } from "@expo/vector-icons";
+import BackButton from "../../../components/BackButton";
+import ButtonPrimary from "../../../components/ButtonPrimary";
 
 /*
 ========================================================
 TIPAGEM DA NAVEGAÇÃO
 ========================================================
 */
-// CORREÇÃO: A tipagem deve ser referente à tela atual, "Password".
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Password">;
 
 /*
@@ -40,8 +48,14 @@ COMPONENTE PRINCIPAL
 */
 export default function PasswordScreen() {
     const navigation = useNavigation<NavigationProp>();
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+
+    /*
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
+    */
+    const { theme, colors, isDark } = useTheme();
+
     /*
     ========================================================
     STATES
@@ -49,6 +63,7 @@ export default function PasswordScreen() {
     */
     const [password, setPassword] = useState("");
     const [eyePassword, setEyePassword] = useState(false);
+
     /*
     ========================================================
     VALIDAÇÕES INDIVIDUAIS
@@ -58,14 +73,17 @@ export default function PasswordScreen() {
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSymbol = /[^a-zA-Z0-9]/.test(password);
+
     /*
     Conta quantos tipos de caracteres existem
     */
     const typesCount = [hasLetter, hasNumber, hasSymbol].filter(Boolean).length;
+
     /*
     Senha válida precisa de pelo menos 2 tipos
     */
     const passwordValid = hasMinLength && typesCount >= 2;
+
     /*
     ========================================================
     AÇÃO AO CONFIRMAR SENHA
@@ -73,84 +91,184 @@ export default function PasswordScreen() {
     */
     const handleConfirm = () => {
         if (!passwordValid) return;
-        // Esta linha já estava correta e agora vai funcionar com a tipagem certa.
+
         navigation.navigate("DriverCategory");
     };
+
     /*
     ========================================================
     RENDER
     ========================================================
     */
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            {/* TÍTULO */}
-            <Text style={[styles.title, isDark && styles.titleDark]}>
-                Criar senha
-            </Text>
-            {/* DESCRIÇÃO */}
-            <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
-                Deve conter pelo menos dois dos seguintes itens: números, letras
-                ou símbolos.
-            </Text>
-            {/* INPUT DE SENHA */}
-            <View style={styles.containerInput}>
-                <TextInput
-                    style={[styles.input, isDark && styles.inputDark]}
-                    secureTextEntry={!eyePassword}
-                    placeholder="********"
-                    placeholderTextColor={isDark ? "#777" : "#999"}
-                    value={password}
-                    onChangeText={setPassword}
-                />
-                {/* BOTÃO MOSTRAR / OCULTAR SENHA */}
-                <TouchableOpacity
-                    style={styles.iconContainer}
-                    onPress={() => setEyePassword(!eyePassword)}
-                >
-                    <Ionicons
-                        name={eyePassword ? "eye-off-outline" : "eye-outline"}
-                        size={24}
-                        color={isDark ? "#BBB" : "#666"}
-                    />
-                </TouchableOpacity>
-            </View>
-            {/* =====================================================
-                CHECKLIST DE VALIDAÇÃO
-                Mostra feedback em tempo real
-            ===================================================== */}
-            <View style={styles.rulesContainer}>
-                <RuleItem
-                    label="mínimo 8 caracteres"
-                    valid={hasMinLength}
-                    isDark={isDark}
-                />
-                <RuleItem
-                    label="contém letras"
-                    valid={hasLetter}
-                    isDark={isDark}
-                />
-                <RuleItem
-                    label="contém números"
-                    valid={hasNumber}
-                    isDark={isDark}
-                />
-                <RuleItem
-                    label="contém símbolos"
-                    valid={hasSymbol}
-                    isDark={isDark}
-                />
-            </View>
-            {/* BOTÃO CONFIRMAR */}
-            <TouchableOpacity
-                style={[styles.button, { opacity: passwordValid ? 1 : 0.5 }]}
-                disabled={!passwordValid}
-                onPress={handleConfirm}
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
+
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
+                ]}
             >
-                <Text style={styles.buttonText}>Confirmar</Text>
-            </TouchableOpacity>
-        </View>
+                {/* BOTÃO DE VOLTAR */}
+                <BackButton />
+
+                {/* ========================================================
+                    CONTEÚDO PRINCIPAL
+                ======================================================== */}
+                <View style={styles.content}>
+                    {/* Badge de contexto */}
+                    <Text
+                        style={[
+                            styles.badge,
+                            {
+                                color: colors.primary,
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                                borderColor: colors.divider,
+                            },
+                        ]}
+                    >
+                        Segurança da conta
+                    </Text>
+
+                    {/* TÍTULO */}
+                    <Text
+                        style={[
+                            styles.title,
+                            {
+                                color: colors.text,
+                            },
+                        ]}
+                    >
+                        Criar senha
+                    </Text>
+
+                    {/* DESCRIÇÃO */}
+                    <Text
+                        style={[
+                            styles.subtitle,
+                            {
+                                color: colors.textSecondary,
+                            },
+                        ]}
+                    >
+                        Sua senha deve conter pelo menos dois dos seguintes
+                        itens: números, letras ou símbolos.
+                    </Text>
+
+                    {/* INPUT DE SENHA */}
+                    <View
+                        style={[
+                            styles.containerInput,
+                            {
+                                backgroundColor: colors.inputBackground,
+                                borderColor: colors.border,
+                            },
+                        ]}
+                    >
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    color: colors.text,
+                                },
+                            ]}
+                            secureTextEntry={!eyePassword}
+                            placeholder="Digite sua senha"
+                            placeholderTextColor={colors.placeholder}
+                            value={password}
+                            onChangeText={setPassword}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                        />
+
+                        {/* BOTÃO MOSTRAR / OCULTAR SENHA */}
+                        <TouchableOpacity
+                            style={styles.iconContainer}
+                            onPress={() => setEyePassword(!eyePassword)}
+                            activeOpacity={0.8}
+                        >
+                            <Ionicons
+                                name={
+                                    eyePassword
+                                        ? "eye-off-outline"
+                                        : "eye-outline"
+                                }
+                                size={22}
+                                color={colors.textSecondary}
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* =====================================================
+                        CHECKLIST DE VALIDAÇÃO
+                        Mostra feedback em tempo real
+                    ===================================================== */}
+                    <View style={styles.rulesContainer}>
+                        <RuleItem
+                            label="mínimo 8 caracteres"
+                            valid={hasMinLength}
+                            isDark={isDark}
+                        />
+                        <RuleItem
+                            label="contém letras"
+                            valid={hasLetter}
+                            isDark={isDark}
+                        />
+                        <RuleItem
+                            label="contém números"
+                            valid={hasNumber}
+                            isDark={isDark}
+                        />
+                        <RuleItem
+                            label="contém símbolos"
+                            valid={hasSymbol}
+                            isDark={isDark}
+                        />
+                    </View>
+                </View>
+
+                {/* ========================================================
+                    ÁREA DE AÇÃO
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.footer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
+                    ]}
+                >
+                    <ButtonPrimary
+                        title="Confirmar"
+                        onPress={handleConfirm}
+                        isDark={isDark}
+                        disabled={!passwordValid}
+                    />
+                </View>
+            </View>
+        </SafeAreaView>
     );
 }
+
 /*
 ========================================================
 COMPONENTE ITEM DE REGRA
@@ -166,114 +284,155 @@ function RuleItem({
     valid: boolean;
     isDark: boolean;
 }) {
+    const { colors } = useTheme();
+
     return (
-        <Text
-            style={[
-                styles.ruleText,
-                valid && styles.ruleValid,
-                isDark && styles.ruleTextDark,
-            ]}
-        >
-            {valid ? "✓" : "○"} {label}
-        </Text>
+        <View style={styles.ruleRow}>
+            <Text
+                style={[
+                    styles.ruleIcon,
+                    {
+                        color: valid
+                            ? colors.success
+                            : isDark
+                              ? colors.textSecondary
+                              : colors.textMuted,
+                    },
+                ]}
+            >
+                {valid ? "✓" : "○"}
+            </Text>
+
+            <Text
+                style={[
+                    styles.ruleText,
+                    {
+                        color: valid
+                            ? colors.success
+                            : isDark
+                              ? colors.textSecondary
+                              : colors.textMuted,
+                    },
+                    valid && styles.ruleValid,
+                ]}
+            >
+                {label}
+            </Text>
+        </View>
     );
 }
+
 /*
 ========================================================
 ESTILOS
 ========================================================
 */
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+    },
+
     container: {
         flex: 1,
-        padding: 30,
+        justifyContent: "space-between",
+    },
+
+    content: {
+        flex: 1,
         justifyContent: "center",
-        backgroundColor: "#ffffff",
+        paddingHorizontal: 24,
     },
-    containerDark: {
-        backgroundColor: "#0B0B0B",
-    },
-    title: {
-        fontSize: 22,
+
+    badge: {
+        alignSelf: "flex-start",
+        fontSize: 13,
         fontWeight: "600",
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 999,
+        borderWidth: 1,
+        marginBottom: 18,
+    },
+
+    title: {
+        fontSize: 28,
+        fontWeight: "700",
+        lineHeight: 34,
         marginBottom: 10,
-        color: "#000",
+        maxWidth: 320,
     },
-    titleDark: {
-        color: "#fff",
-    },
+
     subtitle: {
-        fontSize: 14,
-        color: "#666",
-        marginBottom: 30,
+        fontSize: 16,
+        lineHeight: 24,
+        marginBottom: 24,
+        maxWidth: 340,
     },
-    subtitleDark: {
-        color: "#aaa",
-    },
+
     containerInput: {
         flexDirection: "row",
         alignItems: "center",
         width: "100%",
-        position: "relative",
+        minHeight: 58,
+        borderRadius: 16,
+        borderWidth: 1,
+        paddingLeft: 16,
+        paddingRight: 12,
     },
+
     input: {
         flex: 1,
-        height: 55,
-        backgroundColor: "#F3F3F3",
-        borderRadius: 10,
-        paddingHorizontal: 15,
-        paddingRight: 50,
-        fontSize: 18,
-        color: "#000",
+        fontSize: 16,
+        paddingVertical: 16,
+        paddingRight: 8,
     },
-    inputDark: {
-        backgroundColor: "#222",
-        color: "#FFF",
-        borderColor: "#444",
-        borderWidth: 1,
-    },
+
     iconContainer: {
-        position: "absolute",
-        right: 15,
-        height: "100%",
+        width: 36,
+        height: 36,
         justifyContent: "center",
         alignItems: "center",
     },
+
     /*
     ========================================================
     CHECKLIST DE REGRAS
     ========================================================
     */
     rulesContainer: {
-        marginTop: 15,
+        marginTop: 18,
     },
+
+    ruleRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 8,
+    },
+
+    ruleIcon: {
+        width: 20,
+        fontSize: 15,
+        fontWeight: "700",
+    },
+
     ruleText: {
         fontSize: 14,
-        color: "#777",
-        marginBottom: 6,
+        lineHeight: 20,
     },
-    ruleTextDark: {
-        color: "#AAA",
-    },
+
     ruleValid: {
-        color: "#2ECC71",
-        fontWeight: "500",
+        fontWeight: "600",
     },
+
     /*
     ========================================================
-    BOTÃO
+    ÁREA DE AÇÃO
     ========================================================
     */
-    button: {
-        marginTop: 30,
-        backgroundColor: "#1E6BE3",
-        padding: 18,
-        borderRadius: 40,
-        alignItems: "center",
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "600",
+    footer: {
+        paddingHorizontal: 24,
+        paddingTop: 14,
+        paddingBottom: 20,
+        borderTopWidth: 1,
     },
 });

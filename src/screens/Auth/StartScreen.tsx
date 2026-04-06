@@ -1,81 +1,137 @@
 /*
 ========================================================
 TELA INICIAL - START
-Primeira tela do aplicativo com opções de Login e Cadastro.
 
-FLUXO ATUALIZADO:
-- Botão "Entrar": Navega para Phone com fromLogin: true
-- Botão "Criar minha conta": Navega para PrivacyPolicy (cadastro)
+OBJETIVO:
+- Apresentar a marca Zun Motorista
+- Direcionar para login ou criação de conta
+- Manter consistência visual com a SplashScreen
+- Usar os botões no padrão oficial da Zun
 
-PARÂMETROS ENVIADOS:
-- Phone: { fromLogin: boolean }
-  - true: Fluxo de Login (Entrar)
-  - false: Fluxo de Cadastro
+FLUXO:
+- Entrar → Phone (login)
+- Criar conta → PrivacyPolicy
 ========================================================
 */
+
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    Image,
+    SafeAreaView,
+    StatusBar,
+} from "react-native";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootNavigator";
 
-// Tipagem para navegação
+import ButtonPrimary from "../../components/ButtonPrimary";
+import ButtonSecondary from "../../components/ButtonSecondary";
+
+/*
+========================================================
+TIPAGEM PARA NAVEGAÇÃO
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Start">;
 
 export default function StartScreen() {
-    const { theme } = useTheme();
+    const { theme, colors, isDark } = useTheme();
     const navigation = useNavigation<NavigationProp>();
 
-    // Seleciona logo baseado no tema
+    /*
+    ========================================================
+    LOGO POR TEMA
+    ========================================================
+    */
     const logo =
         theme === "dark"
             ? require("../../assets/logo/zun-logo-dark.png")
             : require("../../assets/logo/zun-logo-light.png");
 
     return (
-        <View
-            style={[styles.container, theme === "dark" && styles.containerDark]}
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
         >
-            {/* LOGO E TÍTULO */}
-            <View style={styles.logoContainer}>
-                <Image source={logo} style={styles.logo} resizeMode="contain" />
-                <Text style={styles.primaryTextOpac}>Z Motorista</Text>
-            </View>
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-            {/* BOTÕES DE AÇÃO */}
-            <View style={styles.buttonsContainer}>
-                {/*
-                ================================================
-                BOTÃO "ENTRAR" - FLUXO DE LOGIN
-                Navega para Phone passando fromLogin: true
-                ================================================
-                */}
-                <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={() =>
-                        navigation.navigate("Phone", {
-                            fromLogin: true, // ✅ Parâmetro crítico para diferenciar fluxos
-                        })
-                    }
-                >
-                    <Text style={styles.primaryText}>Entrar</Text>
-                </TouchableOpacity>
+            <View style={styles.container}>
+                {/* ========================================================
+                    BLOCO CENTRAL DE MARCA
+                    Ajustado para alinhar visualmente com a SplashScreen
+                ======================================================== */}
+                <View style={styles.centerContent}>
+                    <View style={styles.logoBlock}>
+                        <Image
+                            source={logo}
+                            style={styles.logo}
+                            resizeMode="contain"
+                        />
 
-                {/*
-                ================================================
-                BOTÃO "CRIAR MINHA CONTA" - FLUXO DE CADASTRO
-                Navega para PrivacyPolicy (início do cadastro)
-                ================================================
-                */}
-                <TouchableOpacity
-                    style={styles.secondaryButton}
-                    onPress={() => navigation.navigate("PrivacyPolicy")}
-                >
-                    <Text style={styles.secondaryText}>Criar minha conta</Text>
-                </TouchableOpacity>
+                        <Text
+                            style={[
+                                styles.brandText,
+                                { color: colors.subtext },
+                            ]}
+                        >
+                            Z - Motorista
+                        </Text>
+
+                        <Text style={[styles.title, { color: colors.text }]}>
+                            Bem-vindo à Zun
+                        </Text>
+
+                        <Text
+                            style={[styles.subtitle, { color: colors.subtext }]}
+                        >
+                            Ganhe mais dirigindo com liberdade.
+                        </Text>
+                    </View>
+                </View>
+
+                {/* ========================================================
+                    BOTÕES
+                ======================================================== */}
+                <View style={styles.buttonsContainer}>
+                    <ButtonPrimary
+                        title="Entrar"
+                        onPress={() =>
+                            navigation.navigate("Phone", {
+                                fromLogin: true,
+                            })
+                        }
+                        isDark={isDark}
+                    />
+
+                    <ButtonSecondary
+                        title="Criar minha conta"
+                        onPress={() => navigation.navigate("PrivacyPolicy")}
+                        isDark={isDark}
+                    />
+
+                    <Text
+                        style={[styles.footerText, { color: colors.subtext }]}
+                    >
+                        Ao continuar, você concorda com os termos e a política
+                        de privacidade.
+                    </Text>
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
@@ -85,56 +141,65 @@ ESTILOS
 ========================================================
 */
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+    },
+
     container: {
         flex: 1,
-        backgroundColor: "#ffffff",
+        paddingHorizontal: 24,
+        paddingBottom: 12,
+    },
+
+    centerContent: {
+        flex: 1,
+        justifyContent: "center",
         alignItems: "center",
-        justifyContent: "space-between",
-        paddingVertical: 120,
+        paddingTop: 220, // Ajuste para alinhar com a SplashScreen
     },
-    containerDark: {
-        backgroundColor: "#0B0B0B",
-    },
-    logoContainer: {
+
+    logoBlock: {
         alignItems: "center",
+        width: "100%",
     },
+
     logo: {
-        width: 200,
-        height: 200,
+        width: 190,
+        height: 190,
+        marginBottom: 6,
     },
-    primaryTextOpac: {
-        color: "#687076",
+
+    brandText: {
         fontSize: 18,
         fontWeight: "600",
+        letterSpacing: 0.6,
+        marginBottom: 12,
     },
+
+    title: {
+        fontSize: 28,
+        fontWeight: "700",
+        textAlign: "center",
+        marginBottom: 6,
+    },
+
+    subtitle: {
+        fontSize: 16,
+        textAlign: "center",
+        lineHeight: 22,
+    },
+
     buttonsContainer: {
         width: "100%",
-        alignItems: "center",
+        paddingBottom: 8,
+        gap: 12,
     },
-    primaryButton: {
-        backgroundColor: "#1E6BE3",
-        width: "80%",
-        paddingVertical: 18,
-        borderRadius: 40,
-        alignItems: "center",
-        marginBottom: 14,
-    },
-    primaryText: {
-        color: "#fff",
-        fontSize: 18,
-        fontWeight: "600",
-    },
-    secondaryButton: {
-        borderWidth: 2,
-        borderColor: "#1E6BE3",
-        width: "80%",
-        paddingVertical: 18,
-        borderRadius: 40,
-        alignItems: "center",
-    },
-    secondaryText: {
-        color: "#1E6BE3",
-        fontSize: 18,
-        fontWeight: "600",
+
+    footerText: {
+        fontSize: 12,
+        textAlign: "center",
+        lineHeight: 18,
+        marginTop: 6,
+        paddingHorizontal: 10,
     },
 });

@@ -5,12 +5,16 @@ PERMISSION BACKDROP SCREEN
 Tela educativa antes de abrir
 a permissão do sistema.
 
-Padrão usado por:
-Uber
-99
-iFood
+PADRÃO VISUAL:
+- Fundo com identidade da marca
+- Fundo atenuado para tirar foco do fundo
+- Card inferior com instrução clara
+- Estrutura inspirada em apps como:
+  Uber
+  99
+  iFood
 
-Fluxo:
+FLUXO:
 
 PermissionsScreen
       ↓
@@ -28,27 +32,26 @@ import React from "react";
 import {
     StatusBar,
     Alert,
-    useColorScheme,
     Platform,
     View,
     Text,
     StyleSheet,
+    Image,
+    SafeAreaView,
 } from "react-native";
 
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/RootNavigator";
-
-/*
-HOOK CENTRALIZADO DE PERMISSÕES
-Evita duplicação de código
-*/
-import { useSystemPermissions } from "../../hooks/useSystemPermissions";
-
-import AppBackdrop from "../../components/AppBackdrop";
+import { useTheme } from "../../context/ThemeContext";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import ButtonSecondary from "../../components/ButtonSecondary";
+import {
+    useSystemPermissions,
+    PermissionType,
+} from "../../hooks/useSystemPermissions";
+import { DEV_SIMULATE_PERMISSION } from "../../constants/permissions";
 
 /*
 TIPAGEM DE NAVEGAÇÃO
@@ -60,36 +63,78 @@ type NavigationProp = NativeStackNavigationProp<
 
 type ScreenRouteProp = RouteProp<RootStackParamList, "PermissionBackdrop">;
 
-/*
-========================================
-MODO DE DESENVOLVIMENTO
-========================================
-true = simula permissão
-false = usa permissão real
-*/
-const DEV_SIMULATE_PERMISSION = true;
-
 export default function PermissionBackdropScreen() {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<ScreenRouteProp>();
 
     /*
-    Permissão recebida da tela anterior
-    (Android ou iOS)
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
     */
-    // const { permissionToRequest } = route.params;
+    const { colors, isDark } = useTheme();
 
     /*
-    Hook centralizado de permissões
+    ========================================================
+    HOOK CENTRALIZADO DE PERMISSÕES
+    ========================================================
     */
-    // const { requestLocation } = useSystemPermissions();
+    const { requestPermission, openSettings } = useSystemPermissions();
 
     /*
-    Tema do sistema (claro / escuro)
+    ========================================================
+    PERMISSÃO RECEBIDA DA TELA ANTERIOR
+    Mantido para integração real do fluxo
+    ========================================================
     */
-    const colorScheme = useColorScheme() || "light";
-    const backgroundColor = colorScheme === "dark" ? "#000" : "#ffffff";
-    const barStyle = colorScheme === "dark" ? "light-content" : "dark-content";
+    const { permissionToRequest } = route.params;
+
+    /*
+    ========================================================
+    LOGO PARA O FUNDO DA TELA
+    Como o fundo é azul, usamos a versão branca
+    ========================================================
+    */
+    const logo = require("../../assets/logo/zun-logo-white.png");
+
+    /*
+    ========================================
+    TEXTO DINÂMICO POR TIPO DE PERMISSÃO
+    ========================================
+    */
+    const getPermissionContent = (type: PermissionType | string) => {
+        switch (type) {
+            case "location":
+                return {
+                    title: "Permitir acesso à localização",
+                    description:
+                        "Isso ajuda a calcular rotas, melhorar a precisão das corridas e aumentar a segurança durante o uso do app.",
+                };
+
+            case "camera":
+                return {
+                    title: "Permitir acesso à câmera",
+                    description:
+                        "Isso permite capturar fotos de documentos e concluir etapas importantes do seu cadastro.",
+                };
+
+            case "media-library":
+                return {
+                    title: "Permitir acesso à galeria",
+                    description:
+                        "Isso permite selecionar imagens e documentos salvos no seu dispositivo durante o cadastro.",
+                };
+
+            default:
+                return {
+                    title: "Permitir acesso",
+                    description:
+                        "Essa permissão é necessária para melhorar sua experiência no aplicativo.",
+                };
+        }
+    };
+
+    const { title, description } = getPermissionContent(permissionToRequest);
 
     /*
     ========================================
@@ -104,24 +149,20 @@ export default function PermissionBackdropScreen() {
             ========================================
             */
             if (DEV_SIMULATE_PERMISSION || Platform.OS === "web") {
-                Alert.alert(
-                    "Permitir acesso à localização?",
-                    "Zun Motorista precisa acessar sua localização para calcular corridas e rotas.",
-                    [
-                        {
-                            text: "Negar",
-                            style: "cancel",
-                            onPress: () => navigation.goBack(),
-                        },
-                        {
-                            text: "Permitir",
-                            onPress: () =>
-                                navigation.replace("BatteryPermission", {
-                                    nextScreen: "Phone",
-                                }),
-                        },
-                    ],
-                );
+                Alert.alert(title, description, [
+                    {
+                        text: "Negar",
+                        style: "cancel",
+                        onPress: () => navigation.goBack(),
+                    },
+                    {
+                        text: "Permitir",
+                        onPress: () =>
+                            navigation.replace("BatteryPermission", {
+                                nextScreen: "Phone",
+                            }),
+                    },
+                ]);
 
                 return;
             }
@@ -131,90 +172,165 @@ export default function PermissionBackdropScreen() {
             PERMISSÃO REAL DO SISTEMA
             ========================================
             */
-            // const result = await requestLocation(permissionToRequest);
+            const result = await requestPermission(
+                permissionToRequest as PermissionType,
+            );
 
             /*
             ========================================
             RESULTADOS POSSÍVEIS
             ========================================
             */
+            if (result === "granted") {
+                navigation.replace("BatteryPermission", {
+                    nextScreen: "Phone",
+                });
+                return;
+            }
 
-            // if (result === "granted") {
-            //     /*
-            //     Permissão aceita
-            //     segue fluxo normal
-            //     */
-            //     navigation.replace("BatteryPermission", {
-            //         nextScreen: "Phone",
-            //     });
+            if (result === "denied") {
+                Alert.alert(
+                    "Permissão necessária",
+                    "Para continuar, precisamos dessa permissão ativada.",
+                );
+                return;
+            }
 
-            //     return;
-            // }
+            if (result === "blocked") {
+                Alert.alert(
+                    "Permissão bloqueada",
+                    "Ative essa permissão nas configurações do aplicativo para continuar.",
+                    [
+                        {
+                            text: "Cancelar",
+                            style: "cancel",
+                        },
+                        {
+                            text: "Abrir configurações",
+                            onPress: openSettings,
+                        },
+                    ],
+                );
+                return;
+            }
 
-            // if (result === "denied") {
-            //     /*
-            //     Usuário negou
-            //     */
-            //     Alert.alert(
-            //         "Permissão necessária",
-            //         "Para continuar precisamos da sua localização.",
-            //     );
-
-            //     return;
-            // }
-
-            // if (result === "blocked") {
-            //     /*
-            //     Usuário bloqueou permanentemente
-            //     */
-            //     Alert.alert(
-            //         "Permissão bloqueada",
-            //         "Ative a localização nas configurações do celular.",
-            //     );
-
-            //     return;
-            // }
-
-            /*
-            Caso não seja suportado
-            */
-            Alert.alert("Erro", "Permissão indisponível no dispositivo.");
+            Alert.alert(
+                "Permissão indisponível",
+                "Não foi possível solicitar essa permissão neste dispositivo.",
+            );
         } catch (error) {
             Alert.alert("Erro", "Erro ao solicitar permissão.");
         }
     };
 
     return (
-        <>
-            <StatusBar barStyle={barStyle} backgroundColor={backgroundColor} />
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.primary,
+                },
+            ]}
+        >
+            {/* ========================================
+                STATUS BAR
+            ======================================== */}
+            <StatusBar
+                barStyle="light-content"
+                backgroundColor={colors.primary}
+            />
 
-            <AppBackdrop>
-                <View style={styles.container}>
-                    <Text style={styles.title}>
-                        Permitir acesso à localização
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.primary,
+                    },
+                ]}
+            >
+                {/* ========================================
+                    FUNDO COM MARCA
+                ======================================== */}
+                <View style={styles.brandArea}>
+                    <Image
+                        source={logo}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
+
+                    <Text style={styles.brandText}>Zun Motorista</Text>
+                </View>
+
+                {/* ========================================
+                    FUNDO ATENUADO
+                    Mantém a sensação de tela ao fundo desativada
+                ======================================== */}
+                <View
+                    style={[
+                        styles.overlay,
+                        {
+                            backgroundColor: isDark
+                                ? "rgba(255, 255, 255, 0.06)"
+                                : "rgba(255, 255, 255, 0.18)",
+                        },
+                    ]}
+                />
+
+                {/* ========================================
+                    CARD INFERIOR
+                ======================================== */}
+                <View
+                    style={[
+                        styles.card,
+                        {
+                            backgroundColor: colors.surface,
+                        },
+                    ]}
+                >
+                    <Text
+                        style={[
+                            styles.title,
+                            {
+                                color: colors.text,
+                            },
+                        ]}
+                    >
+                        {title}
                     </Text>
 
-                    <Text style={styles.description}>
-                        Precisamos da sua localização para calcular rotas,
-                        estimar corridas e melhorar a segurança da plataforma.
+                    <Text
+                        style={[
+                            styles.description,
+                            {
+                                color: colors.textSecondary,
+                            },
+                        ]}
+                    >
+                        {description}
                     </Text>
 
                     <View style={styles.button}>
-                        <ButtonPrimary
-                            title="Permitir"
-                            onPress={askPermission}
-                        />
+                        <View style={styles.fullWidth}>
+                            <ButtonPrimary
+                                title="Permitir"
+                                onPress={askPermission}
+                                isDark={isDark}
+                            />
+                        </View>
                     </View>
 
                     <View style={styles.button}>
-                        <ButtonSecondary
-                            title="Não permitir"
-                            onPress={() => navigation.goBack()}
-                        />
+                        <View style={styles.fullWidth}>
+                            <ButtonSecondary
+                                title="Não permitir"
+                                onPress={() => navigation.goBack()}
+                                isDark={isDark}
+                            />
+                        </View>
                     </View>
                 </View>
-            </AppBackdrop>
-        </>
+            </View>
+        </SafeAreaView>
     );
 }
 
@@ -223,30 +339,67 @@ export default function PermissionBackdropScreen() {
 ESTILOS
 ========================================
 */
-
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+    },
+
     container: {
-        marginTop: 40,
-        width: "100%",
-        maxWidth: 360,
+        flex: 1,
+        justifyContent: "flex-end",
+    },
+
+    brandArea: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 24,
+    },
+
+    logo: {
+        width: 150,
+        height: 150,
+        opacity: 0.22,
+        marginBottom: 8,
+    },
+
+    brandText: {
+        fontSize: 18,
+        fontWeight: "300",
+        color: "rgba(255,255,255,0.58)",
+    },
+
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+    },
+
+    card: {
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: 22,
+        paddingTop: 24,
+        paddingBottom: 24,
+        minHeight: 320,
     },
 
     title: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: "700",
-        textAlign: "center",
-        marginBottom: 16,
+        lineHeight: 28,
+        marginBottom: 12,
     },
 
     description: {
         fontSize: 16,
-        textAlign: "center",
-        color: "#687076",
-        marginBottom: 30,
-        lineHeight: 22,
+        lineHeight: 24,
+        marginBottom: 24,
     },
 
     button: {
         marginBottom: 12,
+    },
+
+    fullWidth: {
+        width: "100%",
     },
 });

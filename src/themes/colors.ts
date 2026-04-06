@@ -1,38 +1,136 @@
-export const darkColors = {
-    primary: '#0A6DFF',
-    background: '#1A1A1A',
-    text: '#FFFFFF',
-    white: '#FFFFFF',
-    divider: '#373738',
-    gold: '#FFD700',
+/*
+========================================================
+PALETA DE CORES DO APLICATIVO.
+Centraliza as cores do tema Light / Dark para manter
+padronização visual em todas as telas e componentes.
+========================================================
+*/
 
-    error: '#FF0000',
-    green: '#2ECC71',
-    greenB: '##a3e635',
-    slateBlue: '##673fd7',
-    cyanB: '#00E0FF',
-    subtext: '#FFA500',
-    icon: '#687076',
+export const darkColors = {
+    // ====================================================
+    // CORES PRINCIPAIS
+    // ====================================================
+    primary: "#0A6DFF",
+    primaryDark: "#0959D1",
+    primaryLight: "#4D94FF",
+
+    // ====================================================
+    // BACKGROUNDS
+    // ====================================================
+    background: "#0B0B0B",
+    surface: "#1A1A1A",
+    card: "#1C1C1E",
+    inputBackground: "#1C1C1E",
+    modalBackground: "#161616",
+
+    // ====================================================
+    // TEXTOS
+    // ====================================================
+    text: "#FFFFFF",
+    textSecondary: "#B3B3B3",
+    textMuted: "#8E8E93",
+    white: "#FFFFFF",
+
+    // ====================================================
+    // BORDAS / DIVISORES / ÍCONES
+    // ====================================================
+    border: "#2C2C2E",
+    divider: "#373738",
+    icon: "#687076",
+
+    // ====================================================
+    // STATUS / APOIO
+    // ====================================================
+    success: "#2ECC71",
+    warning: "#FFA500",
+    error: "#FF3B30",
+    gold: "#FFD700",
+
+    // ====================================================
+    // CORES AUXILIARES
+    // ====================================================
+    green: "#2ECC71",
+    greenB: "#A3E635",
+    slateBlue: "#673FD7",
+    cyanB: "#00E0FF",
+    subtext: "#FFA500",
+
+    // ====================================================
+    // ELEMENTOS ESPECÍFICOS DE COMPONENTE
+    // ====================================================
+    placeholder: "#777777",
+    disabled: "#5C5C5C",
+    overlay: "rgba(0, 0, 0, 0.5)",
 };
 
 export const lightColors = {
-    primary: '#0A6DFF',
-    background: '#FFFFFF',
-    text: '#1A1A1A',
-    white: '#FFFFFF',
-    divider: '#E5E5E5',
-    gold: '#FFD700',
+    // ====================================================
+    // CORES PRINCIPAIS
+    // ====================================================
+    primary: "#0A6DFF",
+    primaryDark: "#0959D1",
+    primaryLight: "#4D94FF",
 
-    error: '#FF0000',
-    green: '#2ECC71',
-    greenB: '##a3e635',
-    slateBlue: '##673fd7',
-    cyanB: '#00E0FF',
-    subtext: '#555555',
-    icon: '#687076',
+    // ====================================================
+    // BACKGROUNDS
+    // ====================================================
+    background: "#F7F8FA",
+    surface: "#FFFFFF",
+    card: "#FFFFFF",
+    inputBackground: "#FFFFFF",
+    modalBackground: "#FFFFFF",
+
+    // ====================================================
+    // TEXTOS
+    // ====================================================
+    text: "#1A1A1A",
+    textSecondary: "#555555",
+    textMuted: "#8E8E93",
+    white: "#FFFFFF",
+
+    // ====================================================
+    // BORDAS / DIVISORES / ÍCONES
+    // ====================================================
+    border: "#E3E6EA",
+    divider: "#E5E5E5",
+    icon: "#687076",
+
+    // ====================================================
+    // STATUS / APOIO
+    // ====================================================
+    success: "#2ECC71",
+    warning: "#FFA500",
+    error: "#FF3B30",
+    gold: "#FFD700",
+
+    // ====================================================
+    // CORES AUXILIARES
+    // ====================================================
+    green: "#2ECC71",
+    greenB: "#A3E635",
+    slateBlue: "#673FD7",
+    cyanB: "#00E0FF",
+    subtext: "#555555",
+
+    // ====================================================
+    // ELEMENTOS ESPECÍFICOS DE COMPONENTE
+    // ====================================================
+    placeholder: "#A0A0A0",
+    disabled: "#C7CBD1",
+    overlay: "rgba(0, 0, 0, 0.25)",
 };
 
-export const colors = darkColors;
+/*
+========================================================
+CORES PADRÃO EXPORTADAS.
+Mantido para compatibilidade com arquivos antigos.
+========================================================
+*/
+export const colors = lightColors;
+
+
+
+
 
 
 
