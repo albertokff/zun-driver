@@ -148,14 +148,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 24,
-        paddingBottom: 12,
+        paddingBottom: 8,
     },
 
     centerContent: {
         flex: 1,
-        justifyContent: "center",
+        justifyContent: "flex-start",
         alignItems: "center",
-        paddingTop: 220, // Ajuste para alinhar com a SplashScreen
+        paddingTop: 220,
     },
 
     logoBlock: {
@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
     },
 
     logo: {
-        width: 190,
-        height: 190,
+        width: 200,
+        height: 200,
         marginBottom: 6,
     },
 
@@ -173,14 +173,14 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "600",
         letterSpacing: 0.6,
-        marginBottom: 12,
+        marginBottom: 10,
     },
 
     title: {
         fontSize: 28,
         fontWeight: "700",
         textAlign: "center",
-        marginBottom: 6,
+        marginBottom: 4,
     },
 
     subtitle: {
@@ -191,15 +191,15 @@ const styles = StyleSheet.create({
 
     buttonsContainer: {
         width: "100%",
-        paddingBottom: 8,
         gap: 12,
+        paddingTop: 20,
     },
 
     footerText: {
-        fontSize: 12,
+        fontSize: 11,
         textAlign: "center",
-        lineHeight: 18,
-        marginTop: 6,
+        lineHeight: 16,
+        marginTop: 2,
         paddingHorizontal: 10,
     },
 });
