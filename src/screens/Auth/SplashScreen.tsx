@@ -6,9 +6,10 @@ OBJETIVO:
 - Apresentar a identidade visual da Zun
 - Criar uma primeira impressão forte e elegante
 - Preparar a transição para a StartScreen
+- Manter alinhamento visual com a tela de boas-vindas
 
 COMPORTAMENTO:
-- Exibe logo centralizada com animação suave
+- Exibe logo com animação suave
 - Exibe identificação "Zun Motorista"
 - Após alguns segundos, navega para a StartScreen
 ========================================================
@@ -46,9 +47,8 @@ export default function SplashScreen() {
     /*
     ========================================================
     LOGO DA SPLASH
-    IMPORTANTE:
-    - Como o fundo da splash é azul, usamos a logo branca
-      para garantir contraste e legibilidade.
+    Como o fundo da splash é azul, usamos a logo branca
+    para garantir contraste e legibilidade.
     ========================================================
     */
     const logo = require("../../assets/logo/zun-logo-white.png");
@@ -108,6 +108,7 @@ export default function SplashScreen() {
 
             {/* ========================================================
                 BLOCO CENTRAL DE BRANDING
+                Mantido com a mesma âncora visual da StartScreen
             ======================================================== */}
             <View style={styles.centerContent}>
                 <Animated.Image
@@ -146,24 +147,24 @@ ESTILOS
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
     },
 
     centerContent: {
+        flex: 1,
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
+        paddingTop: 220,
     },
 
     logo: {
-        width: 210,
-        height: 210,
-        marginBottom: 14,
+        width: 200,
+        height: 200,
+        marginBottom: 6,
     },
 
     brandText: {
-        fontSize: 28,
-        fontWeight: "300",
-        letterSpacing: 0.4,
+        fontSize: 18,
+        fontWeight: "600",
+        letterSpacing: 0.6,
     },
 });

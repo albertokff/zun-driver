@@ -16,6 +16,8 @@ COMPATIBILIDADE:
 OBSERVAÇÃO:
 - Ainda estamos em fase de desenvolvimento com dados mockados
 - O fluxo foi mantido preparado para futura integração real
+- Ao tocar em "Permitir", o app deve abrir o backdrop da Zun
+  para simular o fundo desfocado antes do popup do sistema
 ========================================================
 */
 
@@ -39,14 +41,6 @@ import { permissions } from "../../constants/permissions";
 import ButtonPrimary from "../../components/ButtonPrimary";
 import ButtonSecondary from "../../components/ButtonSecondary";
 import BackButton from "../../components/BackButton";
-
-/*
-========================================================
-CONFIGURAÇÃO DE DESENVOLVIMENTO
-Defina como false para testar permissões reais
-========================================================
-*/
-const DEV_SIMULATE_PERMISSION = true;
 
 /*
 ========================================================
@@ -102,35 +96,33 @@ export default function PermissionsScreen() {
     /*
     ========================================================
     BOTÃO "PERMITIR"
-    Em desenvolvimento, segue o fluxo mockado.
-    Em produção, segue para a tela que dispara a permissão.
+
+    REGRA DO FLUXO:
+    - NÃO deve pular para Phone
+    - Deve abrir primeiro a tela/backdrop da Zun
+    - O popup do sistema será disparado por cima desse fundo
     ========================================================
     */
     function handleAllow() {
         /*
         =====================================
-        MODO DESENVOLVIMENTO
-        =====================================
-        */
-        if (DEV_SIMULATE_PERMISSION) {
-            console.log("Permissão simulada (DEV)");
-            navigation.navigate("Phone", {
-                fromLogin: false,
-            });
-            return;
-        }
-
-        /*
-        =====================================
-        MODO PRODUÇÃO
-        =====================================
-        Usa permissões compatíveis com o fluxo atual
+        PERMISSÃO DE LOCALIZAÇÃO
+        Esta é a primeira permissão do fluxo
+        após a tela 03.
         =====================================
         */
         const locationPermission: PermissionType = ANDROID_PERMISSIONS.LOCATION;
 
         if (!locationPermission) return;
 
+        /*
+        =====================================
+        ABRE O BACKDROP DA ZUN
+        Essa navegação representa a tela 04:
+        fundo azul desfocado da Zun + popup
+        do sistema em primeiro plano.
+        =====================================
+        */
         navigation.navigate("PermissionBackdrop", {
             permissionToRequest: locationPermission,
         });
@@ -264,7 +256,7 @@ function PermissionItem({
                 <Icon
                     name={icon}
                     size={22}
-                    color={isDark ? colors.textSecondary : "#6F6F6F"}
+                    color={isDark ? colors.subtext : "#6F6F6F"}
                 />
             </View>
 
@@ -284,7 +276,7 @@ function PermissionItem({
                     style={[
                         styles.permissionDescription,
                         {
-                            color: colors.textSecondary,
+                            color: colors.subtext,
                         },
                     ]}
                 >
