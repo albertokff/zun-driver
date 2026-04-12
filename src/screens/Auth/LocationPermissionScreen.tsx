@@ -3,16 +3,17 @@
 TELA DE PERMISSÃO DE LOCALIZAÇÃO
 
 OBJETIVO:
+- Representar a etapa 05 do fluxo
 - Orientar o usuário a configurar a permissão de
   localização como "Permitir o tempo todo"
 - Seguir o padrão visual da referência:
   fundo fixo + fundo atenuado + card inferior
 
 FLUXO:
-- Aparece após AssistantPermissionScreen
-- Em produção, o botão principal pode abrir as
-  configurações do sistema
-- No fluxo atual, segue para HomeScreen
+- Aparece após o popup do sistema da etapa 04
+- Ao tocar em "Permitir", o app deve levar o usuário
+  para a etapa 06 (configuração do sistema Android)
+- Após essa etapa, seguiremos para a próxima permissão
 ========================================================
 */
 
@@ -24,7 +25,10 @@ import {
     SafeAreaView,
     StatusBar,
     Image,
+    Alert,
+    Platform,
 } from "react-native";
+import { Linking } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -66,13 +70,67 @@ export default function LocationPermissionScreen() {
     /*
     ================================================
     PERMITIR
-    Em produção, aqui pode abrir a tela de configurações
-    do sistema para o usuário ajustar a localização.
-    No fluxo atual, segue para Home.
+
+    REGRA DO FLUXO:
+    - Esta tela representa a etapa 05
+    - Ao tocar em "Permitir", precisamos levar o usuário
+      para a etapa 06, que é a tela do sistema Android
+      para ajuste da localização
+
+    OBSERVAÇÃO:
+    - No ambiente web, não existe a tela nativa do sistema
+    - Então exibimos apenas uma simulação informativa
     ================================================
     */
-    const handleAllow = () => {
-        navigation.navigate("Home");
+    const handleAllow = async () => {
+        try {
+            /*
+            ============================================
+            WEB
+            Não existe tela nativa de configuração igual
+            ao Android, então apenas simulamos a etapa.
+            ============================================
+            */
+            if (Platform.OS === "web") {
+                Alert.alert(
+                    "Simulação da etapa 06",
+                    'No Android, aqui abriria a tela do sistema para ajustar a localização como "Permitir o tempo todo".',
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => {
+                                /*
+                                ========================================
+                                TEMPORÁRIO
+                                Depois da etapa 06, o próximo bloco será
+                                a permissão de chamadas telefônicas (07).
+                                Como ainda vamos construir essa etapa na
+                                sequência, por enquanto apenas voltamos.
+                                ========================================
+                                */
+                                navigation.goBack();
+                            },
+                        },
+                    ],
+                );
+                return;
+            }
+
+            /*
+            ============================================
+            ANDROID / iOS
+            Como aproximação segura, abrimos as
+            configurações do app para o usuário ajustar
+            a permissão manualmente.
+            ============================================
+            */
+            await Linking.openSettings();
+        } catch (error) {
+            Alert.alert(
+                "Erro",
+                "Não foi possível abrir as configurações do dispositivo.",
+            );
+        }
     };
 
     /*
@@ -133,7 +191,7 @@ export default function LocationPermissionScreen() {
                         {
                             backgroundColor: isDark
                                 ? "rgba(255, 255, 255, 0.06)"
-                                : "rgba(255, 255, 255, 0.18)",
+                                : "rgba(255, 255, 255, 0.16)",
                         },
                     ]}
                 />
@@ -157,8 +215,7 @@ export default function LocationPermissionScreen() {
                             },
                         ]}
                     >
-                        Defina o acesso à localização no aplicativo como
-                        {"\n"}
+                        Defina o acesso à localização no aplicativo como{" "}
                         "Permitir o tempo todo"
                     </Text>
 
@@ -166,7 +223,7 @@ export default function LocationPermissionScreen() {
                         style={[
                             styles.description,
                             {
-                                color: colors.textSecondary,
+                                color: colors.subtext,
                             },
                         ]}
                     >
@@ -220,16 +277,17 @@ const styles = StyleSheet.create({
     },
 
     logo: {
-        width: 150,
-        height: 150,
+        width: 170,
+        height: 170,
         opacity: 0.22,
         marginBottom: 8,
     },
 
     brandText: {
         fontSize: 18,
-        fontWeight: "300",
-        color: "rgba(255,255,255,0.58)",
+        fontWeight: "600",
+        letterSpacing: 0.4,
+        color: "rgba(255,255,255,0.42)",
     },
 
     overlay: {

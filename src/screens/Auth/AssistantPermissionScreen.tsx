@@ -3,27 +3,22 @@
 TELA DE PERMISSÃO DO ASSISTENTE
 
 OBJETIVO:
-- Solicitar ativação do assistente para receber
-  solicitações de corrida e notificações
-- Manter uma experiência clara, confortável e moderna
-- Seguir o novo padrão visual do fluxo da Zun
+- Manter esta tela preparada para uso futuro no fluxo
+- Seguir o novo padrão visual da Zun
+- Não amarrar esta tela ao bloco 00 → 08 enquanto
+  essa etapa ainda não for validada no fluxo final
 
-FLUXO:
-- Aparece após confirmação do código OTP
-- Usuário pode ativar agora ou pular
-- Se ativar, segue para a próxima etapa do fluxo
+OBSERVAÇÃO IMPORTANTE:
+- Esta tela foi mantida como base reaproveitável
+- Por enquanto, ela NÃO deve ser considerada parte
+  oficial do bloco 00 → 08
+- O fluxo real será conectado apenas quando essa
+  etapa for confirmada
 ========================================================
 */
 
 import React from "react";
-import {
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-    SafeAreaView,
-    StatusBar,
-} from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, StatusBar } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -57,23 +52,23 @@ export default function AssistantPermissionScreen() {
 
     /*
     ================================================
-    ATIVAR ASSISTENTE AGORA
-    Em produção, pode abrir configuração específica
-    do Android. No fluxo atual segue para localização.
+    AÇÃO PRINCIPAL
+    IMPORTANTE:
+    - Mantida de forma neutra por enquanto
+    - Não conecta essa tela ao fluxo errado
     ================================================
     */
     const handleActivateNow = () => {
-        navigation.navigate("LocationPermission");
+        navigation.goBack();
     };
 
     /*
     ================================================
-    PULAR / NÃO OBRIGADO
-    Segue para a próxima etapa do fluxo
+    AÇÃO SECUNDÁRIA
     ================================================
     */
     const handleSkip = () => {
-        navigation.navigate("LocationPermission");
+        navigation.goBack();
     };
 
     return (
@@ -126,7 +121,7 @@ export default function AssistantPermissionScreen() {
                         Assistente do aplicativo
                     </Text>
 
-                    {/* Ilustração simplificada */}
+                    {/* Ilustração */}
                     <View
                         style={[
                             styles.illustrationContainer,
@@ -142,14 +137,14 @@ export default function AssistantPermissionScreen() {
                             style={[
                                 styles.phoneCard,
                                 {
-                                    backgroundColor: colors.inputBackground,
+                                    backgroundColor: colors.background,
                                     borderColor: colors.divider,
                                 },
                             ]}
                         >
                             <Ionicons
                                 name="phone-portrait-outline"
-                                size={42}
+                                size={40}
                                 color={colors.primary}
                             />
                         </View>
@@ -170,15 +165,15 @@ export default function AssistantPermissionScreen() {
                                 styles.locationBadge,
                                 {
                                     backgroundColor: isDark
-                                        ? colors.inputBackground
-                                        : colors.background,
+                                        ? colors.background
+                                        : colors.white,
                                     borderColor: colors.divider,
                                 },
                             ]}
                         >
                             <Ionicons
                                 name="navigate"
-                                size={26}
+                                size={24}
                                 color={colors.primary}
                             />
                         </View>
@@ -202,7 +197,7 @@ export default function AssistantPermissionScreen() {
                         style={[
                             styles.description,
                             {
-                                color: colors.textSecondary,
+                                color: colors.subtext,
                             },
                         ]}
                     >

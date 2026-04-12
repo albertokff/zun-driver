@@ -2,33 +2,32 @@
 ========================================
 PERMISSION BACKDROP SCREEN
 
-Tela educativa antes de abrir
-a permissão do sistema.
+OBJETIVO:
+- Representar a etapa 04 do fluxo
+- Mostrar apenas o fundo da marca Zun
+  desfocado / atenuado
+- Disparar a permissão do sistema por cima
 
 PADRÃO VISUAL:
-- Fundo com identidade da marca
-- Fundo atenuado para tirar foco do fundo
-- Card inferior com instrução clara
-- Estrutura inspirada em apps como:
-  Uber
-  99
-  iFood
+- Fundo azul da Zun
+- Logo branca apagada ao centro
+- Sem card inferior
+- Sem botões visíveis
+- Popup do sistema deve aparecer por cima
 
 FLUXO:
 
 PermissionsScreen
       ↓
-PermissionBackdropScreen
+PermissionBackdropScreen  (tela 04)
       ↓
 Popup do sistema
       ↓
-BatteryPermissionScreen
-      ↓
-PhoneScreen
+LocationPermissionScreen (tela 05)
 ========================================
 */
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
     StatusBar,
     Alert,
@@ -45,8 +44,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { RootStackParamList } from "../../navigation/RootNavigator";
 import { useTheme } from "../../context/ThemeContext";
-import ButtonPrimary from "../../components/ButtonPrimary";
-import ButtonSecondary from "../../components/ButtonSecondary";
 import {
     useSystemPermissions,
     PermissionType,
@@ -54,7 +51,9 @@ import {
 import { DEV_SIMULATE_PERMISSION } from "../../constants/permissions";
 
 /*
+========================================
 TIPAGEM DE NAVEGAÇÃO
+========================================
 */
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
@@ -84,10 +83,16 @@ export default function PermissionBackdropScreen() {
     /*
     ========================================================
     PERMISSÃO RECEBIDA DA TELA ANTERIOR
-    Mantido para integração real do fluxo
     ========================================================
     */
     const { permissionToRequest } = route.params;
+
+    /*
+    ========================================================
+    CONTROLE PARA EVITAR DISPARO DUPLO
+    ========================================================
+    */
+    const hasRequestedRef = useRef(false);
 
     /*
     ========================================================
@@ -99,46 +104,9 @@ export default function PermissionBackdropScreen() {
 
     /*
     ========================================
-    TEXTO DINÂMICO POR TIPO DE PERMISSÃO
-    ========================================
-    */
-    const getPermissionContent = (type: PermissionType | string) => {
-        switch (type) {
-            case "location":
-                return {
-                    title: "Permitir acesso à localização",
-                    description:
-                        "Isso ajuda a calcular rotas, melhorar a precisão das corridas e aumentar a segurança durante o uso do app.",
-                };
-
-            case "camera":
-                return {
-                    title: "Permitir acesso à câmera",
-                    description:
-                        "Isso permite capturar fotos de documentos e concluir etapas importantes do seu cadastro.",
-                };
-
-            case "media-library":
-                return {
-                    title: "Permitir acesso à galeria",
-                    description:
-                        "Isso permite selecionar imagens e documentos salvos no seu dispositivo durante o cadastro.",
-                };
-
-            default:
-                return {
-                    title: "Permitir acesso",
-                    description:
-                        "Essa permissão é necessária para melhorar sua experiência no aplicativo.",
-                };
-        }
-    };
-
-    const { title, description } = getPermissionContent(permissionToRequest);
-
-    /*
-    ========================================
     FUNÇÃO PARA PEDIR PERMISSÃO
+    Esta tela não exibe botões.
+    Ela apenas dispara automaticamente o sistema.
     ========================================
     */
     const askPermission = async () => {
@@ -147,22 +115,15 @@ export default function PermissionBackdropScreen() {
             ========================================
             MODO SIMULADO (DEV / WEB)
             ========================================
+            No desenvolvimento e na web, simulamos o
+            comportamento do sistema e seguimos para a
+            próxima tela do fluxo: 05
+            ========================================
             */
             if (DEV_SIMULATE_PERMISSION || Platform.OS === "web") {
-                Alert.alert(title, description, [
-                    {
-                        text: "Negar",
-                        style: "cancel",
-                        onPress: () => navigation.goBack(),
-                    },
-                    {
-                        text: "Permitir",
-                        onPress: () =>
-                            navigation.replace("BatteryPermission", {
-                                nextScreen: "Phone",
-                            }),
-                    },
-                ]);
+                setTimeout(() => {
+                    navigation.replace("LocationPermission");
+                }, 700);
 
                 return;
             }
@@ -182,9 +143,13 @@ export default function PermissionBackdropScreen() {
             ========================================
             */
             if (result === "granted") {
-                navigation.replace("BatteryPermission", {
-                    nextScreen: "Phone",
-                });
+                /*
+                ====================================
+                Após o popup do sistema, seguimos
+                para a tela 05 do fluxo
+                ====================================
+                */
+                navigation.replace("LocationPermission");
                 return;
             }
 
@@ -192,6 +157,12 @@ export default function PermissionBackdropScreen() {
                 Alert.alert(
                     "Permissão necessária",
                     "Para continuar, precisamos dessa permissão ativada.",
+                    [
+                        {
+                            text: "Voltar",
+                            onPress: () => navigation.goBack(),
+                        },
+                    ],
                 );
                 return;
             }
@@ -204,6 +175,7 @@ export default function PermissionBackdropScreen() {
                         {
                             text: "Cancelar",
                             style: "cancel",
+                            onPress: () => navigation.goBack(),
                         },
                         {
                             text: "Abrir configurações",
@@ -217,11 +189,37 @@ export default function PermissionBackdropScreen() {
             Alert.alert(
                 "Permissão indisponível",
                 "Não foi possível solicitar essa permissão neste dispositivo.",
+                [
+                    {
+                        text: "Voltar",
+                        onPress: () => navigation.goBack(),
+                    },
+                ],
             );
         } catch (error) {
-            Alert.alert("Erro", "Erro ao solicitar permissão.");
+            Alert.alert("Erro", "Erro ao solicitar permissão.", [
+                {
+                    text: "Voltar",
+                    onPress: () => navigation.goBack(),
+                },
+            ]);
         }
     };
+
+    /*
+    ========================================
+    DISPARO AUTOMÁTICO DA PERMISSÃO
+    A tela 04 não mostra interface interativa
+    do app. Ela apenas prepara o fundo da Zun
+    e o sistema aparece por cima.
+    ========================================
+    */
+    useEffect(() => {
+        if (hasRequestedRef.current) return;
+
+        hasRequestedRef.current = true;
+        askPermission();
+    }, []);
 
     return (
         <SafeAreaView
@@ -249,7 +247,7 @@ export default function PermissionBackdropScreen() {
                 ]}
             >
                 {/* ========================================
-                    FUNDO COM MARCA
+                    FUNDO COM MARCA ZUN
                 ======================================== */}
                 <View style={styles.brandArea}>
                     <Image
@@ -262,8 +260,8 @@ export default function PermissionBackdropScreen() {
                 </View>
 
                 {/* ========================================
-                    FUNDO ATENUADO
-                    Mantém a sensação de tela ao fundo desativada
+                    CAMADA ATENUADA
+                    Simula o fundo "desativado" da referência
                 ======================================== */}
                 <View
                     style={[
@@ -271,64 +269,10 @@ export default function PermissionBackdropScreen() {
                         {
                             backgroundColor: isDark
                                 ? "rgba(255, 255, 255, 0.06)"
-                                : "rgba(255, 255, 255, 0.18)",
+                                : "rgba(255, 255, 255, 0.16)",
                         },
                     ]}
                 />
-
-                {/* ========================================
-                    CARD INFERIOR
-                ======================================== */}
-                <View
-                    style={[
-                        styles.card,
-                        {
-                            backgroundColor: colors.surface,
-                        },
-                    ]}
-                >
-                    <Text
-                        style={[
-                            styles.title,
-                            {
-                                color: colors.text,
-                            },
-                        ]}
-                    >
-                        {title}
-                    </Text>
-
-                    <Text
-                        style={[
-                            styles.description,
-                            {
-                                color: colors.textSecondary,
-                            },
-                        ]}
-                    >
-                        {description}
-                    </Text>
-
-                    <View style={styles.button}>
-                        <View style={styles.fullWidth}>
-                            <ButtonPrimary
-                                title="Permitir"
-                                onPress={askPermission}
-                                isDark={isDark}
-                            />
-                        </View>
-                    </View>
-
-                    <View style={styles.button}>
-                        <View style={styles.fullWidth}>
-                            <ButtonSecondary
-                                title="Não permitir"
-                                onPress={() => navigation.goBack()}
-                                isDark={isDark}
-                            />
-                        </View>
-                    </View>
-                </View>
             </View>
         </SafeAreaView>
     );
@@ -346,7 +290,6 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        justifyContent: "flex-end",
     },
 
     brandArea: {
@@ -357,49 +300,20 @@ const styles = StyleSheet.create({
     },
 
     logo: {
-        width: 150,
-        height: 150,
+        width: 170,
+        height: 170,
         opacity: 0.22,
         marginBottom: 8,
     },
 
     brandText: {
         fontSize: 18,
-        fontWeight: "300",
-        color: "rgba(255,255,255,0.58)",
+        fontWeight: "600",
+        letterSpacing: 0.4,
+        color: "rgba(255,255,255,0.42)",
     },
 
     overlay: {
         ...StyleSheet.absoluteFillObject,
-    },
-
-    card: {
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        paddingHorizontal: 22,
-        paddingTop: 24,
-        paddingBottom: 24,
-        minHeight: 320,
-    },
-
-    title: {
-        fontSize: 20,
-        fontWeight: "700",
-        lineHeight: 28,
-        marginBottom: 12,
-    },
-
-    description: {
-        fontSize: 16,
-        lineHeight: 24,
-        marginBottom: 24,
-    },
-
-    button: {
-        marginBottom: 12,
-    },
-
-    fullWidth: {
-        width: "100%",
     },
 });
