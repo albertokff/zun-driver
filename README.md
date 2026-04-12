@@ -114,18 +114,23 @@ Devido à limitação de hardware, o projeto utiliza:
 
 ## Resultado do mapeamento
 O fluxo ideal da Zun fica assim:
-
-1 - SplashScreen.
-2 - StartScreen.
-3 - PrivacyPolicyScreen.
-4 - PermissionsScreen.
-5 - PermissionBackdropScreen.
-6 - telas de permissão específicas.
-7 - PhoneScreen.
-8 - OtpScreen.
-9 - PasswordScreen.
-10 - DriverInfoScreen.
-11 - demais telas de cadastro e documentos.
+Fluxo validado até o momento
+00 Splash
+01 Start
+02 PrivacyPolicy
+03 Permissions
+04 PermissionBackdrop
+05 LocationPermission
+06 sistema Android
+07 popup de chamadas
+08 popup de notificações
+09 BatteryPermission
+010/011 volta para Start
+012 Phone
+013 Otp
+014 DriverCategory
+015 DriverInfo
+016 ConfirmInfo
 
 
 Splash
@@ -145,6 +150,8 @@ sequência de documentos
 análise/finalização
 Home
 
+
+layout 
 
 ## Estrutura de Pasta e Arquivos (Profissional e Escalável).
 

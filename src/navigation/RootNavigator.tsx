@@ -5,8 +5,9 @@ ROOT NAVIGATOR - NAVEGAÇÃO PRINCIPAL DO APP
 OBJETIVO:
 - Centralizar todas as rotas do aplicativo Zun Driver
 - Organizar o fluxo de forma coerente com a experiência
-  visual inspirada em apps como a 99
+  visual inspirada na 99, com identidade Zun
 - Garantir tipagem segura entre as telas
+- Deixar clara a ordem oficial do fluxo para a equipe
 
 COMPATIBILIDADE:
 - Web
@@ -36,6 +37,7 @@ import StartScreen from "../screens/Auth/StartScreen";
 import PrivacyPolicyScreen from "../screens/Auth/PrivacyPolicyScreen";
 import PermissionsScreen from "../screens/Auth/PermissionsScreen";
 import PermissionBackdropScreen from "../screens/Auth/PermissionBackdropScreen";
+import LocationPermissionScreen from "../screens/Auth/LocationPermissionScreen";
 
 // Named import para BatteryPermissionScreen
 import { BatteryPermissionScreen } from "../screens/Auth/BatteryPermissionScreen";
@@ -71,11 +73,14 @@ import AnalysisInProgressScreen from "../screens/Auth/Register/AnalysisInProgres
 
 /*
 ========================================================
-IMPORTAÇÃO DAS TELAS DO FLUXO PÓS-ENTRADA / APOIO
+IMPORTAÇÃO DAS TELAS DE APOIO / FUTURAS
+IMPORTANTE:
+- Essas telas ficam cadastradas no navigator
+- Mas não entram no bloco validado 00 → 16
+  até serem oficialmente conectadas ao fluxo
 ========================================================
 */
 import AssistantPermissionScreen from "../screens/Auth/AssistantPermissionScreen";
-import LocationPermissionScreen from "../screens/Auth/LocationPermissionScreen";
 import HomeScreen from "../screens/Main/HomeScreen";
 
 /*
@@ -91,7 +96,8 @@ REGRAS:
 export type RootStackParamList = {
     /*
     ================================================
-    FLUXO INICIAL DE ENTRADA
+    BLOCO 00 → 03
+    FLUXO INICIAL VALIDADO
     ================================================
     */
     Splash: undefined;
@@ -101,19 +107,22 @@ export type RootStackParamList = {
 
     /*
     ================================================
-    MODAIS / BACKDROPS DE PERMISSÃO
+    BLOCO 04 → 09
+    PERMISSÕES / BACKDROPS / MODAIS
     ================================================
     */
     PermissionBackdrop: {
         permissionToRequest: Permission;
     };
+    LocationPermission: undefined;
     BatteryPermission: {
         nextScreen: keyof RootStackParamList;
     };
 
     /*
     ================================================
-    LOGIN / CADASTRO INICIAL
+    BLOCO 012 → 016
+    CADASTRO INICIAL / MOTORISTA
     ================================================
     */
     Phone: {
@@ -125,11 +134,6 @@ export type RootStackParamList = {
     };
     Password: undefined;
 
-    /*
-    ================================================
-    CADASTRO DO MOTORISTA
-    ================================================
-    */
     DriverCategory: undefined;
     DriverInfo: undefined;
     ConfirmInfo: {
@@ -139,6 +143,13 @@ export type RootStackParamList = {
         state: string;
         city: string;
     };
+
+    /*
+    ================================================
+    BLOCO DE DOCUMENTOS
+    ETAPAS POSTERIORES DO CADASTRO
+    ================================================
+    */
     Documentation: undefined;
 
     UploadDocument: {
@@ -202,11 +213,11 @@ export type RootStackParamList = {
 
     /*
     ================================================
-    TELAS DE APOIO / ENTRADA NO APP
+    TELAS DE APOIO / FUTURAS
+    Não fazem parte do bloco oficial validado agora
     ================================================
     */
     AssistantPermission: undefined;
-    LocationPermission: undefined;
     Home: undefined;
 };
 
@@ -222,41 +233,90 @@ export default function RootNavigator() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             {/*
             ================================================
-            GRUPO 1: FLUXO PRINCIPAL
-            Essas telas seguem a ordem natural da experiência
-            do usuário desde a abertura até o cadastro.
+            GRUPO 1: FLUXO PRINCIPAL VALIDADO
+
+            ORDEM CONCEITUAL APROVADA ATÉ AGORA:
+            00 Splash
+            01 Start
+            02 PrivacyPolicy
+            03 Permissions
+            04 PermissionBackdrop
+            05 LocationPermission
+            06 Sistema Android
+            07 Popup chamadas
+            08 Popup notificações
+            09 BatteryPermission
+            010/011 volta para Start
+            012 Phone
+            013 Otp
+            014 DriverCategory
+            015 DriverInfo
+            016 ConfirmInfo
             ================================================
             */}
             <Stack.Group>
-                {/* Abertura do app */}
+                {/* 00 */}
                 <Stack.Screen name="Splash" component={SplashScreen} />
+
+                {/* 01 / 011 */}
                 <Stack.Screen name="Start" component={StartScreen} />
 
-                {/* Aceite inicial e permissões */}
+                {/* 02 */}
                 <Stack.Screen
                     name="PrivacyPolicy"
                     component={PrivacyPolicyScreen}
                 />
+
+                {/* 03 */}
                 <Stack.Screen
                     name="Permissions"
                     component={PermissionsScreen}
                 />
 
-                {/* Entrada do usuário */}
+                {/* 05 */}
+                <Stack.Screen
+                    name="LocationPermission"
+                    component={LocationPermissionScreen}
+                />
+
+                {/* 012 */}
                 <Stack.Screen name="Phone" component={PhoneScreen} />
+
+                {/* 013 */}
                 <Stack.Screen name="Otp" component={OtpScreen} />
+
+                {/*
+                ============================================
+                IMPORTANTE:
+                Password permanece registrada porque já existe
+                no projeto, mas sua posição final no fluxo ainda
+                pode ser revista depois, conforme a validação
+                completa das telas restantes.
+                ============================================
+                */}
                 <Stack.Screen name="Password" component={PasswordScreen} />
 
-                {/* Cadastro do motorista */}
+                {/* 014 */}
                 <Stack.Screen
                     name="DriverCategory"
                     component={DriverCategoryScreen}
                 />
+
+                {/* 015 */}
                 <Stack.Screen name="DriverInfo" component={DriverInfoScreen} />
+
+                {/* 016 */}
                 <Stack.Screen
                     name="ConfirmInfo"
                     component={ConfirmInfoScreen}
                 />
+
+                {/*
+                ============================================
+                BLOCO POSTERIOR DE DOCUMENTOS
+                Será refinado depois do fluxo 00 → 16
+                ============================================
+                */}
                 <Stack.Screen
                     name="Documentation"
                     component={DocumentationScreen}
@@ -296,14 +356,16 @@ export default function RootNavigator() {
                     component={AnalysisInProgressScreen}
                 />
 
-                {/* Telas de apoio / entrada no app */}
+                {/*
+                ============================================
+                TELAS DE APOIO / FUTURAS
+                Mantidas no navigator, mas fora do bloco
+                principal validado no momento
+                ============================================
+                */}
                 <Stack.Screen
                     name="AssistantPermission"
                     component={AssistantPermissionScreen}
-                />
-                <Stack.Screen
-                    name="LocationPermission"
-                    component={LocationPermissionScreen}
                 />
                 <Stack.Screen name="Home" component={HomeScreen} />
             </Stack.Group>
@@ -311,15 +373,20 @@ export default function RootNavigator() {
             {/*
             ================================================
             GRUPO 2: MODAIS / BACKDROPS
-            Essas telas aparecem por cima das outras e fazem
-            parte do efeito visual de permissão e instrução.
+
+            Essas telas aparecem por cima do fluxo principal
+            e são fundamentais para reproduzir o efeito visual
+            das permissões no padrão da 99 com identidade Zun.
             ================================================
             */}
             <Stack.Group screenOptions={{ presentation: "transparentModal" }}>
+                {/* 04 */}
                 <Stack.Screen
                     name="PermissionBackdrop"
                     component={PermissionBackdropScreen}
                 />
+
+                {/* 09 */}
                 <Stack.Screen
                     name="BatteryPermission"
                     component={BatteryPermissionScreen}
