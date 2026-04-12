@@ -7,6 +7,7 @@ OBJETIVO:
 - Seguir a estrutura visual da referência da 99
 - Aplicar identidade Zun por cima da estrutura base
 - Usar apenas cores dinâmicas do tema
+- Manter o mesmo padrão de topo e rodapé das telas anteriores
 
 FLUXO:
 - Usuário escolhe uma categoria
@@ -31,6 +32,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
+import ButtonPrimary from "../../../components/ButtonPrimary";
 
 /*
 ========================================================
@@ -67,12 +69,12 @@ const CATEGORIES = [
         title: "Eu tenho um carro",
         subtitle: "Quero fazer corridas com passageiros ou realizar entregas",
     },
-    {
-        id: "rent",
-        icon: "car-outline",
-        title: "Preciso de ajuda para alugar um carro",
-        subtitle: "A Zun pode te ajudar a encontrar",
-    },
+    // {
+    //     id: "rent",
+    //     icon: "car-outline",
+    //     title: "Preciso de ajuda para alugar um carro",
+    //     subtitle: "A Zun pode te ajudar a encontrar",
+    // },
 ];
 
 /*
@@ -101,6 +103,25 @@ export default function DriverCategoryScreen() {
 
     /*
     ========================================================
+    AÇÃO DE VOLTAR
+    ========================================================
+    */
+    const handleBack = () => {
+        navigation.goBack();
+    };
+
+    /*
+    ========================================================
+    AÇÃO DE FECHAR
+    Volta para a tela inicial do fluxo
+    ========================================================
+    */
+    const handleClose = () => {
+        navigation.navigate("Start");
+    };
+
+    /*
+    ========================================================
     AÇÃO DE AVANÇAR
     ========================================================
     */
@@ -124,7 +145,7 @@ export default function DriverCategoryScreen() {
             ======================================================== */}
             <StatusBar
                 barStyle={theme === "dark" ? "light-content" : "dark-content"}
-                backgroundColor={isDark ? colors.background : colors.white}
+                backgroundColor={colors.background}
             />
 
             <View
@@ -136,23 +157,21 @@ export default function DriverCategoryScreen() {
                 ]}
             >
                 {/* ========================================================
-                    TOPO DA TELA
-                    Estrutura inspirada na referência da 99
+                    TOPO PADRONIZADO
+                    Mesmo padrão visual aprovado nas telas anteriores
                 ======================================================== */}
                 <View
                     style={[
                         styles.topBar,
                         {
-                            backgroundColor: isDark
-                                ? colors.background
-                                : colors.white,
+                            backgroundColor: colors.background,
                             borderBottomColor: colors.divider,
                         },
                     ]}
                 >
                     <TouchableOpacity
                         style={styles.topIconButton}
-                        onPress={() => navigation.goBack()}
+                        onPress={handleBack}
                         activeOpacity={0.8}
                     >
                         <Ionicons
@@ -164,7 +183,7 @@ export default function DriverCategoryScreen() {
 
                     <TouchableOpacity
                         style={styles.topIconButton}
-                        onPress={() => navigation.goBack()}
+                        onPress={handleClose}
                         activeOpacity={0.8}
                     >
                         <Ionicons name="close" size={22} color={colors.text} />
@@ -195,7 +214,7 @@ export default function DriverCategoryScreen() {
                 >
                     {/* ====================================================
                         BANNER SUPERIOR
-                        Estrutura da 99, identidade Zun
+                        Estrutura da 99 com identidade Zun
                     ==================================================== */}
                     <View
                         style={[
@@ -234,7 +253,7 @@ export default function DriverCategoryScreen() {
                         <View style={styles.bannerArt}>
                             <Ionicons
                                 name="shield-checkmark"
-                                size={52}
+                                size={48}
                                 color={colors.white}
                             />
                         </View>
@@ -253,35 +272,39 @@ export default function DriverCategoryScreen() {
                                     style={[
                                         styles.categoryItem,
                                         {
-                                            backgroundColor: isDark
-                                                ? colors.background
-                                                : colors.white,
+                                            backgroundColor: colors.surface,
                                             borderColor: isSelected
                                                 ? colors.primary
                                                 : colors.divider,
                                         },
                                     ]}
-                                    activeOpacity={0.85}
+                                    activeOpacity={0.88}
                                     onPress={() => setSelectedCategory(item.id)}
                                 >
+                                    {/* ====================================
+                                        BLOCO DO ÍCONE
+                                    ==================================== */}
                                     <View
                                         style={[
                                             styles.categoryIconWrap,
                                             {
                                                 backgroundColor: isDark
-                                                    ? colors.background
-                                                    : colors.white,
+                                                    ? colors.card
+                                                    : colors.background,
                                                 borderColor: colors.divider,
                                             },
                                         ]}
                                     >
                                         <Ionicons
                                             name={item.icon as any}
-                                            size={30}
+                                            size={28}
                                             color={colors.text}
                                         />
                                     </View>
 
+                                    {/* ====================================
+                                        BLOCO DE TEXTO
+                                    ==================================== */}
                                     <View style={styles.categoryTextContainer}>
                                         <Text
                                             style={[
@@ -306,6 +329,9 @@ export default function DriverCategoryScreen() {
                                         </Text>
                                     </View>
 
+                                    {/* ====================================
+                                        RADIO DE SELEÇÃO
+                                    ==================================== */}
                                     <View
                                         style={[
                                             styles.radioCircle,
@@ -336,6 +362,7 @@ export default function DriverCategoryScreen() {
 
                 {/* ========================================================
                     RODAPÉ FIXO
+                    Mantido no padrão do app
                 ======================================================== */}
                 <View
                     style={[
@@ -346,29 +373,12 @@ export default function DriverCategoryScreen() {
                         },
                     ]}
                 >
-                    <TouchableOpacity
-                        style={[
-                            styles.button,
-                            {
-                                backgroundColor: colors.primary,
-                                opacity: selectedCategory ? 1 : 0.35,
-                            },
-                        ]}
-                        disabled={!selectedCategory}
+                    <ButtonPrimary
+                        title="Próximo"
                         onPress={handleNext}
-                        activeOpacity={0.88}
-                    >
-                        <Text
-                            style={[
-                                styles.buttonText,
-                                {
-                                    color: colors.white,
-                                },
-                            ]}
-                        >
-                            Próximo
-                        </Text>
-                    </TouchableOpacity>
+                        isDark={isDark}
+                        disabled={!selectedCategory}
+                    />
                 </View>
             </View>
         </SafeAreaView>
@@ -389,6 +399,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
+    /*
+    ========================================================
+    TOPO PADRONIZADO
+    ========================================================
+    */
     topBar: {
         height: 56,
         borderBottomWidth: 1,
@@ -415,6 +430,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
+    /*
+    ========================================================
+    ÁREA ROLÁVEL
+    ========================================================
+    */
     scroll: {
         flex: 1,
     },
@@ -423,8 +443,14 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
     },
 
+    /*
+    ========================================================
+    BANNER
+    Mesmo padrão de altura das telas anteriores
+    ========================================================
+    */
     banner: {
-        minHeight: 120,
+        minHeight: 108,
         paddingHorizontal: 16,
         paddingVertical: 14,
         flexDirection: "row",
@@ -437,10 +463,10 @@ const styles = StyleSheet.create({
     },
 
     bannerTitle: {
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: "700",
         lineHeight: 22,
-        marginBottom: 6,
+        marginBottom: 4,
     },
 
     bannerSubtitle: {
@@ -449,19 +475,36 @@ const styles = StyleSheet.create({
     },
 
     bannerArt: {
-        width: 78,
+        width: 64,
         alignItems: "center",
         justifyContent: "center",
     },
 
+    /*
+    ========================================================
+    LISTA DE CATEGORIAS
+    ========================================================
+    */
     listContainer: {
         paddingHorizontal: 14,
         paddingTop: 14,
     },
 
+    /*
+    ========================================================
+    CONTROLE DE ESPAÇAMENTO ENTRE CATEGORIAS
+    marginBottom: 12,
+
+    Ajuste aqui se quiser:
+    - 6 = mais compacto
+    - 10 = intermediário
+    - 12+ = mais espaçado
+    ========================================================
+    */
+
     categoryItem: {
-        minHeight: 98,
-        borderRadius: 14,
+        minHeight: 96,
+        borderRadius: 16,
         borderWidth: 1,
         flexDirection: "row",
         alignItems: "center",
@@ -471,8 +514,8 @@ const styles = StyleSheet.create({
     },
 
     categoryIconWrap: {
-        width: 72,
-        height: 72,
+        width: 68,
+        height: 68,
         borderRadius: 14,
         borderWidth: 1,
         alignItems: "center",
@@ -512,22 +555,15 @@ const styles = StyleSheet.create({
         borderRadius: 6,
     },
 
+    /*
+    ========================================================
+    RODAPÉ
+    ========================================================
+    */
     footer: {
         paddingHorizontal: 16,
         paddingTop: 10,
         paddingBottom: 14,
         borderTopWidth: 1,
-    },
-
-    button: {
-        minHeight: 54,
-        borderRadius: 16,
-        alignItems: "center",
-        justifyContent: "center",
-    },
-
-    buttonText: {
-        fontSize: 17,
-        fontWeight: "700",
     },
 });
