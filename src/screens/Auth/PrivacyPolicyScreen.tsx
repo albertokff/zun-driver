@@ -7,6 +7,7 @@ OBJETIVO:
 - Solicitar aceite antes de continuar o cadastro
 - Seguir o padrão visual inspirado na 99:
   fundo fixo + fundo atenuado + card inferior
+- Fazer o card subir de baixo para cima ao entrar
 
 FLUXO:
 - "Concordo" → Permissions
@@ -14,7 +15,7 @@ FLUXO:
 ========================================================
 */
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
     View,
     Text,
@@ -23,6 +24,8 @@ import {
     SafeAreaView,
     StatusBar,
     Image,
+    Animated,
+    Easing,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -48,6 +51,32 @@ export default function PrivacyPolicyScreen() {
     ========================================================
     */
     const { colors, isDark } = useTheme();
+
+    /*
+    ========================================================
+    ANIMAÇÃO DO CARD
+    Faz o card subir de baixo para cima ao entrar na tela
+    ========================================================
+    */
+    const translateY = useRef(new Animated.Value(120)).current;
+    const opacity = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 320,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.timing(opacity, {
+                toValue: 1,
+                duration: 260,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [opacity, translateY]);
 
     /*
     ========================================================
@@ -123,7 +152,7 @@ export default function PrivacyPolicyScreen() {
                         {
                             backgroundColor: isDark
                                 ? "rgba(255, 255, 255, 0.06)"
-                                : "rgba(255, 255, 255, 0.18)",
+                                : "rgba(255, 255, 255, 0.16)",
                         },
                     ]}
                 />
@@ -131,11 +160,13 @@ export default function PrivacyPolicyScreen() {
                 {/* ========================================================
                     CARD PRINCIPAL
                 ======================================================== */}
-                <View
+                <Animated.View
                     style={[
                         styles.card,
                         {
                             backgroundColor: colors.surface,
+                            opacity,
+                            transform: [{ translateY }],
                         },
                     ]}
                 >
@@ -156,7 +187,7 @@ export default function PrivacyPolicyScreen() {
                         style={[
                             styles.bodyText,
                             {
-                                color: colors.textSecondary,
+                                color: colors.subtext,
                             },
                         ]}
                     >
@@ -200,7 +231,7 @@ export default function PrivacyPolicyScreen() {
                             isDark={isDark}
                         />
                     </View>
-                </View>
+                </Animated.View>
             </View>
         </SafeAreaView>
     );
@@ -229,16 +260,17 @@ const styles = StyleSheet.create({
     },
 
     logo: {
-        width: 150,
-        height: 150,
+        width: 170,
+        height: 170,
         opacity: 0.22,
         marginBottom: 8,
     },
 
     brandText: {
         fontSize: 18,
-        fontWeight: "300",
-        color: "rgba(255,255,255,0.58)",
+        fontWeight: "600",
+        letterSpacing: 0.4,
+        color: "rgba(255,255,255,0.42)",
     },
 
     overlay: {

@@ -9,16 +9,20 @@ OBJETIVO:
   melhora o recebimento de corridas
 - Seguir o padrão visual da referência:
   fundo fixo + fundo atenuado + card inferior
+- Animar o card de baixo para cima
+- Finalizar o bloco inicial de permissões
 
 FLUXO ESPERADO:
 - Após as permissões anteriores
 - Exibe lembrete sobre recebimento de corridas
 - Em seguida abre a etapa de otimização de bateria
-- Depois segue para a próxima tela configurada
+- Depois retorna para a tela inicial
+- O app deve lembrar que o motorista já concluiu
+  o bloco inicial de permissões
 ========================================================
 */
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import {
     View,
     Text,
@@ -26,10 +30,11 @@ import {
     StatusBar,
     Image,
     SafeAreaView,
+    Animated,
+    Easing,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useTranslation } from "react-i18next";
 
 import { useTheme } from "../../context/ThemeContext";
 import ButtonPrimary from "../../components/ButtonPrimary";
@@ -45,11 +50,59 @@ type NavigationProp = NativeStackNavigationProp<
 type ScreenRouteProp = RouteProp<RootStackParamList, "BatteryPermission">;
 
 export const BatteryPermissionScreen = () => {
-    const { t } = useTranslation();
-    const { colors, isDark } = useTheme();
+    const { colors, isDark, setPermissionsCompleted } = useTheme();
+
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<ScreenRouteProp>();
     const { nextScreen } = route.params;
+
+    /*
+    ========================================================
+    ANIMAÇÃO DO CARD
+    Faz o card subir de baixo para cima ao entrar na tela.
+
+    AJUSTE DE VELOCIDADE:
+    - duration menor = mais rápido
+    - duration maior = mais lento
+    ========================================================
+    */
+    const translateY = useRef(new Animated.Value(120)).current;
+    const opacity = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(translateY, {
+                toValue: 0,
+
+                /*
+                ============================================
+                VELOCIDADE DA SUBIDA DO CARD
+                Exemplo:
+                200 = rápido
+                320 = médio
+                500 = lento
+                ============================================
+                */
+                duration: 320,
+
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.timing(opacity, {
+                toValue: 1,
+
+                /*
+                ============================================
+                VELOCIDADE DO FADE
+                ============================================
+                */
+                duration: 260,
+
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [opacity, translateY]);
 
     /*
     ========================================================
@@ -62,12 +115,42 @@ export const BatteryPermissionScreen = () => {
 
     /*
     ========================================================
-    FLUXO DE SUCESSO
-    Ao conceder a permissão, segue para a próxima tela
-    definida na navegação.
+    TEXTO FIXO DA ETAPA
+    Mantemos o texto alinhado com a referência da 99
+    adaptado para a identidade Zun
     ========================================================
     */
-    const handleSuccess = () => {
+    const title = "Lembrete: solicitações de corridas";
+    const description =
+        "Detectamos que suas configurações atuais de bateria podem impedir você de receber solicitações de corridas. Para que as solicitações de corridas sejam recebidas adequadamente, você deve permitir a execução deste aplicativo em segundo plano.";
+    const allowLabel = "Permitir";
+    const denyLabel = "Não permitir";
+
+    /*
+    ========================================================
+    FINALIZAR BLOCO DE PERMISSÕES
+
+    IMPORTANTE:
+    - Ao chegar nesta etapa, o motorista já passou pelo
+      bloco inicial de política e permissões
+    - Portanto, ao concluir esta tela, marcamos o fluxo
+      como concluído para não repetir tudo novamente
+    ========================================================
+    */
+    const finishPermissionsFlow = async () => {
+        await setPermissionsCompleted(true);
+    };
+
+    /*
+    ========================================================
+    FLUXO DE SUCESSO
+    Ao conceder a permissão, marca o bloco inicial como
+    concluído e segue para a próxima tela definida.
+    ========================================================
+    */
+    const handleSuccess = async () => {
+        await finishPermissionsFlow();
+
         if (nextScreen === "Phone") {
             navigation.replace("Phone", {
                 fromLogin: false,
@@ -91,10 +174,19 @@ export const BatteryPermissionScreen = () => {
     /*
     ========================================================
     FLUXO DE NEGATIVA
-    Se o usuário não permitir, volta para a tela anterior.
+    Mesmo se o usuário negar a otimização, ele já concluiu
+    o bloco inicial de permissões. Então marcamos o fluxo
+    como concluído para não repetir tudo novamente.
     ========================================================
     */
-    const handleDeny = () => {
+    const handleDeny = async () => {
+        await finishPermissionsFlow();
+
+        if (nextScreen === "Start") {
+            navigation.replace("Start");
+            return;
+        }
+
         navigation.goBack();
     };
 
@@ -158,7 +250,7 @@ export const BatteryPermissionScreen = () => {
                         {
                             backgroundColor: isDark
                                 ? "rgba(255, 255, 255, 0.06)"
-                                : "rgba(255, 255, 255, 0.18)",
+                                : "rgba(255, 255, 255, 0.16)",
                         },
                     ]}
                 />
@@ -166,11 +258,13 @@ export const BatteryPermissionScreen = () => {
                 {/* ========================================================
                     CARD PRINCIPAL
                 ======================================================== */}
-                <View
+                <Animated.View
                     style={[
                         styles.card,
                         {
                             backgroundColor: colors.surface,
+                            opacity,
+                            transform: [{ translateY }],
                         },
                     ]}
                 >
@@ -182,18 +276,18 @@ export const BatteryPermissionScreen = () => {
                             },
                         ]}
                     >
-                        {t("permissions.batteryOptimization.title")}
+                        {title}
                     </Text>
 
                     <Text
                         style={[
                             styles.description,
                             {
-                                color: colors.textSecondary,
+                                color: colors.subtext,
                             },
                         ]}
                     >
-                        {t("permissions.batteryOptimization.description")}
+                        {description}
                     </Text>
 
                     {/* ========================================================
@@ -201,18 +295,18 @@ export const BatteryPermissionScreen = () => {
                     ======================================================== */}
                     <View style={styles.buttons}>
                         <ButtonPrimary
-                            title={t("permissions.batteryOptimization.allow")}
+                            title={allowLabel}
                             onPress={requestPermission}
                             isDark={isDark}
                         />
 
                         <ButtonSecondary
-                            title={t("permissions.batteryOptimization.deny")}
+                            title={denyLabel}
                             onPress={handleDeny}
                             isDark={isDark}
                         />
                     </View>
-                </View>
+                </Animated.View>
             </View>
         </SafeAreaView>
     );
@@ -241,16 +335,17 @@ const styles = StyleSheet.create({
     },
 
     logo: {
-        width: 150,
-        height: 150,
+        width: 170,
+        height: 170,
         opacity: 0.22,
         marginBottom: 8,
     },
 
     brandText: {
         fontSize: 18,
-        fontWeight: "300",
-        color: "rgba(255,255,255,0.58)",
+        fontWeight: "600",
+        letterSpacing: 0.4,
+        color: "rgba(255,255,255,0.42)",
     },
 
     overlay: {

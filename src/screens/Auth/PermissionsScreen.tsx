@@ -252,14 +252,22 @@ function PermissionItem({
 
     return (
         <View style={styles.permissionItem}>
+            {/* ========================================================
+                COLUNA DO ÍCONE
+                Deixamos o ícone um pouco maior e com mais presença
+                para ficar mais próximo da leitura da referência.
+            ======================================================== */}
             <View style={styles.iconContainer}>
                 <Icon
                     name={icon}
-                    size={22}
+                    size={28}
                     color={isDark ? colors.subtext : "#6F6F6F"}
                 />
             </View>
 
+            {/* ========================================================
+                COLUNA DE TEXTO
+            ======================================================== */}
             <View style={styles.permissionTextContainer}>
                 <Text
                     style={[
@@ -304,7 +312,7 @@ const styles = StyleSheet.create({
     header: {
         paddingHorizontal: 16,
         paddingTop: 14,
-        paddingBottom: 2,
+        paddingBottom: 4,
     },
 
     title: {
@@ -320,20 +328,27 @@ const styles = StyleSheet.create({
 
     scrollContent: {
         paddingHorizontal: 16,
-        paddingTop: 12,
+        paddingTop: 14,
         paddingBottom: 10,
     },
 
     permissionItem: {
         flexDirection: "row",
         alignItems: "flex-start",
-        marginBottom: 18,
+        marginBottom: 22,
     },
 
+    /*
+    ========================================================
+    COLUNA DO ÍCONE
+    - largura maior para dar mais respiro
+    - alinhamento mais parecido com a referência
+    ========================================================
+    */
     iconContainer: {
-        width: 24,
+        width: 34,
         alignItems: "center",
-        marginRight: 8,
+        marginRight: 12,
         paddingTop: 2,
     },
 
@@ -342,15 +357,22 @@ const styles = StyleSheet.create({
     },
 
     permissionTitle: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: "700",
-        lineHeight: 20,
-        marginBottom: 2,
+        lineHeight: 21,
+        marginBottom: 4,
     },
 
+    /*
+    ========================================================
+    TEXTO CINZA EXPLICATIVO
+    Aumentado levemente para melhorar leitura sem pesar
+    a tela visualmente.
+    ========================================================
+    */
     permissionDescription: {
-        fontSize: 13,
-        lineHeight: 18,
+        fontSize: 14,
+        lineHeight: 20,
     },
 
     buttonsContainer: {

@@ -91,6 +91,16 @@ Tambem pode usar:
    `npx expo start --clear`
 
 
+## Para testa e retira o estado de ter passado pelas etapas de permissão:
+Dentro do navegado no console:
+
+`localStorage.clear()`
+
+ou 
+
+`await AsyncStorage.removeItem('@permissions_completed')`
+
+
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
