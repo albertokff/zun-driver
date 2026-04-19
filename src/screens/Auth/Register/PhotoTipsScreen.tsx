@@ -1,16 +1,24 @@
 /*
 ========================================================
 TELA DE DICAS PARA FOTO
-Mostra dicas de como tirar uma boa foto de perfil.
+
+OBJETIVO:
+- Mostrar dicas para uma boa foto de perfil
+- Seguir o padrão visual consolidado da Zun
+- Melhorar legibilidade com tipografia maior
+- Exibir modal de privacidade antes da câmera
+- Exibir loading reutilizável ao abrir câmera
 
 FLUXO:
-- Mostra dicas e exemplo visual
-- Botão "Tirar foto"
-- Abre modal de permissão de privacidade
+- Usuário visualiza dicas
+- Toca em "Tirar foto"
+- Abre modal de privacidade
 - Solicita permissão da câmera
-- Abre câmera para captura
+- Exibe loading rápido
+- Navega para CameraCapture
 ========================================================
 */
+
 import React, { useState } from "react";
 import {
     View,
@@ -19,31 +27,62 @@ import {
     TouchableOpacity,
     ScrollView,
     Image,
-    Platform,
     Modal,
     Linking,
     Alert,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+import ButtonPrimary from "../../../components/ButtonPrimary";
+import ButtonSecondary from "../../../components/ButtonSecondary";
+import AppLoadingOverlay from "../../../components/AppLoadingOverlay";
 import * as ImagePicker from "expo-image-picker";
 
-// Tipagem
+/*
+========================================================
+TIPAGEM
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     "PhotoTips"
 >;
 
+/*
+========================================================
+CONTROLE DE TIPOGRAFIA DA TELA
+
+AJUSTE AQUI SE NECESSÁRIO:
+- mantém consistência com as outras telas
+========================================================
+*/
+const PHOTO_TIPS_FONT_SCALE = {
+    title: 22,
+    sectionTitle: 18,
+    subtitle: 16,
+    text: 15,
+    errorLabel: 13,
+    modalTitle: 20,
+    permissionTitle: 17,
+    permissionDescription: 15,
+} as const;
+
 export default function PhotoTipsScreen() {
     const navigation = useNavigation<NavigationProp>();
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
+    const { theme, colors, isDark } = useTheme();
 
-    // Estados para modais
+    /*
+    ========================================================
+    ESTADOS DE CONTROLE
+    ========================================================
+    */
     const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+    const [showLoading, setShowLoading] = useState(false);
 
     /*
     ================================================
@@ -79,28 +118,52 @@ export default function PhotoTipsScreen() {
 
     /*
     ================================================
-    ABRIR CÂMERA
+    ABRIR MODAL DE PRIVACIDADE
     ================================================
     */
     const handleTakePhoto = async () => {
-        // Primeiro mostra o modal de privacidade
         setShowPrivacyModal(true);
     };
 
+    /*
+    ================================================
+    PERMITIR ACESSO À CÂMERA
+    - Fecha modal
+    - Solicita permissão
+    - Exibe loading da Zun
+    - Navega para captura
+    ================================================
+    */
     const handlePrivacyAllow = async () => {
         setShowPrivacyModal(false);
 
         const hasPermission = await requestCameraPermission();
 
-        if (hasPermission) {
-            // Navega para tela de captura da câmera
+        if (!hasPermission) return;
+
+        /*
+        ============================================
+        LOADING DE TRANSIÇÃO
+        Agora usando componente reutilizável
+        ============================================
+        */
+        setShowLoading(true);
+
+        setTimeout(() => {
+            setShowLoading(false);
+
             navigation.navigate("CameraCapture", {
                 documentId: "photo",
                 documentTitle: "Foto",
             });
-        }
+        }, 1000);
     };
 
+    /*
+    ================================================
+    NEGAR ACESSO À CÂMERA
+    ================================================
+    */
     const handlePrivacyDeny = () => {
         setShowPrivacyModal(false);
         Alert.alert(
@@ -109,420 +172,677 @@ export default function PhotoTipsScreen() {
         );
     };
 
+    /*
+    ================================================
+    VOLTAR
+    ================================================
+    */
+    const handleBack = () => {
+        navigation.goBack();
+    };
+
+    /*
+    ================================================
+    FECHAR
+    ================================================
+    */
+    const handleClose = () => {
+        navigation.navigate("Start");
+    };
+
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            <ScrollView>
-                {/* CABEÇALHO */}
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Ionicons name="arrow-back" size={24} color="#222" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerClose}>×</Text>
-                    <Text style={styles.headerTitle}>Zun</Text>
-                </View>
+        <SafeAreaView
+            style={[styles.safeArea, { backgroundColor: colors.background }]}
+        >
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-                {/* FOTO DE EXEMPLO */}
-                <View style={styles.photoContainer}>
-                    <View style={styles.photoCircle}>
-                        <Image
-                            source={require('../../../assets/images/foto_exemplo.png')}
-                            style={styles.photoExample}
-                        />
-                    </View>
-                </View>
-
-                {/* CONTEÚDO */}
+            <View
+                style={[
+                    styles.container,
+                    { backgroundColor: colors.background },
+                ]}
+            >
+                {/* ====================================================
+                    TOPO PADRÃO
+                ==================================================== */}
                 <View
                     style={[
-                        styles.contentContainer,
-                        isDark && styles.contentContainerDark,
+                        styles.topBar,
+                        {
+                            backgroundColor: colors.background,
+                            borderBottomColor: colors.divider,
+                        },
                     ]}
                 >
+                    <TouchableOpacity
+                        style={styles.topBtn}
+                        onPress={handleBack}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color={colors.text}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.topBtn}
+                        onPress={handleClose}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="close" size={22} color={colors.text} />
+                    </TouchableOpacity>
+
                     <Text
                         style={[
-                            styles.sectionTitle,
-                            isDark && styles.sectionTitleDark,
+                            styles.brand,
+                            {
+                                color: colors.text,
+                            },
                         ]}
                     >
-                        Dicas para uma boa foto:
+                        Zun
                     </Text>
 
-                    {/* DICAS */}
-                    <Text
-                        style={[styles.subtitle, isDark && styles.subtitleDark]}
-                    >
-                        Dicas:
-                    </Text>
-                    <Text style={[styles.text, isDark && styles.textDark]}>
-                        Centralize seu rosto no centro da câmera.
-                    </Text>
-                    <Text style={[styles.text, isDark && styles.textDark]}>
-                        Tire a foto na frente de um fundo claro e com boa
-                        iluminação.
-                    </Text>
-                    <Text style={[styles.text, isDark && styles.textDark]}>
-                        Evite acessórios que cubram o rosto.
-                    </Text>
-
-                    {/* LEMBRE-SE */}
-                    <Text
-                        style={[
-                            styles.subtitle,
-                            styles.subtitleBold,
-                            isDark && styles.subtitleDark,
-                        ]}
-                    >
-                        Lembre-se:
-                    </Text>
-                    <Text style={[styles.text, isDark && styles.textDark]}>
-                        Uma vez que sua foto de perfil for aprovada, você{" "}
-                        <Text style={styles.boldText}>
-                            não poderá alterá-la.
-                        </Text>
-                    </Text>
-                    <Text style={[styles.text, isDark && styles.textDark]}>
-                        Se precisar de ajuda, entre em contato com o suporte.
-                    </Text>
-
-                    {/* ERROS COMUNS */}
-                    <View style={styles.errorsContainer}>
-                        <View style={styles.errorItem}>
-                            <View style={styles.photoContainer}>
-                                <View style={styles.photoCircleParcialmenteCortado}>
-                                    <Image
-                                        source={require('../../../assets/images/foto_parcialmente_cortada.png')}
-                                        style={styles.photoExampleParcialmenteCortado}
-                                    />
-                                </View>
-                            </View>
-                            <Text style={styles.errorLabel}>
-                                Parcialmente cortado
-                            </Text>
-                        </View>
-                        <View style={styles.errorItem}>
-                            <View style={styles.photoContainer}>
-                                <View style={styles.photoCircleParcialmenteCortado}>
-                                    <Image
-                                        source={require('../../../assets/images/foto_descentralizado.png')}
-                                        style={styles.photoExampleParcialmenteCortado}
-                                    />
-                                </View>
-                            </View>
-                            <Text style={styles.errorLabel}>
-                                Descentralizado
-                            </Text>
-                        </View>
-                        <View style={styles.errorItem}>
-                            <View style={styles.photoContainer}>
-                                <View style={styles.photoCircleParcialmenteCortado}>
-                                    <Image
-                                        source={require('../../../assets/images/foto_parcialmente_coberto.png')}
-                                        style={styles.photoExampleParcialmenteCortado}
-                                    />
-                                </View>
-                            </View>
-                            <Text style={styles.errorLabel}>
-                                Parcialmente coberto
-                            </Text>
-                        </View>
-                    </View>
+                    <View style={{ flex: 1 }} />
                 </View>
-            </ScrollView>
 
-            {/* BOTÃO INFERIOR */}
-            <View style={[styles.footer, isDark && styles.footerDark]}>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={handleTakePhoto}
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
                 >
-                    <Text style={styles.buttonText}>Tirar foto</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* MODAL DE POLÍTICA DE PRIVACIDADE */}
-            <Modal
-                transparent={true}
-                animationType="fade"
-                visible={showPrivacyModal}
-            >
-                <View style={styles.modalOverlay}>
+                    {/* ====================================================
+                        ÁREA DA FOTO DE EXEMPLO
+                    ==================================================== */}
                     <View
                         style={[
-                            styles.modalContainer,
-                            isDark && styles.modalContainerDark,
+                            styles.heroArea,
+                            {
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                            },
                         ]}
                     >
-                        <Text
+                        <View
                             style={[
-                                styles.modalTitle,
-                                isDark && styles.modalTitleDark,
+                                styles.photoCircle,
+                                {
+                                    backgroundColor: isDark
+                                        ? colors.background
+                                        : "#F0F0F0",
+                                    borderColor: colors.divider,
+                                },
                             ]}
                         >
-                            Política de Privacidade
+                            <Image
+                                source={require("../../../assets/images/foto_exemplo.png")}
+                                style={styles.photoExample}
+                            />
+                        </View>
+                    </View>
+
+                    {/* ====================================================
+                        CONTEÚDO
+                    ==================================================== */}
+                    <View style={styles.contentContainer}>
+                        <Text
+                            style={[
+                                styles.title,
+                                {
+                                    color: colors.text,
+                                },
+                            ]}
+                        >
+                            Dicas para uma boa foto
                         </Text>
 
-                        <View style={styles.permissionContainer}>
-                            <Ionicons name="camera" size={40} color="#1E6BE3" />
-                            <View style={styles.permissionText}>
-                                <Text
+                        <Text
+                            style={[
+                                styles.subtitle,
+                                {
+                                    color: colors.text,
+                                },
+                            ]}
+                        >
+                            Dicas:
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.text,
+                                {
+                                    color: colors.subtext,
+                                },
+                            ]}
+                        >
+                            Centralize seu rosto no centro da câmera.
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.text,
+                                {
+                                    color: colors.subtext,
+                                },
+                            ]}
+                        >
+                            Tire a foto na frente de um fundo claro e com boa
+                            iluminação.
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.text,
+                                {
+                                    color: colors.subtext,
+                                },
+                            ]}
+                        >
+                            Evite acessórios que cubram o rosto.
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.subtitle,
+                                styles.subtitleBold,
+                                {
+                                    color: colors.text,
+                                },
+                            ]}
+                        >
+                            Lembre-se:
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.text,
+                                {
+                                    color: colors.subtext,
+                                },
+                            ]}
+                        >
+                            Uma vez que sua foto de perfil for aprovada, você{" "}
+                            <Text
+                                style={[
+                                    styles.boldText,
+                                    {
+                                        color: colors.text,
+                                    },
+                                ]}
+                            >
+                                não poderá alterá-la.
+                            </Text>
+                        </Text>
+
+                        <Text
+                            style={[
+                                styles.text,
+                                {
+                                    color: colors.subtext,
+                                },
+                            ]}
+                        >
+                            Se precisar de ajuda, entre em contato com o
+                            suporte.
+                        </Text>
+
+                        {/* ================================================
+                            ERROS COMUNS
+                        ================================================ */}
+                        <Text
+                            style={[
+                                styles.sectionTitle,
+                                {
+                                    color: colors.text,
+                                },
+                            ]}
+                        >
+                            Erros comuns
+                        </Text>
+
+                        <View style={styles.errorsContainer}>
+                            <View style={styles.errorItem}>
+                                <View
                                     style={[
-                                        styles.permissionTitle,
-                                        isDark && styles.permissionTitleDark,
+                                        styles.smallPhotoCircle,
+                                        {
+                                            backgroundColor: isDark
+                                                ? colors.card
+                                                : "#F0F0F0",
+                                            borderColor: colors.divider,
+                                        },
                                     ]}
                                 >
-                                    Permissão para acessar a câmera
+                                    <Image
+                                        source={require("../../../assets/images/foto_parcialmente_cortada.png")}
+                                        style={styles.smallPhotoExample}
+                                    />
+                                </View>
+
+                                <Text
+                                    style={[
+                                        styles.errorLabel,
+                                        {
+                                            color: colors.subtext,
+                                        },
+                                    ]}
+                                >
+                                    Parcialmente cortado
                                 </Text>
-                                <Text
+                            </View>
+
+                            <View style={styles.errorItem}>
+                                <View
                                     style={[
-                                        styles.permissionDescription,
-                                        isDark &&
-                                            styles.permissionDescriptionDark,
+                                        styles.smallPhotoCircle,
+                                        {
+                                            backgroundColor: isDark
+                                                ? colors.card
+                                                : "#F0F0F0",
+                                            borderColor: colors.divider,
+                                        },
                                     ]}
                                 >
-                                    A Zun Motorista precisa de permissão para
-                                    acessar sua câmera para fornecer serviços
-                                    como reconhecimento facial, tirar fotos de
-                                    documentos, definir sua foto de perfil e
-                                    viabilizar o suporte ao cliente.
+                                    <Image
+                                        source={require("../../../assets/images/foto_descentralizado.png")}
+                                        style={styles.smallPhotoExample}
+                                    />
+                                </View>
+
+                                <Text
+                                    style={[
+                                        styles.errorLabel,
+                                        {
+                                            color: colors.subtext,
+                                        },
+                                    ]}
+                                >
+                                    Descentralizado
+                                </Text>
+                            </View>
+
+                            <View style={styles.errorItem}>
+                                <View
+                                    style={[
+                                        styles.smallPhotoCircle,
+                                        {
+                                            backgroundColor: isDark
+                                                ? colors.card
+                                                : "#F0F0F0",
+                                            borderColor: colors.divider,
+                                        },
+                                    ]}
+                                >
+                                    <Image
+                                        source={require("../../../assets/images/foto_parcialmente_coberto.png")}
+                                        style={styles.smallPhotoExample}
+                                    />
+                                </View>
+
+                                <Text
+                                    style={[
+                                        styles.errorLabel,
+                                        {
+                                            color: colors.subtext,
+                                        },
+                                    ]}
+                                >
+                                    Parcialmente coberto
                                 </Text>
                             </View>
                         </View>
-
-                        <TouchableOpacity
-                            style={styles.allowButton}
-                            onPress={handlePrivacyAllow}
-                        >
-                            <Text style={styles.allowButtonText}>Permitir</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            style={styles.denyButton}
-                            onPress={handlePrivacyDeny}
-                        >
-                            <Text style={styles.denyButtonText}>Agora não</Text>
-                        </TouchableOpacity>
                     </View>
+                </ScrollView>
+
+                {/* ====================================================
+                    RODAPÉ
+                ==================================================== */}
+                <View
+                    style={[
+                        styles.footer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
+                    ]}
+                >
+                    <ButtonPrimary
+                        title="Tirar foto"
+                        onPress={handleTakePhoto}
+                        isDark={isDark}
+                    />
                 </View>
-            </Modal>
-        </View>
+
+                {/* ====================================================
+                    MODAL DE PRIVACIDADE
+                ==================================================== */}
+                <Modal
+                    transparent
+                    animationType="fade"
+                    visible={showPrivacyModal}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View
+                            style={[
+                                styles.modalBackdrop,
+                                {
+                                    backgroundColor: "rgba(0, 0, 0, 0.34)",
+                                },
+                            ]}
+                        />
+
+                        <View
+                            style={[
+                                styles.modalContainer,
+                                {
+                                    backgroundColor: colors.surface,
+                                },
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.modalTitle,
+                                    {
+                                        color: colors.text,
+                                    },
+                                ]}
+                            >
+                                Política de Privacidade
+                            </Text>
+
+                            <View style={styles.permissionContainer}>
+                                <Ionicons
+                                    name="camera-outline"
+                                    size={42}
+                                    color={colors.primary}
+                                />
+
+                                <View style={styles.permissionText}>
+                                    <Text
+                                        style={[
+                                            styles.permissionTitle,
+                                            {
+                                                color: colors.text,
+                                            },
+                                        ]}
+                                    >
+                                        Permissão para acessar a câmera
+                                    </Text>
+
+                                    <Text
+                                        style={[
+                                            styles.permissionDescription,
+                                            {
+                                                color: colors.subtext,
+                                            },
+                                        ]}
+                                    >
+                                        A Zun Motorista precisa de permissão
+                                        para acessar sua câmera para
+                                        reconhecimento facial, foto de perfil,
+                                        envio de documentos e suporte ao
+                                        cliente.
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <ButtonPrimary
+                                title="Permitir"
+                                onPress={handlePrivacyAllow}
+                                isDark={isDark}
+                            />
+
+                            <View style={styles.modalSecondaryButton}>
+                                <ButtonSecondary
+                                    title="Agora não"
+                                    onPress={handlePrivacyDeny}
+                                    isDark={isDark}
+                                />
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* ====================================================
+                    LOADING REUTILIZÁVEL DA ZUN
+                ==================================================== */}
+                <AppLoadingOverlay
+                    visible={showLoading}
+                    message="Carregando..."
+                    percentage="76%"
+                />
+            </View>
+        </SafeAreaView>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#FFF" },
-    containerDark: { backgroundColor: "#0B0B0B" },
+    safeArea: {
+        flex: 1,
+    },
 
-    // Header
-    header: {
+    container: {
+        flex: 1,
+    },
+
+    /*
+    ========================================================
+    TOPO PADRONIZADO
+    ========================================================
+    */
+    topBar: {
+        height: 56,
+        borderBottomWidth: 1,
         flexDirection: "row",
         alignItems: "center",
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: "#EEE",
-    },
-    backButton: {
-        marginRight: 15,
-    },
-    headerClose: {
-        fontSize: 28,
-        color: "#222",
-        marginRight: 15,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#222",
+        paddingHorizontal: 10,
     },
 
-    // Foto de exemplo
-    photoContainer: {
+    topBtn: {
+        width: 36,
+        height: 36,
         alignItems: "center",
-        paddingVertical: 30,
+        justifyContent: "center",
     },
+
+    brand: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginLeft: 6,
+    },
+
+    /*
+    ========================================================
+    ÁREA ROLÁVEL
+    ========================================================
+    */
+    scrollContent: {
+        paddingBottom: 16,
+    },
+
+    /*
+    ========================================================
+    HERO / EXEMPLO DE FOTO
+    ========================================================
+    */
+    heroArea: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: 28,
+    },
+
     photoCircle: {
-        width: 150,
-        height: 150,
-        borderRadius: 75,
+        width: 170,
+        height: 170,
+        borderRadius: 85,
         overflow: "hidden",
-        backgroundColor: "#F0F0F0",
+        borderWidth: 1,
     },
-    photoCircleParcialmenteCortado: {
-        width: 70,
-        height: 70,
-        borderRadius: 75,
-        overflow: "hidden",
-        backgroundColor: "#F0F0F0",
-    },
+
     photoExample: {
         width: "100%",
         height: "100%",
     },
-    photoExampleParcialmenteCortado: {
-        width: "100%",
-        height: "100%",
+
+    /*
+    ========================================================
+    CONTEÚDO
+    ========================================================
+    */
+    contentContainer: {
+        paddingHorizontal: 20,
+        paddingTop: 18,
     },
 
-    // Conteúdo
-    contentContainer: {
-        padding: 20,
-        backgroundColor: "#FFF",
+    title: {
+        fontSize: PHOTO_TIPS_FONT_SCALE.title,
+        fontWeight: "700",
+        lineHeight: 30,
+        marginBottom: 18,
     },
-    contentContainerDark: {
-        backgroundColor: "#0B0B0B",
-    },
+
     sectionTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#222",
-        marginBottom: 20,
+        fontSize: PHOTO_TIPS_FONT_SCALE.sectionTitle,
+        fontWeight: "700",
+        lineHeight: 24,
+        marginTop: 26,
+        marginBottom: 14,
     },
-    sectionTitleDark: {
-        color: "#FFF",
-    },
+
     subtitle: {
-        fontSize: 16,
-        color: "#666",
-        marginTop: 15,
+        fontSize: PHOTO_TIPS_FONT_SCALE.subtitle,
+        marginTop: 14,
+        marginBottom: 8,
+        lineHeight: 22,
+    },
+
+    subtitleBold: {
+        fontWeight: "700",
+    },
+
+    text: {
+        fontSize: PHOTO_TIPS_FONT_SCALE.text,
+        lineHeight: 22,
         marginBottom: 8,
     },
-    subtitleBold: {
-        fontWeight: "bold",
-    },
-    subtitleDark: {
-        color: "#AAA",
-    },
-    text: {
-        fontSize: 14,
-        color: "#666",
-        lineHeight: 22,
-        marginBottom: 5,
-    },
-    textDark: {
-        color: "#AAA",
-    },
+
     boldText: {
-        fontWeight: "bold",
+        fontWeight: "700",
     },
 
-    // Erros comuns
+    /*
+    ========================================================
+    ERROS COMUNS
+    ========================================================
+    */
     errorsContainer: {
         flexDirection: "row",
-        justifyContent: "space-around",
-        marginTop: 30,
-        marginBottom: 20,
+        justifyContent: "space-between",
+        marginTop: 8,
+        marginBottom: 16,
+        gap: 10,
     },
+
     errorItem: {
         alignItems: "center",
         flex: 1,
     },
-    errorIcon: {
-        marginBottom: 8,
+
+    smallPhotoCircle: {
+        width: 82,
+        height: 82,
+        borderRadius: 41,
+        overflow: "hidden",
+        borderWidth: 1,
+        marginBottom: 10,
     },
+
+    smallPhotoExample: {
+        width: "100%",
+        height: "100%",
+    },
+
     errorLabel: {
-        fontSize: 12,
-        color: "#666",
+        fontSize: PHOTO_TIPS_FONT_SCALE.errorLabel,
         textAlign: "center",
+        lineHeight: 18,
     },
 
-    // Footer
+    /*
+    ========================================================
+    RODAPÉ
+    ========================================================
+    */
     footer: {
-        padding: 20,
-        paddingBottom: 30,
-        backgroundColor: "#FFF",
-    },
-    footerDark: {
-        backgroundColor: "#1C1C1E",
-    },
-    button: {
-        backgroundColor: "#1E6BE3",
-        padding: 18,
-        borderRadius: 40,
-        alignItems: "center",
-    },
-    buttonText: {
-        color: "#FFF",
-        fontSize: 16,
-        fontWeight: "600",
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 14,
+        borderTopWidth: 1,
     },
 
-    // Modal
+    /*
+    ========================================================
+    MODAL DE PRIVACIDADE
+    ========================================================
+    */
     modalOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
         justifyContent: "flex-end",
     },
+
+    modalBackdrop: {
+        ...StyleSheet.absoluteFillObject,
+    },
+
     modalContainer: {
-        backgroundColor: "#FFF",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        padding: 25,
-        paddingBottom: 30,
+        borderTopLeftRadius: 22,
+        borderTopRightRadius: 22,
+        paddingHorizontal: 18,
+        paddingTop: 22,
+        paddingBottom: 28,
     },
-    modalContainerDark: {
-        backgroundColor: "#1C1C1E",
-    },
+
     modalTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#222",
-        marginBottom: 20,
+        fontSize: PHOTO_TIPS_FONT_SCALE.modalTitle,
+        fontWeight: "700",
+        lineHeight: 28,
+        marginBottom: 18,
     },
-    modalTitleDark: {
-        color: "#FFF",
-    },
+
     permissionContainer: {
         flexDirection: "row",
         alignItems: "flex-start",
-        marginBottom: 25,
+        marginBottom: 24,
     },
+
     permissionText: {
         flex: 1,
-        marginLeft: 15,
+        marginLeft: 14,
     },
+
     permissionTitle: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#222",
+        fontSize: PHOTO_TIPS_FONT_SCALE.permissionTitle,
+        fontWeight: "700",
+        lineHeight: 24,
         marginBottom: 8,
     },
-    permissionTitleDark: {
-        color: "#FFF",
-    },
+
     permissionDescription: {
-        fontSize: 14,
-        color: "#666",
-        lineHeight: 20,
+        fontSize: PHOTO_TIPS_FONT_SCALE.permissionDescription,
+        lineHeight: 22,
     },
-    permissionDescriptionDark: {
-        color: "#AAA",
-    },
-    allowButton: {
-        backgroundColor: "#1E6BE3",
-        padding: 16,
-        borderRadius: 8,
-        alignItems: "center",
-        marginBottom: 12,
-    },
-    allowButtonText: {
-        color: "#FFF",
-        fontSize: 16,
-        fontWeight: "600",
-    },
-    denyButton: {
-        backgroundColor: "#FFF",
-        padding: 16,
-        borderRadius: 8,
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#DDD",
-    },
-    denyButtonText: {
-        color: "#666",
-        fontSize: 16,
-        fontWeight: "500",
+
+    modalSecondaryButton: {
+        marginTop: 12,
     },
 });

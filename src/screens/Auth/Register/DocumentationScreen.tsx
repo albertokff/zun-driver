@@ -1,15 +1,25 @@
 /*
 ========================================================
 TELA DE DOCUMENTAÇÃO
-O usuário deve enviar os documentos obrigatórios.
 
-FLUXO ATUALIZADO:
-- Mostra contador "X/3 itens" dinâmico
-- Documentos enviados aparecem em azul com check
-- Documentos pendentes aparecem normais
-- Ao clicar em documento pendente, inicia upload
+OBJETIVO:
+- Exibir documentos obrigatórios
+- Seguir padrão visual da 99
+- Aplicar identidade Zun
+- Usar tema dinâmico (light/dark)
+
+REGRAS:
+- Documento enviado = azul + check
+- Documento pendente = clicável
+
+OBSERVAÇÃO DE ACESSIBILIDADE:
+- Esta tela recebeu ajuste de tipografia para melhorar
+  a leitura e aproximar mais da referência da 99
+- Mantemos tamanhos um pouco maiores para favorecer
+  usabilidade e legibilidade
 ========================================================
 */
+
 import React from "react";
 import {
     View,
@@ -17,45 +27,77 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    Platform,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
+
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-// Import do novo context
+
 import {
     useDocumentContext,
     DocumentStatus,
 } from "../../../context/DocumentContext";
 
-// Tipagem para a navegação
+/*
+========================================================
+TIPAGEM
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     "Documentation"
 >;
 
+/*
+========================================================
+CONTROLE DE TIPOGRAFIA DA TELA
+
+AJUSTE AQUI SE NECESSÁRIO:
+- use estes valores como base de revisão
+- isso ajuda a padronizar com as outras telas depois
+========================================================
+*/
+const DOC_SCREEN_FONT_SCALE = {
+    bannerTitle: 18,
+    bannerSubtitle: 15,
+    headerTitle: 18,
+    counter: 18,
+    docTitle: 17,
+    docSubtitle: 14,
+    tipsTitle: 17,
+    tipText: 14,
+} as const;
+
+/*
+========================================================
+COMPONENTE
+========================================================
+*/
 export default function DocumentationScreen() {
-    // Hook de navegação com tipagem
     const navigation = useNavigation<NavigationProp>();
-    const { theme } = useTheme();
+
+    const { colors, theme } = useTheme();
     const isDark = theme === "dark";
 
-    // Hook para acessar estado dos documentos
-    const { documents, getSentCount, updateDocumentStatus } =
-        useDocumentContext();
+    const { documents, getSentCount } = useDocumentContext();
 
+    /*
+    ========================================================
+    UPLOAD
+    ========================================================
+    */
     const handleUpload = (docTitle: string, docId: string) => {
-        // Para FOTO: vai direto para PhotoTipsScreen
         if (docId === "photo") {
             navigation.navigate("PhotoTips", {
                 documentId: docId,
                 documentTitle: docTitle,
-                documentType: "physical", // Valor padrão para foto
+                documentType: "physical",
             });
         } else {
-            // Para CRLV e CNH: segue fluxo normal
             navigation.navigate("UploadDocument", {
                 documentId: docId,
                 documentTitle: docTitle,
@@ -64,65 +106,74 @@ export default function DocumentationScreen() {
     };
 
     /*
-    ================================================
-    COMPONENTE: DocumentItem
-    Exibe cada documento com status visual diferente
-    ================================================
+    ========================================================
+    ITEM DE DOCUMENTO
+    ========================================================
     */
     const DocumentItem = ({
         doc,
     }: {
         doc: { id: string; title: string; status: DocumentStatus };
     }) => {
-        // Define cores e ícones baseado no status
         const isSent = doc.status !== "pending";
-        const iconColor = isSent
-            ? "#1E6BE3" // Azul para enviado
-            : isDark
-              ? "#AAA"
-              : "#888"; // Cinza para pendente
-        const iconName = isSent ? "checkmark-circle" : "document-text-outline";
 
         return (
             <TouchableOpacity
                 style={[
                     styles.docItem,
-                    isDark && styles.docItemDark,
-                    isSent && styles.docItemSent, // Destaque para enviado
+                    {
+                        backgroundColor: isDark ? colors.card : colors.surface,
+                        borderColor: isSent ? colors.primary : colors.divider,
+                    },
                 ]}
-                onPress={() => !isSent && handleUpload(doc.title, doc.id)}
-                disabled={isSent} // Não permite clicar se já enviado
+                activeOpacity={0.85}
+                disabled={isSent}
+                onPress={() => handleUpload(doc.title, doc.id)}
             >
-                <Ionicons name={iconName as any} size={24} color={iconColor} />
-                <View style={styles.docTextContainer}>
+                <Ionicons
+                    name={isSent ? "checkmark-circle" : "document-text-outline"}
+                    /*
+                    ================================================
+                    ÍCONE LEVEMENTE MAIOR
+                    Ajuda na leitura visual do card
+                    ================================================
+                    */
+                    size={26}
+                    color={isSent ? colors.primary : colors.subtext}
+                />
+
+                <View style={styles.docText}>
                     <Text
                         style={[
                             styles.docTitle,
-                            isDark && styles.docTitleDark,
-                            isSent && styles.docTitleSent, // Texto azul se enviado
+                            {
+                                color: isSent ? colors.primary : colors.text,
+                            },
                         ]}
                     >
                         {doc.title}
                     </Text>
+
                     <Text
                         style={[
                             styles.docSubtitle,
-                            isDark && styles.docSubtitleDark,
+                            {
+                                color: colors.subtext,
+                            },
                         ]}
                     >
-                        {
-                            isSent
-                                ? "Seu documento está sendo analisado" // Status enviado
-                                : "Toque aqui para enviar o documento" // Status pendente
-                        }
+                        {isSent ? "Documento enviado" : "Toque para enviar"}
                     </Text>
                 </View>
+
                 {isSent ? (
-                    // Check verde/azul para documento enviado
-                    <Ionicons name="checkmark" size={24} color="#1E6BE3" />
+                    <Ionicons
+                        name="checkmark"
+                        size={22}
+                        color={colors.primary}
+                    />
                 ) : (
-                    // Seta para documento pendente
-                    <Text style={[styles.arrow, isDark && styles.arrowDark]}>
+                    <Text style={[styles.arrow, { color: colors.subtext }]}>
                         ›
                     </Text>
                 )}
@@ -131,205 +182,284 @@ export default function DocumentationScreen() {
     };
 
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            <ScrollView
-                contentContainerStyle={styles.scrollContainer}
-                stickyHeaderIndices={[0]}
-            >
-                {/* BANNER SUPERIOR */}
-                <View style={styles.banner}>
-                    {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Text style={styles.backButtonText}>‹</Text>
-                    </TouchableOpacity>
+        <SafeAreaView
+            style={[styles.safe, { backgroundColor: colors.background }]}
+        >
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-                    <Text style={styles.bannerTitle}>
-                        Vem pra Zun e aproveite várias formas de ganhar
-                        dinheiro!
-                    </Text>
-                </View>
-
-                {/* CABEÇALHO DA LISTA */}
-                <View style={styles.header}>
-                    <Text
-                        style={[
-                            styles.headerTitle,
-                            isDark && styles.headerTitleDark,
-                        ]}
-                    >
-                        Documentos obrigatórios
-                    </Text>
-                    {/* Contador dinâmico baseado no contexto */}
-                    <Text
-                        style={[
-                            styles.headerCounter,
-                            isDark && styles.headerCounterDark,
-                        ]}
-                    >
-                        {getSentCount()}/3 itens
-                    </Text>
-                </View>
-
-                {/* LISTA DE DOCUMENTOS */}
-                <View style={styles.listContainer}>
-                    {documents.map((doc) => (
-                        <DocumentItem key={doc.id} doc={doc} />
-                    ))}
-                </View>
-
-                {/* SEÇÃO DE DICAS */}
+            <View style={styles.container}>
+                {/* ====================================================
+                    TOPO PADRÃO
+                ==================================================== */}
                 <View
                     style={[
-                        styles.tipsContainer,
-                        isDark && styles.tipsContainerDark,
+                        styles.topBar,
+                        { borderBottomColor: colors.divider },
                     ]}
                 >
-                    <Text
+                    <TouchableOpacity
+                        style={styles.topBtn}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color={colors.text}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.topBtn}
+                        onPress={() => navigation.navigate("Start")}
+                    >
+                        <Ionicons name="close" size={22} color={colors.text} />
+                    </TouchableOpacity>
+
+                    <Text style={[styles.brand, { color: colors.text }]}>
+                        Zun
+                    </Text>
+
+                    <View style={{ flex: 1 }} />
+                </View>
+
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    {/* ====================================================
+                        BANNER
+                    ==================================================== */}
+                    <View
                         style={[
-                            styles.tipsTitle,
-                            isDark && styles.tipsTitleDark,
+                            styles.banner,
+                            { backgroundColor: colors.primary },
                         ]}
                     >
-                        Dicas
-                    </Text>
-                    <Text
-                        style={[styles.tipText, isDark && styles.tipTextDark]}
-                    >
-                        •{" "}
-                        <Text style={styles.linkText}>
-                            Veja aqui como adicionar EAR {">"}
+                        <Text style={styles.bannerTitle}>
+                            Envie seus documentos
                         </Text>
-                    </Text>
-                    <Text
-                        style={[styles.tipText, isDark && styles.tipTextDark]}
+
+                        <Text style={styles.bannerSubtitle}>
+                            Isso garante sua segurança e liberação rápida
+                        </Text>
+                    </View>
+
+                    {/* ====================================================
+                        HEADER
+                    ==================================================== */}
+                    <View style={styles.header}>
+                        <Text
+                            style={[styles.headerTitle, { color: colors.text }]}
+                        >
+                            Documentos obrigatórios
+                        </Text>
+
+                        <Text
+                            style={[styles.counter, { color: colors.primary }]}
+                        >
+                            {getSentCount()}/3
+                        </Text>
+                    </View>
+
+                    {/* ====================================================
+                        LISTA
+                    ==================================================== */}
+                    <View style={styles.list}>
+                        {documents.map((doc) => (
+                            <DocumentItem key={doc.id} doc={doc} />
+                        ))}
+                    </View>
+
+                    {/* ====================================================
+                        DICAS
+                    ==================================================== */}
+                    <View
+                        style={[
+                            styles.tips,
+                            {
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                            },
+                        ]}
                     >
-                        • O Condumoto é necessário em São Paulo.
-                    </Text>
-                    <Text
-                        style={[styles.tipText, isDark && styles.tipTextDark]}
-                    >
-                        • Os documentos que você enviou serão salvos e
-                        manteremos suas informações seguras e protegidas.
-                    </Text>
-                </View>
-            </ScrollView>
-        </View>
+                        <Text
+                            style={[styles.tipsTitle, { color: colors.text }]}
+                        >
+                            Dicas
+                        </Text>
+
+                        <Text
+                            style={[styles.tipText, { color: colors.subtext }]}
+                        >
+                            • Verifique se a foto está legível
+                        </Text>
+
+                        <Text
+                            style={[styles.tipText, { color: colors.subtext }]}
+                        >
+                            • Evite reflexos e cortes
+                        </Text>
+
+                        <Text
+                            style={[styles.tipText, { color: colors.subtext }]}
+                        >
+                            • Seus dados estão protegidos
+                        </Text>
+                    </View>
+                </ScrollView>
+            </View>
+        </SafeAreaView>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#F8F9FA" },
-    containerDark: { backgroundColor: "#000" },
-    scrollContainer: {
-        paddingBottom: 120,
-    },
+    safe: { flex: 1 },
 
-    // Banner com posição relativa para conter o botão absoluto
-    banner: {
-        backgroundColor: "#1E6BE3",
-        paddingHorizontal: 20,
-        paddingBottom: 20,
-        paddingTop: Platform.OS === "ios" ? 65 : 45,
-        position: "relative",
-    },
-    // Botão de voltar posicionado no canto superior esquerdo do banner
-    backButton: {
-        position: "absolute",
-        top: Platform.OS === "ios" ? 15 : 10,
-        left: -15,
-        width: 40,
-        height: 40,
-        justifyContent: "center",
+    container: { flex: 1 },
+
+    /*
+    ========================================================
+    TOPO PADRONIZADO
+    ========================================================
+    */
+    topBar: {
+        height: 56,
+        borderBottomWidth: 1,
+        flexDirection: "row",
         alignItems: "center",
-        zIndex: 10,
-    },
-    backButtonText: {
-        fontSize: 36,
-        color: "#FFF",
-        fontWeight: "300",
-        marginTop: -5, // Ajuste fino para centralizar verticalmente
-    },
-    bannerTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#FFF",
-        marginTop: Platform.OS === "ios" ? 35 : 80, // Espaço para não ficar embaixo do botão
+        paddingHorizontal: 10,
     },
 
+    topBtn: {
+        width: 36,
+        height: 36,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    brand: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginLeft: 6,
+    },
+
+    /*
+    ========================================================
+    BANNER
+    ========================================================
+    */
+    banner: {
+        minHeight: 110,
+        padding: 16,
+        justifyContent: "center",
+    },
+
+    bannerTitle: {
+        color: "#FFF",
+        fontSize: DOC_SCREEN_FONT_SCALE.bannerTitle,
+        fontWeight: "700",
+        lineHeight: 24,
+    },
+
+    bannerSubtitle: {
+        color: "#FFF",
+        fontSize: DOC_SCREEN_FONT_SCALE.bannerSubtitle,
+        marginTop: 6,
+        lineHeight: 20,
+    },
+
+    /*
+    ========================================================
+    HEADER
+    ========================================================
+    */
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: 20,
-        paddingTop: 30,
+        padding: 16,
     },
-    headerTitle: { fontSize: 18, fontWeight: "600", color: "#222" },
-    headerTitleDark: { color: "#FFF" },
-    headerCounter: { fontSize: 14, color: "#E74C3C" },
-    headerCounterDark: { color: "#FF6B6B" },
-    listContainer: { paddingHorizontal: 20 },
 
-    // Item de documento
+    headerTitle: {
+        fontSize: DOC_SCREEN_FONT_SCALE.headerTitle,
+        fontWeight: "700",
+        lineHeight: 24,
+    },
+
+    counter: {
+        fontSize: DOC_SCREEN_FONT_SCALE.counter,
+        fontWeight: "700",
+        lineHeight: 24,
+    },
+
+    /*
+    ========================================================
+    LISTA DE DOCUMENTOS
+    ========================================================
+    */
+    list: {
+        paddingHorizontal: 16,
+    },
+
     docItem: {
-        backgroundColor: "#FFF",
-        padding: 20,
-        borderRadius: 12,
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 15,
+        padding: 16,
+        borderRadius: 14,
         borderWidth: 1,
-        borderColor: "#EEE",
-    },
-    docItemDark: {
-        backgroundColor: "#1C1C1E",
-        borderColor: "#2C2C2E",
-    },
-    // Estilo para documento enviado (azul)
-    docItemSent: {
-        backgroundColor: "#E8F4FF",
-        borderColor: "#1E6BE3",
-        borderWidth: 2,
-    },
-    docTextContainer: { flex: 1, marginLeft: 15 },
-    docTitle: { fontSize: 16, fontWeight: "500", color: "#333" },
-    docTitleDark: { color: "#FFF" },
-    // Texto azul para documento enviado
-    docTitleSent: {
-        color: "#1E6BE3",
-        fontWeight: "600",
-    },
-    docSubtitle: { fontSize: 14, color: "#888", marginTop: 4 },
-    docSubtitleDark: { color: "#AAA" },
-    arrow: { fontSize: 24, color: "#CCC" },
-    arrowDark: { color: "#555" },
-
-    tipsContainer: {
-        padding: 20,
-        marginTop: 20,
-        backgroundColor: "#FFF",
-        borderTopWidth: 1,
-        borderTopColor: "#EEE",
-    },
-    tipsContainerDark: {
-        backgroundColor: "#1C1C1E",
-        borderTopColor: "#2C2C2E",
-    },
-    tipsTitle: {
-        fontSize: 16,
-        fontWeight: "bold",
-        marginBottom: 15,
-        color: "#333",
-    },
-    tipsTitleDark: { color: "#FFF" },
-    tipText: {
-        fontSize: 14,
-        color: "#666",
         marginBottom: 10,
+        minHeight: 74,
+    },
+
+    docText: {
+        flex: 1,
+        marginLeft: 12,
+    },
+
+    docTitle: {
+        fontSize: DOC_SCREEN_FONT_SCALE.docTitle,
+        fontWeight: "600",
+        lineHeight: 22,
+    },
+
+    docSubtitle: {
+        fontSize: DOC_SCREEN_FONT_SCALE.docSubtitle,
+        marginTop: 4,
+        lineHeight: 19,
+    },
+
+    arrow: {
+        fontSize: 24,
+        lineHeight: 24,
+    },
+
+    /*
+    ========================================================
+    BLOCO DE DICAS
+    ========================================================
+    */
+    tips: {
+        margin: 16,
+        padding: 16,
+        borderRadius: 14,
+    },
+
+    tipsTitle: {
+        fontSize: DOC_SCREEN_FONT_SCALE.tipsTitle,
+        fontWeight: "700",
+        marginBottom: 12,
+        lineHeight: 22,
+    },
+
+    tipText: {
+        marginBottom: 8,
+        fontSize: DOC_SCREEN_FONT_SCALE.tipText,
         lineHeight: 20,
     },
-    tipTextDark: { color: "#AAA" },
-    linkText: { color: "#1E6BE3", fontWeight: "500" },
 });

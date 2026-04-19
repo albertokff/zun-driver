@@ -1,464 +1,478 @@
 /*
 ========================================================
 TELA DE UPLOAD DE DOCUMENTO
-O usuário seleciona se vai enviar documento físico ou digital (PDF).
 
-DEBUG: Adicionado console.log para rastrear navegação
+OBJETIVO:
+- Escolher tipo de envio (físico ou digital)
+- Seguir padrão visual da 99
+- Aplicar identidade Zun
+- Usar tema dinâmico
+
+FLUXO:
+- Seleciona opção
+- Avança para DocumentRequirements
+
+OBSERVAÇÃO DE ACESSIBILIDADE:
+- Esta tela recebeu ajuste de tipografia para melhorar
+  leitura e consistência com as telas anteriores
 ========================================================
 */
-import React, { useState, useEffect } from "react"; // Adicionado useEffect
+
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    Platform,
-    Image,
+    SafeAreaView,
+    StatusBar,
 } from "react-native";
+
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+import ButtonPrimary from "../../../components/ButtonPrimary";
 
-// Tipagem para a navegação
+/*
+========================================================
+TIPAGEM
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     "UploadDocument"
 >;
 
-// Tipagem para a rota com parâmetros
 type UploadDocumentRouteProp = RouteProp<RootStackParamList, "UploadDocument">;
+
+/*
+========================================================
+CONTROLE DE TIPOGRAFIA DA TELA
+
+AJUSTE AQUI SE NECESSÁRIO:
+- esse bloco ajuda a manter consistência com as outras
+  telas do fluxo
+========================================================
+*/
+const UPLOAD_DOC_FONT_SCALE = {
+    bannerTitle: 18,
+    bannerSubtitle: 15,
+    optionTitle: 16,
+    tipsTitle: 17,
+    tipText: 14,
+} as const;
 
 export default function UploadDocumentScreen() {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<UploadDocumentRouteProp>();
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
 
-    // Recebe os parâmetros da tela anterior
+    const { colors, theme, isDark } = useTheme();
+
     const { documentId, documentTitle } = route.params;
 
     /*
-    ================================================
-    DEBUG: Log dos parâmetros recebidos
-    ================================================
+    ========================================================
+    DEBUG
+    ========================================================
     */
     useEffect(() => {
-        console.log("🔍 [UploadDocument] Parâmetros recebidos:", {
-            documentId,
-            documentTitle,
-        });
+        console.log("📄 Upload:", documentId, documentTitle);
     }, [documentId, documentTitle]);
 
     const [selectedOption, setSelectedOption] = useState<
         "physical" | "digital" | null
     >(null);
 
-    // Correção: Navegar para a próxima tela COM LOGS
+    /*
+    ========================================================
+    AVANÇAR
+    ========================================================
+    */
     const handleNext = () => {
-        if (selectedOption) {
-            console.log(
-                "🚀 [UploadDocument] Navegando para DocumentRequirements:",
-                {
-                    documentId,
-                    documentTitle,
-                    documentType: selectedOption,
-                },
-            );
+        if (!selectedOption) return;
 
-            navigation.navigate("DocumentRequirements", {
-                documentId,
-                documentTitle,
-                documentType: selectedOption,
-            });
-        }
+        navigation.navigate("DocumentRequirements", {
+            documentId,
+            documentTitle,
+            documentType: selectedOption,
+        });
+    };
+
+    /*
+    ========================================================
+    AÇÃO DE VOLTAR
+    ========================================================
+    */
+    const handleBack = () => {
+        navigation.goBack();
+    };
+
+    /*
+    ========================================================
+    AÇÃO DE FECHAR
+    ========================================================
+    */
+    const handleClose = () => {
+        navigation.navigate("Start");
     };
 
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            <ScrollView>
-                {/* BANNER SUPERIOR */}
-                <View style={styles.banner}>
-                    {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => navigation.goBack()}
-                    >
-                        <Text style={styles.backButtonText}>‹</Text>
-                    </TouchableOpacity>
+        <SafeAreaView
+            style={[styles.safe, { backgroundColor: colors.background }]}
+        >
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
 
-                    <View style={styles.bannerTextContainer}>
-                        <Text style={styles.bannerTitle}>
-                            Faça o envio do seu {documentTitle}
-                        </Text>
-                        <Text style={styles.bannerSubtitle}>
-                            Agora aceitamos o envio do documento físico e também
-                            digital, em PDF
-                        </Text>
-                    </View>
-                </View>
-
-                {/* OPÇÕES DE ENVIO */}
-                <View style={styles.optionsContainer}>
-                    {/* Opção 1: Documento Físico */}
-                    <TouchableOpacity
-                        style={[
-                            styles.optionItem,
-                            isDark && styles.optionItemDark,
-                            selectedOption === "physical" &&
-                                styles.optionItemSelected,
-                        ]}
-                        onPress={() => {
-                            console.log(
-                                "📝 [UploadDocument] Selecionado: Documento físico",
-                            );
-                            setSelectedOption("physical");
-                        }}
-                    >
-                        <View style={styles.optionLeft}>
-                            {/* Placeholder para imagem do documento físico */}
-                            <View
-                                style={[
-                                    styles.optionIcon,
-                                    {
-                                        backgroundColor: isDark
-                                            ? "#333"
-                                            : "#E8F5E9",
-                                    },
-                                ]}
-                            >
-                                <Ionicons
-                                    name="document-outline"
-                                    size={32}
-                                    color={isDark ? "#AAA" : "#4CAF50"}
-                                />
-                            </View>
-                            <View style={styles.optionTextContainer}>
-                                <Text
-                                    style={[
-                                        styles.optionTitle,
-                                        isDark && styles.optionTitleDark,
-                                    ]}
-                                >
-                                    Documento físico
-                                </Text>
-                                <Text
-                                    style={[
-                                        styles.optionSubtitle,
-                                        isDark && styles.optionSubtitleDark,
-                                    ]}
-                                >
-                                    Selecione esta opção se você tiver o{" "}
-                                    {documentTitle} físico
-                                </Text>
-                            </View>
-                        </View>
-                        <View
-                            style={[
-                                styles.radioCircle,
-                                isDark && styles.radioCircleDark,
-                                selectedOption === "physical" &&
-                                    styles.radioChecked,
-                            ]}
-                        >
-                            {selectedOption === "physical" && (
-                                <View style={styles.radioInner} />
-                            )}
-                        </View>
-                    </TouchableOpacity>
-
-                    {/* Opção 2: Documento Digital (PDF) */}
-                    <TouchableOpacity
-                        style={[
-                            styles.optionItem,
-                            isDark && styles.optionItemDark,
-                            selectedOption === "digital" &&
-                                styles.optionItemSelected,
-                        ]}
-                        onPress={() => {
-                            console.log(
-                                "📝 [UploadDocument] Selecionado: Documento digital",
-                            );
-                            setSelectedOption("digital");
-                        }}
-                    >
-                        <View style={styles.optionLeft}>
-                            {/* Placeholder para imagem do documento digital */}
-                            <View
-                                style={[
-                                    styles.optionIcon,
-                                    {
-                                        backgroundColor: isDark
-                                            ? "#333"
-                                            : "#E3F2FD",
-                                    },
-                                ]}
-                            >
-                                <Ionicons
-                                    name="file-tray-full-outline"
-                                    size={32}
-                                    color={isDark ? "#AAA" : "#2196F3"}
-                                />
-                            </View>
-                            <View style={styles.optionTextContainer}>
-                                <Text
-                                    style={[
-                                        styles.optionTitle,
-                                        isDark && styles.optionTitleDark,
-                                    ]}
-                                >
-                                    Documento digital (somente PDF)
-                                </Text>
-                                <Text
-                                    style={[
-                                        styles.optionSubtitle,
-                                        isDark && styles.optionSubtitleDark,
-                                    ]}
-                                >
-                                    Selecione esta opção se você tiver o{" "}
-                                    {documentTitle} digital em PDF
-                                </Text>
-                            </View>
-                        </View>
-                        <View
-                            style={[
-                                styles.radioCircle,
-                                isDark && styles.radioCircleDark,
-                                selectedOption === "digital" &&
-                                    styles.radioChecked,
-                            ]}
-                        >
-                            {selectedOption === "digital" && (
-                                <View style={styles.radioInner} />
-                            )}
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
-                {/* INFORMAÇÕES ADICIONAIS */}
+            <View style={styles.container}>
+                {/* ============================================
+                    TOPO PADRÃO
+                ============================================ */}
                 <View
                     style={[
-                        styles.infoContainer,
-                        isDark && styles.infoContainerDark,
+                        styles.topBar,
+                        {
+                            backgroundColor: colors.background,
+                            borderBottomColor: colors.divider,
+                        },
                     ]}
                 >
-                    <Text
+                    <TouchableOpacity
+                        style={styles.topBtn}
+                        onPress={handleBack}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color={colors.text}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.topBtn}
+                        onPress={handleClose}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="close" size={22} color={colors.text} />
+                    </TouchableOpacity>
+
+                    <Text style={[styles.brand, { color: colors.text }]}>
+                        Zun
+                    </Text>
+
+                    <View style={{ flex: 1 }} />
+                </View>
+
+                <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                >
+                    {/* ============================================
+                        BANNER
+                    ============================================ */}
+                    <View
                         style={[
-                            styles.infoTitle,
-                            isDark && styles.infoTitleDark,
+                            styles.banner,
+                            { backgroundColor: colors.primary },
                         ]}
                     >
-                        Informações importantes
-                    </Text>
-                    <Text
-                        style={[styles.infoText, isDark && styles.infoTextDark]}
-                    >
-                        • O documento deve estar dentro da validade
-                    </Text>
-                    <Text
-                        style={[styles.infoText, isDark && styles.infoTextDark]}
-                    >
-                        • A imagem deve estar nítida e legível
-                    </Text>
-                    <Text
-                        style={[styles.infoText, isDark && styles.infoTextDark]}
-                    >
-                        • Para PDF, o arquivo deve ter no máximo 5MB
-                    </Text>
-                </View>
-            </ScrollView>
+                        <Text style={styles.bannerTitle}>
+                            Envie seu {documentTitle}
+                        </Text>
 
-            {/* BOTÃO INFERIOR */}
-            <View style={[styles.footer, isDark && styles.footerDark]}>
-                <TouchableOpacity
+                        <Text style={styles.bannerSubtitle}>
+                            Escolha como deseja enviar o documento
+                        </Text>
+                    </View>
+
+                    {/* ============================================
+                        OPÇÕES
+                    ============================================ */}
+                    <View style={styles.options}>
+                        {[
+                            {
+                                id: "physical",
+                                title: "Documento físico",
+                                icon: "document-outline",
+                            },
+                            {
+                                id: "digital",
+                                title: "Documento digital (PDF)",
+                                icon: "file-tray-full-outline",
+                            },
+                        ].map((item) => {
+                            const selected = selectedOption === item.id;
+
+                            return (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    style={[
+                                        styles.option,
+                                        {
+                                            backgroundColor: isDark
+                                                ? colors.card
+                                                : colors.surface,
+                                            borderColor: selected
+                                                ? colors.primary
+                                                : colors.divider,
+                                        },
+                                    ]}
+                                    activeOpacity={0.85}
+                                    onPress={() =>
+                                        setSelectedOption(
+                                            item.id as "physical" | "digital",
+                                        )
+                                    }
+                                >
+                                    <Ionicons
+                                        name={item.icon as any}
+                                        size={28}
+                                        color={colors.text}
+                                    />
+
+                                    <Text
+                                        style={[
+                                            styles.optionText,
+                                            {
+                                                color: colors.text,
+                                            },
+                                        ]}
+                                    >
+                                        {item.title}
+                                    </Text>
+
+                                    <View
+                                        style={[
+                                            styles.radio,
+                                            {
+                                                borderColor: selected
+                                                    ? colors.primary
+                                                    : colors.divider,
+                                            },
+                                        ]}
+                                    >
+                                        {selected && (
+                                            <View
+                                                style={[
+                                                    styles.radioInner,
+                                                    {
+                                                        backgroundColor:
+                                                            colors.primary,
+                                                    },
+                                                ]}
+                                            />
+                                        )}
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+
+                    {/* ============================================
+                        DICAS
+                    ============================================ */}
+                    <View
+                        style={[
+                            styles.tips,
+                            {
+                                backgroundColor: isDark
+                                    ? colors.card
+                                    : colors.surface,
+                            },
+                        ]}
+                    >
+                        <Text
+                            style={[styles.tipsTitle, { color: colors.text }]}
+                        >
+                            Informações importantes
+                        </Text>
+
+                        <Text style={[styles.tip, { color: colors.subtext }]}>
+                            • Documento válido
+                        </Text>
+
+                        <Text style={[styles.tip, { color: colors.subtext }]}>
+                            • Imagem nítida
+                        </Text>
+
+                        <Text style={[styles.tip, { color: colors.subtext }]}>
+                            • PDF até 5MB
+                        </Text>
+                    </View>
+                </ScrollView>
+
+                {/* ============================================
+                    BOTÃO PADRÃO ZUN
+                ============================================ */}
+                <View
                     style={[
-                        styles.button,
-                        { opacity: selectedOption ? 1 : 0.5 },
+                        styles.footer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
                     ]}
-                    disabled={!selectedOption}
-                    onPress={handleNext}
                 >
-                    <Text style={styles.buttonText}>Próximo</Text>
-                </TouchableOpacity>
+                    <ButtonPrimary
+                        title="Próximo"
+                        onPress={handleNext}
+                        disabled={!selectedOption}
+                        isDark={isDark}
+                    />
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#F8F9FA" },
-    containerDark: { backgroundColor: "#000" },
+    safe: { flex: 1 },
 
-    // Banner com posição relativa para conter o botão absoluto
-    banner: {
-        backgroundColor: "#1E6BE3",
-        padding: 20,
-        paddingTop: Platform.OS === "ios" ? 65 : 45,
-        paddingBottom: 25,
-        position: "relative",
-    },
-    // Botão de voltar posicionado no canto superior esquerdo do banner
-    backButton: {
-        position: "absolute",
-        top: Platform.OS === "ios" ? 15 : 10,
-        left: 10,
-        width: 40,
-        height: 40,
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 10,
-    },
-    backButtonText: {
-        fontSize: 36,
-        color: "#FFF",
-        fontWeight: "300",
-        marginTop: -5,
-    },
-    bannerTextContainer: {
-        marginTop: Platform.OS === "ios" ? 35 : 30,
-    },
-    bannerTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#FFF",
-        marginBottom: 8,
-    },
-    bannerSubtitle: {
-        fontSize: 13,
-        color: "#E0E0E0",
-        lineHeight: 18,
-    },
+    container: { flex: 1 },
 
-    optionsContainer: {
-        padding: 20,
-    },
-    optionItem: {
-        backgroundColor: "#FFF",
-        padding: 20,
-        borderRadius: 12,
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 15,
-        borderWidth: 1,
-        borderColor: "#EEE",
-    },
-    optionItemDark: {
-        backgroundColor: "#1C1C1E",
-        borderColor: "#2C2C2E",
-    },
-    optionItemSelected: {
-        borderColor: "#1E6BE3",
-        borderWidth: 2,
-    },
-    optionLeft: {
-        flexDirection: "row",
-        flex: 1,
-        alignItems: "center",
-    },
-    optionIcon: {
-        width: 56,
+    /*
+    ========================================================
+    TOPO PADRONIZADO
+    ========================================================
+    */
+    topBar: {
         height: 56,
-        borderRadius: 8,
+        borderBottomWidth: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 10,
+    },
+
+    topBtn: {
+        width: 36,
+        height: 36,
         justifyContent: "center",
         alignItems: "center",
-        marginRight: 15,
     },
-    optionTextContainer: {
-        flex: 1,
+
+    brand: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginLeft: 6,
     },
-    optionTitle: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: "#222",
-        marginBottom: 4,
+
+    /*
+    ========================================================
+    ÁREA ROLÁVEL
+    ========================================================
+    */
+    scrollContent: {
+        paddingBottom: 16,
     },
-    optionTitleDark: {
+
+    /*
+    ========================================================
+    BANNER
+    ========================================================
+    */
+    banner: {
+        minHeight: 110,
+        padding: 16,
+        justifyContent: "center",
+    },
+
+    bannerTitle: {
         color: "#FFF",
+        fontWeight: "700",
+        fontSize: UPLOAD_DOC_FONT_SCALE.bannerTitle,
+        lineHeight: 24,
     },
-    optionSubtitle: {
-        fontSize: 13,
-        color: "#888",
-        lineHeight: 18,
+
+    bannerSubtitle: {
+        color: "#FFF",
+        fontSize: UPLOAD_DOC_FONT_SCALE.bannerSubtitle,
+        marginTop: 6,
+        lineHeight: 20,
     },
-    optionSubtitleDark: {
-        color: "#AAA",
+
+    /*
+    ========================================================
+    OPÇÕES
+    ========================================================
+    */
+    options: {
+        padding: 16,
     },
-    radioCircle: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+
+    option: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 16,
+        borderRadius: 14,
+        borderWidth: 1,
+        marginBottom: 10,
+        minHeight: 74,
+    },
+
+    optionText: {
+        flex: 1,
+        marginLeft: 12,
+        fontWeight: "600",
+        fontSize: UPLOAD_DOC_FONT_SCALE.optionTitle,
+        lineHeight: 22,
+    },
+
+    radio: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
         borderWidth: 2,
-        borderColor: "#DDD",
         alignItems: "center",
         justifyContent: "center",
-        marginLeft: 10,
     },
-    radioCircleDark: {
-        borderColor: "#555",
-    },
-    radioChecked: {
-        borderColor: "#1E6BE3",
-        backgroundColor: "#1E6BE3",
-    },
+
     radioInner: {
         width: 10,
         height: 10,
         borderRadius: 5,
-        backgroundColor: "#FFF",
     },
 
-    infoContainer: {
-        padding: 20,
-        marginTop: 10,
-        backgroundColor: "#FFF",
-        borderTopWidth: 1,
-        borderTopColor: "#EEE",
+    /*
+    ========================================================
+    BLOCO DE DICAS
+    ========================================================
+    */
+    tips: {
+        margin: 16,
+        padding: 16,
+        borderRadius: 14,
     },
-    infoContainerDark: {
-        backgroundColor: "#1C1C1E",
-        borderTopColor: "#2C2C2E",
+
+    tipsTitle: {
+        fontWeight: "700",
+        fontSize: UPLOAD_DOC_FONT_SCALE.tipsTitle,
+        lineHeight: 22,
+        marginBottom: 12,
     },
-    infoTitle: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#333",
-        marginBottom: 15,
-    },
-    infoTitleDark: {
-        color: "#FFF",
-    },
-    infoText: {
-        fontSize: 14,
-        color: "#666",
-        marginBottom: 10,
+
+    tip: {
+        marginBottom: 8,
+        fontSize: UPLOAD_DOC_FONT_SCALE.tipText,
         lineHeight: 20,
     },
-    infoTextDark: {
-        color: "#AAA",
-    },
 
+    /*
+    ========================================================
+    RODAPÉ
+    ========================================================
+    */
     footer: {
-        padding: 20,
-        paddingBottom: 30,
-        backgroundColor: "#F8F9FA",
+        padding: 16,
         borderTopWidth: 1,
-        borderTopColor: "#EEE",
-    },
-    footerDark: {
-        backgroundColor: "#1C1C1E",
-        borderTopColor: "#2C2C2E",
-    },
-    button: {
-        backgroundColor: "#1E6BE3", // Azul como na referência
-        padding: 18,
-        borderRadius: 40,
-        alignItems: "center",
-    },
-    buttonText: {
-        color: "#FFF",
-        fontSize: 16,
-        fontWeight: "600",
     },
 });
