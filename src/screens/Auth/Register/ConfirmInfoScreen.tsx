@@ -1,9 +1,22 @@
 /*
 ========================================================
 TELA DE CONFIRMAÇÃO DE INFORMAÇÕES
-Mostra os dados preenchidos e um modal para confirmar ou corrigir.
+
+OBJETIVO:
+- Exibir os dados preenchidos pelo motorista
+- Manter o mesmo padrão visual das telas anteriores
+- Mostrar um modal inferior para confirmar ou corrigir
+- Deixar o fundo da tela principal atenuado quando o
+  modal estiver aberto, como na referência da 99
+
+FLUXO:
+- Usuário revisa os dados enviados pela tela anterior
+- Ao tocar em "Avançar", abre o modal de confirmação
+- "Corrigir" volta para DriverInfo
+- "Avançar" segue para Documentation
 ========================================================
 */
+
 import React, { useState } from "react";
 import {
     View,
@@ -11,275 +24,617 @@ import {
     StyleSheet,
     TouchableOpacity,
     ScrollView,
-    Platform,
+    SafeAreaView,
+    StatusBar,
     Modal,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+
 import { RootStackParamList } from "../../../navigation/RootNavigator";
 import { useTheme } from "../../../context/ThemeContext";
+import ButtonPrimary from "../../../components/ButtonPrimary";
 
-// Tipagem
+/*
+========================================================
+TIPAGEM DE NAVEGAÇÃO
+========================================================
+*/
 type NavigationProp = NativeStackNavigationProp<
     RootStackParamList,
     "ConfirmInfo"
 >;
+
 type ConfirmInfoRouteProp = RouteProp<RootStackParamList, "ConfirmInfo">;
+
+/*
+========================================================
+CONTROLE DE ESPAÇAMENTO ENTRE OS ITENS
+
+AJUSTE AQUI SE NECESSÁRIO:
+- 16 = mais compacto
+- 20 = equilíbrio atual
+- 24 = mais espaçado
+========================================================
+*/
+const INFO_ITEM_VERTICAL_PADDING = 20;
 
 export default function ConfirmInfoScreen() {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<ConfirmInfoRouteProp>();
-    const { theme } = useTheme();
-    const isDark = theme === "dark";
 
-    // Recebe os dados da tela anterior
+    /*
+    ========================================================
+    TEMA GLOBAL (LIGHT / DARK)
+    ========================================================
+    */
+    const { theme, colors, isDark } = useTheme();
+
+    /*
+    ========================================================
+    DADOS RECEBIDOS DA TELA ANTERIOR
+    ========================================================
+    */
     const { firstName, cpf, gender, state, city } = route.params;
 
-    // Estado para controlar o modal
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    /*
+    ========================================================
+    CONTROLE DO MODAL
+    ========================================================
+    */
+    const [isModalVisible, setIsModalVisible] = useState(true);
 
+    /*
+    ========================================================
+    AÇÃO DE VOLTAR
+    ========================================================
+    */
+    const handleBack = () => {
+        navigation.goBack();
+    };
+
+    /*
+    ========================================================
+    AÇÃO DE FECHAR
+    ========================================================
+    */
+    const handleClose = () => {
+        navigation.navigate("Start");
+    };
+
+    /*
+    ========================================================
+    AÇÃO DE CORRIGIR
+    Fecha o modal e volta para a tela anterior
+    ========================================================
+    */
     const handleCorrect = () => {
-        setIsModalVisible(false); // Fecha o modal
-        navigation.goBack(); // Volta para a tela de edição
+        setIsModalVisible(false);
+        navigation.goBack();
     };
 
+    /*
+    ========================================================
+    AÇÃO DE AVANÇAR
+    Fecha o modal e segue para a tela de documentos
+    ========================================================
+    */
     const handleAdvance = () => {
-        setIsModalVisible(false); // Fecha o modal
-        navigation.navigate("Documentation"); // Avança para a tela de documentos
+        setIsModalVisible(false);
+        navigation.navigate("Documentation");
     };
 
-    const showConfirmationModal = () => {
-        setIsModalVisible(true); // Mostra o modal
+    /*
+    ========================================================
+    AÇÃO PARA REABRIR O MODAL
+    Caso o usuário toque no botão do rodapé
+    ========================================================
+    */
+    const handleOpenConfirmation = () => {
+        setIsModalVisible(true);
     };
 
-    // Componente para exibir cada item de informação
+    /*
+    ========================================================
+    COMPONENTE DE ITEM DE INFORMAÇÃO
+    ========================================================
+    */
     const InfoItem = ({ label, value }: { label: string; value: string }) => (
-        <View style={styles.infoItem}>
-            <Text style={[styles.infoLabel, isDark && styles.infoLabelDark]}>
+        <View
+            style={[
+                styles.infoItem,
+                {
+                    borderBottomColor: colors.divider,
+                },
+            ]}
+        >
+            <Text
+                style={[
+                    styles.infoLabel,
+                    {
+                        color: colors.subtext,
+                    },
+                ]}
+            >
                 {label}
             </Text>
-            <Text style={[styles.infoValue, isDark && styles.infoValueDark]}>
+
+            <Text
+                style={[
+                    styles.infoValue,
+                    {
+                        color: colors.text,
+                    },
+                ]}
+            >
                 {value}
             </Text>
         </View>
     );
 
     return (
-        <View style={[styles.container, isDark && styles.containerDark]}>
-            <ScrollView>
-                {/* BANNER */}
-                <View style={styles.banner}>
-                    {/* Botão de voltar posicionado no canto superior esquerdo do banner */}
+        <SafeAreaView
+            style={[
+                styles.safeArea,
+                {
+                    backgroundColor: colors.background,
+                },
+            ]}
+        >
+            {/* ========================================================
+                STATUS BAR
+            ======================================================== */}
+            <StatusBar
+                barStyle={theme === "dark" ? "light-content" : "dark-content"}
+                backgroundColor={colors.background}
+            />
+
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                    },
+                ]}
+            >
+                {/* ========================================================
+                    TOPO PADRONIZADO
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.topBar,
+                        {
+                            backgroundColor: colors.background,
+                            borderBottomColor: colors.divider,
+                        },
+                    ]}
+                >
                     <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => navigation.goBack()}
+                        style={styles.topIconButton}
+                        onPress={handleBack}
+                        activeOpacity={0.8}
                     >
-                        <Text style={styles.backButtonText}>‹</Text>
+                        <Ionicons
+                            name="chevron-back"
+                            size={24}
+                            color={colors.text}
+                        />
                     </TouchableOpacity>
 
-                    <Text style={styles.bannerTitle}>
-                        Vem pra Zun e aproveite várias formas de ganhar
-                        dinheiro!
-                    </Text>
-                </View>
+                    <TouchableOpacity
+                        style={styles.topIconButton}
+                        onPress={handleClose}
+                        activeOpacity={0.8}
+                    >
+                        <Ionicons name="close" size={22} color={colors.text} />
+                    </TouchableOpacity>
 
-                {/* DADOS PREENCHIDOS */}
-                <View style={styles.infoContainer}>
-                    <InfoItem label="Primeiro nome" value={firstName} />
-                    <InfoItem label="CPF" value={cpf} />
-                    <InfoItem label="Gênero" value={gender} />
-                    <InfoItem label="Estado" value={state} />
-                    <InfoItem label="Cidade" value={city} />
-                </View>
-            </ScrollView>
-
-            {/* BOTÃO INFERIOR - Ao clicar, mostra o modal de confirmação */}
-            <View style={[styles.footer, isDark && styles.footerDark]}>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={showConfirmationModal} // Mostra o modal ao clicar
-                >
-                    <Text style={styles.buttonText}>Avançar</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* MODAL DE CONFIRMAÇÃO - Só aparece quando isModalVisible = true */}
-            <Modal
-                transparent={true}
-                animationType="fade"
-                visible={isModalVisible} // Controlado pelo estado
-            >
-                <View style={styles.modalOverlay}>
-                    <View
+                    <Text
                         style={[
-                            styles.modalContainer,
-                            isDark && styles.modalContainerDark,
+                            styles.topBrand,
+                            {
+                                color: colors.text,
+                            },
                         ]}
                     >
-                        <Text
-                            style={[
-                                styles.modalTitle,
-                                isDark && styles.modalTitleDark,
-                            ]}
-                        >
-                            Confirme se suas informações estão corretas
-                        </Text>
-                        <View style={styles.modalButtonRow}>
-                            <TouchableOpacity
+                        Zun
+                    </Text>
+
+                    <View style={styles.topSpacer} />
+                </View>
+
+                {/* ========================================================
+                    CONTEÚDO PRINCIPAL
+                ======================================================== */}
+                <ScrollView
+                    style={styles.scroll}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    bounces={false}
+                >
+                    {/* ====================================================
+                        BANNER SUPERIOR
+                        Mantido no mesmo padrão das telas anteriores
+                    ==================================================== */}
+                    <View
+                        style={[
+                            styles.banner,
+                            {
+                                backgroundColor: colors.primary,
+                            },
+                        ]}
+                    >
+                        <View style={styles.bannerTextContainer}>
+                            <Text
                                 style={[
-                                    styles.modalButton,
-                                    styles.correctButton,
-                                    isDark && styles.correctButtonDark,
+                                    styles.bannerTitle,
+                                    {
+                                        color: colors.white,
+                                    },
                                 ]}
-                                onPress={handleCorrect}
                             >
-                                <Text
-                                    style={[
-                                        styles.modalButtonText,
-                                        styles.correctButtonText,
-                                        isDark && styles.correctButtonTextDark,
-                                    ]}
-                                >
-                                    Corrigir
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
+                                Vem pra Zun e aproveite várias formas de ganhar
+                                dinheiro!
+                            </Text>
+
+                            <Text
                                 style={[
-                                    styles.modalButton,
-                                    styles.advanceButton,
+                                    styles.bannerSubtitle,
+                                    {
+                                        color: colors.white,
+                                    },
                                 ]}
-                                onPress={handleAdvance}
                             >
-                                <Text
-                                    style={[
-                                        styles.modalButtonText,
-                                        styles.advanceButtonText,
-                                    ]}
-                                >
-                                    Avançar
-                                </Text>
-                            </TouchableOpacity>
+                                Mais eventos de recompensa | Garantia Zun |
+                                Resgates flexíveis
+                            </Text>
+                        </View>
+
+                        <View style={styles.bannerArt}>
+                            <Ionicons
+                                name="cash-outline"
+                                size={44}
+                                color={colors.white}
+                            />
                         </View>
                     </View>
+
+                    {/* ====================================================
+                        INFORMAÇÕES PREENCHIDAS
+                    ==================================================== */}
+                    <View style={styles.infoContainer}>
+                        <InfoItem label="Primeiro nome" value={firstName} />
+                        <InfoItem label="CPF" value={cpf} />
+                        <InfoItem label="Gênero" value={gender} />
+                        <InfoItem label="Estado" value={state} />
+                        <InfoItem label="Cidade" value={city} />
+                    </View>
+                </ScrollView>
+
+                {/* ========================================================
+                    RODAPÉ FIXO
+                    Mantido apenas como ação de reabrir confirmação
+                ======================================================== */}
+                <View
+                    style={[
+                        styles.footer,
+                        {
+                            backgroundColor: colors.background,
+                            borderTopColor: colors.divider,
+                        },
+                    ]}
+                >
+                    <ButtonPrimary
+                        title="Avançar"
+                        onPress={handleOpenConfirmation}
+                        isDark={isDark}
+                    />
                 </View>
-            </Modal>
-        </View>
+
+                {/* ========================================================
+                    MODAL DE CONFIRMAÇÃO
+                    - fundo atenuado
+                    - card inferior
+                    - botões pequenos arredondados
+                ======================================================== */}
+                <Modal
+                    transparent
+                    animationType="fade"
+                    visible={isModalVisible}
+                >
+                    <View style={styles.modalOverlay}>
+                        {/* ================================================
+                            CAMADA DE FUNDO ATENUADO
+                        ================================================ */}
+                        <View
+                            style={[
+                                styles.modalBackdrop,
+                                {
+                                    backgroundColor: "rgba(0, 0, 0, 0.34)",
+                                },
+                            ]}
+                        />
+
+                        {/* ================================================
+                            CARD DO MODAL
+                        ================================================ */}
+                        <View
+                            style={[
+                                styles.modalContainer,
+                                {
+                                    backgroundColor: colors.surface,
+                                },
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.modalTitle,
+                                    {
+                                        color: colors.text,
+                                    },
+                                ]}
+                            >
+                                Confirme se suas informações estão corretas
+                            </Text>
+
+                            <View style={styles.modalButtonRow}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.smallButton,
+                                        styles.correctButton,
+                                        {
+                                            backgroundColor: isDark
+                                                ? colors.card
+                                                : "#EFEFEF",
+                                        },
+                                    ]}
+                                    activeOpacity={0.85}
+                                    onPress={handleCorrect}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.correctButtonText,
+                                            {
+                                                color: colors.text,
+                                            },
+                                        ]}
+                                    >
+                                        Corrigir
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.smallButton,
+                                        styles.advanceButton,
+                                        {
+                                            backgroundColor: colors.primary,
+                                        },
+                                    ]}
+                                    activeOpacity={0.85}
+                                    onPress={handleAdvance}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.advanceButtonText,
+                                            {
+                                                color: colors.white,
+                                            },
+                                        ]}
+                                    >
+                                        Avançar
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+        </SafeAreaView>
     );
 }
 
+/*
+========================================================
+ESTILOS
+========================================================
+*/
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#FFF" },
-    containerDark: { backgroundColor: "#0B0B0B" },
-
-    // Banner com posição relativa para conter o botão absoluto
-    banner: {
-        backgroundColor: "#1E6BE3",
-        padding: 20,
-        marginBottom: 20,
-        position: "relative", // Necessário para posicionar o botão absolutamente
-        paddingTop: Platform.OS === "ios" ? 65 : 45, // Espaço para status bar
-    },
-    // Botão de voltar posicionado no canto superior esquerdo do banner
-    backButton: {
-        position: "absolute",
-        top: Platform.OS === "ios" ? 15 : 10, // Ajuste fino para ficar acima do texto
-        left: 10,
-        width: 40,
-        height: 40,
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 10,
-    },
-    backButtonText: {
-        fontSize: 36,
-        color: "#FFF",
-        fontWeight: "300",
-        marginTop: -5, // Ajuste fino para centralizar verticalmente
-    },
-    bannerTitle: {
-        fontSize: 18,
-        fontWeight: "bold",
-        color: "#FFF",
-        marginTop: Platform.OS === "ios" ? 35 : 30, // Espaço para não ficar embaixo do botão
+    safeArea: {
+        flex: 1,
     },
 
-    infoContainer: { paddingHorizontal: 20 },
-    infoItem: {
-        paddingVertical: 20,
+    container: {
+        flex: 1,
+    },
+
+    /*
+    ========================================================
+    TOPO PADRONIZADO
+    ========================================================
+    */
+    topBar: {
+        height: 56,
         borderBottomWidth: 1,
-        borderColor: "#E0E0E0",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 10,
     },
-    infoLabel: { color: "#888", fontSize: 12 },
-    infoLabelDark: { color: "#777" },
-    infoValue: { color: "#222", fontSize: 16, marginTop: 4 },
-    infoValueDark: { color: "#FFF" },
 
-    // Rodapé com botão
-    footer: {
-        padding: 20,
-        paddingBottom: 30,
-        backgroundColor: "#FFF",
-        borderTopWidth: 1,
-        borderTopColor: "#EEE",
+    topIconButton: {
+        width: 36,
+        height: 36,
+        alignItems: "center",
+        justifyContent: "center",
+        marginRight: 2,
     },
-    footerDark: {
-        backgroundColor: "#1C1C1E",
-        borderTopColor: "#2C2C2E",
+
+    topBrand: {
+        fontSize: 18,
+        fontWeight: "700",
+        marginLeft: 4,
     },
-    button: {
-        backgroundColor: "#1E6BE3",
-        padding: 18,
-        borderRadius: 40,
+
+    topSpacer: {
+        flex: 1,
+    },
+
+    /*
+    ========================================================
+    ÁREA ROLÁVEL
+    ========================================================
+    */
+    scroll: {
+        flex: 1,
+    },
+
+    scrollContent: {
+        paddingBottom: 120,
+    },
+
+    /*
+    ========================================================
+    BANNER SUPERIOR
+    ========================================================
+    */
+    banner: {
+        minHeight: 108,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        flexDirection: "row",
         alignItems: "center",
     },
-    buttonText: {
-        color: "#fff",
-        fontSize: 16,
-        fontWeight: "600",
+
+    bannerTextContainer: {
+        flex: 1,
+        paddingRight: 10,
     },
 
-    // Estilos do Modal
+    bannerTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        lineHeight: 22,
+        marginBottom: 4,
+    },
+
+    bannerSubtitle: {
+        fontSize: 13,
+        lineHeight: 18,
+    },
+
+    bannerArt: {
+        width: 64,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    /*
+    ========================================================
+    LISTA DE INFORMAÇÕES
+    ========================================================
+    */
+    infoContainer: {
+        paddingHorizontal: 16,
+        paddingTop: 10,
+    },
+
+    infoItem: {
+        paddingVertical: INFO_ITEM_VERTICAL_PADDING,
+        borderBottomWidth: 1,
+    },
+
+    infoLabel: {
+        fontSize: 12,
+        marginBottom: 4,
+    },
+
+    infoValue: {
+        fontSize: 17,
+        fontWeight: "500",
+    },
+
+    /*
+    ========================================================
+    RODAPÉ
+    ========================================================
+    */
+    footer: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 14,
+        borderTopWidth: 1,
+    },
+
+    /*
+    ========================================================
+    MODAL
+    ========================================================
+    */
     modalOverlay: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)",
         justifyContent: "flex-end",
     },
-    modalContainer: {
-        backgroundColor: "white",
-        padding: 25,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+
+    modalBackdrop: {
+        ...StyleSheet.absoluteFillObject,
     },
-    modalContainerDark: { backgroundColor: "#1C1C1E" },
+
+    modalContainer: {
+        borderTopLeftRadius: 22,
+        borderTopRightRadius: 22,
+        paddingHorizontal: 18,
+        paddingTop: 20,
+        paddingBottom: 26,
+    },
+
     modalTitle: {
         fontSize: 18,
-        fontWeight: "600",
+        fontWeight: "700",
         textAlign: "center",
-        marginBottom: 25,
-        color: "#222",
+        lineHeight: 26,
+        marginBottom: 18,
     },
-    modalTitleDark: { color: "#FFF" },
+
     modalButtonRow: {
         flexDirection: "row",
         justifyContent: "space-between",
+        gap: 12,
     },
-    modalButton: {
+
+    /*
+    ========================================================
+    BOTÕES PEQUENOS DO MODAL
+    Mantidos com a identidade Zun já aprovada
+    ========================================================
+    */
+    smallButton: {
         flex: 1,
-        padding: 16,
-        borderRadius: 30,
+        minHeight: 48,
+        borderRadius: 24,
         alignItems: "center",
+        justifyContent: "center",
     },
+
     correctButton: {
-        backgroundColor: "#F0F0F0",
-        marginRight: 10,
+        borderWidth: 0,
     },
-    correctButtonDark: { backgroundColor: "#2C2C2E" },
+
     advanceButton: {
-        backgroundColor: "#1E6BE3",
-        marginLeft: 10,
+        borderWidth: 0,
     },
-    modalButtonText: { fontSize: 16, fontWeight: "bold" },
-    correctButtonText: { color: "#333" },
-    correctButtonTextDark: { color: "#FFF" },
-    advanceButtonText: { color: "#FFF" },
+
+    correctButtonText: {
+        fontSize: 16,
+        fontWeight: "700",
+    },
+
+    advanceButtonText: {
+        fontSize: 16,
+        fontWeight: "700",
+    },
 });
